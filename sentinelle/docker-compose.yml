@@ -1,0 +1,19 @@
+# La Sentinelle : lecture seule de l'API publique Hyperliquid, alertes Telegram. Aucune cle de trading
+# (le fichier d'environnement du tableau de bord ne contient que les adresses publiques et Telegram).
+services:
+  sentinelle:
+    build: .
+    image: sentinelle:1.0.0
+    container_name: usine-sentinelle
+    env_file: /opt/tableau/.env
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./data:/app/data
+    mem_limit: 128m
+    cpus: 0.2
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}

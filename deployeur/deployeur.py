@@ -275,7 +275,7 @@ def controle(ctx, jid):
     if rc or not os.path.exists(p): return "echec : " + o.strip()[-200:]
     rep = json.load(open(p)); os.makedirs(PUBLIC, exist_ok=True); shutil.copy2(p, os.path.join(PUBLIC, "controle.json"))
     os.chmod(os.path.join(PUBLIC, "controle.json"), 0o644)
-    ctx.send("🧾 Controleur : " + rep.get("resume", "rapport ecrit"))
+    ctx.send("🏮 Diogene, le Controleur : " + rep.get("resume", "rapport ecrit"))
     return "fait : " + rep.get("verdict", "?")
 
 def controle_hebdo(ctx, s):
@@ -442,6 +442,7 @@ def publier(ctx, s):
     du = shutil.disk_usage("/")
     out = {"ts": dt.datetime.now(dt.timezone.utc).isoformat()[:19] + "Z", "deploye": s.get("deploye"), "refuse": s.get("refuse"),
            "echecs": s.get("echecs"), "jobs": {k: v.get("etat") for k, v in (s.get("jobs") or {}).items()},
+           "attente_audit": {k: v for k, v in (s.get("attente_audit") or {}).items() if s.get("par_cible", {}).get(k) != v},
            "conteneurs": sorted(ps.strip().splitlines()) if rc == 0 else [], "commits": commits, "journal": journal,
            "disque": {"libre_go": round(du.free / 1e9, 1), "total_go": round(du.total / 1e9, 1)}}
     tmp = os.path.join(d, "etat.json.tmp"); open(tmp, "w").write(redact(json.dumps(out, ensure_ascii=False)))

@@ -1,6 +1,6 @@
 # Moonshot v2 : projet Docker separe (nom moonshot2, dossier /opt/moonshot2, donnees a part).
 x-commun: &commun
-  image: moonshot2:2.2.1
+  image: moonshot2:2.3.0
   restart: unless-stopped
   read_only: true
   tmpfs: [/tmp]

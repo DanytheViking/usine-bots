@@ -1,7 +1,7 @@
 # Telecommande Telegram : aucune cle de trading. Seule ecriture possible : le fichier KILL des bots (dossiers data en ecriture).
 services:
   telecommande:
-    image: usine-tableau:1.3.0
+    image: usine-tableau:1.4.0
     container_name: usine-telecommande
     command: ["python3", "-m", "tableau.telecommande"]
     environment:

@@ -1,6 +1,6 @@
-"""Fable, en mode Anticipation : un avis enregistre sur chaque signal M2, SANS aucune influence sur les ordres.
-L'avis sert a mesurer, apres 3 a 4 semaines, si Fable aurait ameliore les resultats (decision de Richard du 12/11).
-Sans cle API, ou en cas d'erreur, le bot continue normalement : l'avis est simplement absent."""
+"""Fable, le decideur : un avis sur chaque signal M2. Avec FABLE_DECIDE (par defaut, decision de Richard du 12/11/2026),
+un avis « eviter » annule l'entree ; les signaux ecartes sont journalises pour mesurer l'apport de Fable.
+Sans cle API, ou en cas d'erreur, le bot applique la regle M2 : l'avis est simplement absent."""
 import json, re
 from . import config as C
 

@@ -17,6 +17,7 @@ PEANUT = os.path.join(DATA, "peanut")
 PEANUT2 = os.path.join(DATA, "peanut2")
 RECOLTEUR = os.path.join(DATA, "recolteur")
 DEPLOYEUR = os.path.join(DATA, "deployeur")
+SENTINELLE = os.path.join(DATA, "sentinelle")
 TOKEN, CHAT = os.getenv("TELEGRAM_BOT_TOKEN", ""), str(os.getenv("TELEGRAM_CHAT_ID", ""))
 AUTH_MAX_S = 24 * 3600
 ACCOUNTS = {"Moonshot": os.getenv("MOON_ACCOUNT", ""), "Smart Peanut": os.getenv("LABO_ACCOUNT", "")}
@@ -117,6 +118,16 @@ def deployeur():
     d = _json(os.path.join(DEPLOYEUR, "etat.json"), {})
     return d or {"absent": True}
 
+def sentinelle():
+    st = _json(os.path.join(SENTINELLE, "status.json"), {})
+    al = []
+    p = os.path.join(SENTINELLE, "alertes.jsonl")
+    if os.path.exists(p):
+        for l in open(p, encoding="utf-8").read().splitlines()[-15:]:
+            try: al.append(json.loads(l))
+            except ValueError: pass
+    return {"status": st, "age_s": int(time.time() - st["ts"]) if st.get("ts") else None, "alertes": al[::-1]}
+
 def chercheur(base):
     fs = sorted(glob.glob(os.path.join(base, "chercheur", "bilan-*.md")))
     if not fs: return None
@@ -194,7 +205,8 @@ EX = Exchange()
 def api():
     p2 = moonshot(PEANUT2) if os.path.exists(os.path.join(PEANUT2, "status.json")) else None
     return {"maintenant": int(time.time()), "moonshot": moonshot(), "peanut": peanut(), "peanut2": p2, "exchange": EX.get(), "verdicts": verdicts(),
-            "recolteur": recolteur(), "deployeur": deployeur(),
+            "recolteur": recolteur(), "deployeur": deployeur(), "sentinelle": sentinelle(),
+            "controle": _json(os.path.join(DEPLOYEUR, "controle.json"), None),
             "agents": {"chercheur": chercheur(MOON), "visionnaire": visionnaire(MOON) + (visionnaire(PEANUT2) if p2 else [])}}
 
 PAGE = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "page.html"), "rb").read()

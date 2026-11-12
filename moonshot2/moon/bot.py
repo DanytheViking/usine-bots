@@ -48,6 +48,11 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     if not ctx: J.record("signal", "saute", f"{coin} : contexte Hyperliquid absent"); return
     op = F.opinion(F.context_text(coin, side, ev, ctx, df), s, day, post=fable_post)
     J.record("fable", op.get("avis", "absent"), f"{coin} {side} : {op}", coin=coin, side=side, bar_ts=ev["bar_ts"], **op)
+    if C.FABLE_DECIDE and op.get("avis") == "eviter":
+        J.record("signal", "ecarte par Fable", f"{coin} {side} : Fable decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
+                 coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
+        N.send(f"🔮 Thales (Fable) ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
+        return
     sz, lev, notional, risk, why = G.size(side, ev["ref"], ev["atr"], equity, ctx, s["positions"])
     if why:
         J.record("signal", "saute", f"{coin} {side} : {why}"); N.send(f"⏭ Signal {coin} {side} saute : {why}"); return

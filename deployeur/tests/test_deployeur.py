@@ -15,6 +15,8 @@ def mini_tree(d):
                 "recolteur/docker-compose.yml", "recolteur/Dockerfile", "tableau/docker-compose.yml", "tableau/docker-compose.telecommande.yml",
                 "tableau/Dockerfile", "usine/Dockerfile", "deploy/cibles.json"):
         os.makedirs(os.path.dirname(os.path.join(d, rel)), exist_ok=True); shutil.copy2(os.path.join(DEPOT_SRC, rel), os.path.join(d, rel))
+    c = [{k: v for k, v in x.items() if k != "audit"} for x in json.load(open(os.path.join(d, "deploy/cibles.json")))]   # audit : teste a part
+    json.dump(c, open(os.path.join(d, "deploy/cibles.json"), "w"))
     for x in ("moonshot2/moon/bot.py", "moonshot2/tests/test_moon.py", "recolteur/recolteur/main.py", "tableau/tableau/server.py", "usine/usine/sim.py"):
         os.makedirs(os.path.dirname(os.path.join(d, x)), exist_ok=True); open(os.path.join(d, x), "w").write("x = 1\n")
 
@@ -100,7 +102,8 @@ def test_adoption_puis_deploiement_cible():
     w = World(); D = w.D
     s = D.cycle(w.ctx, adopter=True)
     base = sh("git", "rev-parse", "HEAD", cwd=w.work)
-    assert s["deploye"] == base and set(s["par_cible"]) == {"moonshot2", "peanut2", "recolteur", "tableau", "usine"} and not w.ctx.docker[:1] == ["build"]
+    noms = {c["nom"] for c in json.load(open(os.path.join(w.work, "deploy/cibles.json")))}
+    assert s["deploye"] == base and set(s["par_cible"]) == noms and {"moonshot2", "peanut2", "recolteur", "tableau", "usine"} <= noms
     assert not any(c[1] == "build" for c in w.ctx.docker) and "adopte" in w.ctx.sent[0]
     new = w.commit("recolteur/recolteur/main.py", "x = 2\n")
     w.ctx.docker.clear(); s = D.cycle(w.ctx)

@@ -72,16 +72,20 @@ pre{white-space:pre-wrap;word-break:break-word;background:var(--panel2);border-r
   </div>
 
   <section class="card" data-s="t6"><h2>Dernières cascades détectées</h2><div class="scroll"><table id="cascades"></table></div></section>
-  <section class="card" data-s="agents"><h2>Activité de l'Ingénieur Dev · commits</h2><div class="scroll"><table id="commits" class="wrap"></table></div></section>
-  <section class="card" data-s="agents"><h2>Visionnaire · derniers avis de Fable</h2><div class="scroll"><table id="avis" class="wrap"></table></div></section>
-  <section class="card" data-s="agents"><h2>Chercheur · dernier bilan <span class="mute" id="bilan-nom"></span></h2><pre id="bilan">Pas encore de bilan hebdomadaire.</pre></section>
+  <div class="grid" data-s="agents systeme">
+    <section class="card"><h2>Diogène · réel contre simulé <span id="ctlpill"></span></h2><div class="kv" id="controle"></div><p class="mute" id="ctlres" style="margin:10px 0 0"></p></section>
+    <section class="card"><h2>Héraclite · alertes Hyperliquid <span id="senpill"></span></h2><div class="scroll"><table id="alertes" class="wrap"></table></div></section>
+  </div>
+  <section class="card" data-s="agents"><h2>Activité de Socrate · commits</h2><div class="scroll"><table id="commits" class="wrap"></table></div></section>
+  <section class="card" data-s="agents"><h2>Thalès · dernières décisions de Fable</h2><div class="scroll"><table id="avis" class="wrap"></table></div></section>
+  <section class="card" data-s="agents"><h2>Démocrite · dernier bilan <span class="mute" id="bilan-nom"></span></h2><pre id="bilan">Pas encore de bilan hebdomadaire.</pre></section>
 
   <section class="card" data-s="tout bots"><h2>Fil des décisions</h2><div class="feed scroll"><table id="fil" class="wrap"></table></div></section>
   <section class="card" data-s="bots"><h2>Derniers trades fermés</h2><div class="scroll"><table id="trades"></table></div></section>
-  <section class="card" data-s="recherche"><h2>Verdicts du Testeur</h2><div class="scroll"><table id="verdicts" class="wrap"></table></div></section>
+  <section class="card" data-s="recherche"><h2>Pyrrhon · verdicts du Testeur</h2><div class="scroll"><table id="verdicts" class="wrap"></table></div></section>
 
   <div class="grid" data-s="systeme">
-    <section class="card"><h2>Déployeur</h2><div class="kv" id="deploy"></div></section>
+    <section class="card"><h2>Archimède · Déployeur</h2><div class="kv" id="deploy"></div></section>
     <section class="card"><h2>Conteneurs</h2><div class="scroll"><table id="conteneurs"></table></div></section>
   </div>
   <section class="card" data-s="systeme"><h2>Journal du Déployeur</h2><pre id="dlog">–</pre></section>
@@ -181,17 +185,21 @@ async function rafraichir() {
     table("cascades", ["Heure (UTC)", "Actif", "Baisse", "Signal", "Refus"], (t6.dernieres_cascades || []).map(c => [fromMs(c.t), `<b>${esc(c.coin)}</b>`, num(c.baisse, 5), c.complet ? pill("complet", "ok") : pill("partiel", "neu"), esc(c.refus || "pris")]));
 
     const commits = dep.commits || [], ag = d.agents || {};
-    const dernierCommit = commits[0], echecs = Object.keys(dep.echecs || {});
+    const dernierCommit = commits.find(c => !String(c.message).startsWith("Audit")) || commits[0], echecs = Object.keys(dep.echecs || {});
+    const audits = commits.find(c => String(c.message).startsWith("Audit")), ctl = d.controle, sen = d.sentinelle || {status: {}};
     const agent = (ic, nom, role, etat, detail) => `<div class="agent"><div class="ic">${ic}</div><div style="min-width:0;flex:1"><b>${nom} ${etat}</b><p>${role}</p>${detail ? `<p>${detail}</p>` : ""}</div></div>`;
     $("agents").innerHTML =
-      agent("🛠️", "Ingénieur Dev", "Met à jour les bots chaque jour à 10 h 23, sur les conseils de l'équipe", dernierCommit ? pill("actif", "ok") : pill("en attente", "neu"), dernierCommit ? `Dernier commit ${esc(hhmm(dernierCommit.date))} · ${esc(dernierCommit.message)}` : "") +
-      agent("🚚", "Déployeur", "Teste, déploie et revient en arrière seul, toutes les 10 min", dep.absent ? pill("absent", "neu") : echecs.length ? pill(`${echecs.length} échec(s)`, "ko") : pill("à jour", "ok"), dep.ts ? `Dernier passage ${esc(hhmm(dep.ts))} · déployé ${esc((dep.deploye || "").slice(0, 8))}` : "") +
-      agent("🔬", "Chercheur", "Bilan hebdomadaire de Fable, le dimanche", ag.chercheur ? pill("bilan disponible", "ok") : pill("premier bilan dimanche", "neu"), ag.chercheur ? esc(ag.chercheur.fichier) : "") +
-      agent("🔮", "Visionnaire", "Avis de Fable sur chaque signal, en observation", (ag.visionnaire || []).length ? pill(`${ag.visionnaire.length} avis récents`, "info") : pill("aucun signal", "neu"), "") +
-      agent("🧪", "Testeur", "Juge chaque idée sur l'historique, sans complaisance", pill(`${(d.verdicts || []).length} verdicts`, "info"), "") +
-      agent("🛡️", "Directeur des risques", "Bornes, Gardien, chiens de garde, KILL", [m, p2].some(b => b && b.kill) ? pill("KILL actif", "ko") : pill("aucune alerte", "ok"), "1 % par trade · levier 5 max · arrêt à −50 %, 30 R ou 20 pertes");
+      agent("🏛️", "Socrate · architecte", "Architecte stratégique et chef d'équipe, rapporte à Richard ; fait évoluer les bots chaque jour à 10 h 23", dernierCommit ? pill("actif", "ok") : pill("en attente", "neu"), dernierCommit ? `Dernier commit ${esc(hhmm(dernierCommit.date))} · ${esc(dernierCommit.message)}` : "") +
+      agent("⚙️", "Archimède · Déployeur", "Teste, déploie et revient en arrière seul, toutes les 10 min", dep.absent ? pill("absent", "neu") : echecs.length ? pill(`${echecs.length} échec(s)`, "ko") : pill("à jour", "ok"), dep.ts ? `Dernier passage ${esc(hhmm(dep.ts))} · déployé ${esc((dep.deploye || "").slice(0, 8))}` : "") +
+      agent("🔬", "Démocrite · Chercheur", "Bilan hebdomadaire de Fable, le dimanche", ag.chercheur ? pill("bilan disponible", "ok") : pill("premier bilan dimanche", "neu"), ag.chercheur ? esc(ag.chercheur.fichier) : "") +
+      agent("🔮", "Thalès · Fable décide", "Valide ou écarte chaque signal M2 avant l'entrée", (ag.visionnaire || []).length ? pill(`${ag.visionnaire.length} avis récents`, "info") : pill("aucun signal", "neu"), "") +
+      agent("🧪", "Pyrrhon · Testeur", "Juge chaque idée sur l'historique, sans complaisance", pill(`${(d.verdicts || []).length} verdicts`, "info"), "") +
+      agent("📜", "Aristote · Auditeur", "Relit chaque changement du code en réel avant tout déploiement, avec droit de veto", Object.keys(dep.attente_audit || {}).length ? pill(`${Object.keys(dep.attente_audit).length} en attente`, "warn") : pill("rien en attente", "ok"), audits ? `Dernier audit : ${esc(audits.message)}` : "") +
+      agent("🏮", "Diogène · Contrôleur", "Compare chaque lundi le réel au simulé : entrées, frais, funding", ctl ? pill(ctl.verdict, ctl.verdict === "ECART" ? "ko" : ctl.verdict === "CONFORME" ? "ok" : "neu") : pill("premier contrôle lundi", "neu"), ctl ? esc(ctl.resume) : "") +
+      agent("🔥", "Héraclite · Sentinelle", "Surveille Hyperliquid toutes les 15 min : règles, funding, stops, clés, API", sen.age_s === null || sen.age_s === undefined ? pill("absente", "neu") : sen.age_s > 1800 ? pill("silencieuse", "ko") : (sen.status.actives || []).length ? pill(`${sen.status.actives.length} alerte(s)`, "ko") : pill("rien à signaler", "ok"), Object.entries(sen.status.cles_jours || {}).map(([k, v]) => `Clé ${esc(k)} : ${Math.floor(v)} j`).join(" · ")) +
+      agent("🛡️", "Épictète · Directeur des risques", "Bornes, Gardien, chiens de garde, KILL", [m, p2].some(b => b && b.kill) ? pill("KILL actif", "ko") : pill("aucune alerte", "ok"), "1 % par trade · levier 5 max · arrêt à −50 %, 30 R ou 20 pertes");
     table("commits", ["Date (UTC)", "Commit", "Message"], commits.map(c => [esc(hhmm(c.date)), `<code>${esc(c.sha)}</code>`, esc(c.message)]));
-    table("avis", ["Heure (UTC)", "Actif", "Avis", "Raison"], (ag.visionnaire || []).map(a => [esc(hhmm(a.ts)), esc(a.coin), a.avis === "prendre" ? pill("prendre", "ok") : pill("éviter", "ko"), esc(a.raison)]));
+    table("avis", ["Heure (UTC)", "Actif", "Avis", "Raison"], (ag.visionnaire || []).map(a => [esc(hhmm(a.ts)), esc(a.coin), a.avis === "prendre" ? pill("pris", "ok") : pill("écarté", "ko"), esc(a.raison)]));
     if (ag.chercheur) { $("bilan").textContent = ag.chercheur.texte; $("bilan-nom").textContent = ag.chercheur.fichier; }
 
     const lab = (arr, nom) => (arr || []).map(e => ({...e, bot: nom}));
@@ -201,6 +209,12 @@ async function rafraichir() {
     table("trades", ["Fermé (UTC)", "Bot", "Actif", "Sens", "Issue", "P&L $", "R"], tr.map(c => [esc(hhmm(c.ts)), esc(c.bot), `<b>${esc(c.coin)}</b>`, esc(c.side), esc(c.issue), sign(c.pnl), sign(c.R)]));
     table("verdicts", ["Catalogue", "Candidat", "Trades", "PF ×2", "Espérance", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), `<b>${esc(v.candidat)}</b>`, esc(v.trades), v.pf === "inf" ? "∞" : num(v.pf), sign(v.esperance_R, 3), String(v.verdict).startsWith("AVANTAGE") ? pill("AVANTAGE", "ok") : esc(v.verdict)]));
 
+    $("ctlpill").innerHTML = ctl ? pill(ctl.verdict, ctl.verdict === "ECART" ? "ko" : ctl.verdict === "CONFORME" ? "ok" : "neu") : pill("en attente", "neu");
+    const bc = ctl ? ctl.bots || [] : [];
+    $("controle").innerHTML = bc.length ? bc.map(b => kv(b.bot, `${b.entrees} entrée(s)<br><small>écart ${b.ecart_entree_moyen === null ? "–" : sign(b.ecart_entree_moyen * 100, 2, " %")} · frais ${b.taux_frais_moyen === null ? "–" : num(b.taux_frais_moyen * 100, 3) + " %"}</small>`)).join("") : kv("Dernier contrôle", "pas encore");
+    $("ctlres").textContent = ctl ? `${hhmm(ctl.ts)} · ${ctl.resume}` : "Premier contrôle lundi matin, puis chaque semaine.";
+    $("senpill").innerHTML = sen.age_s === null || sen.age_s === undefined ? pill("absente", "neu") : (sen.status.actives || []).length ? pill("alerte", "ko") : pill("rien à signaler", "ok");
+    table("alertes", ["Heure (UTC)", "Alerte"], (sen.alertes || []).map(a => [fromMs(a.t * 1000), esc(a.texte)]));
     $("deploy").innerHTML = kv("Dernier passage", esc(hhmm(dep.ts))) + kv("Commit déployé", `<code>${esc((dep.deploye || "–").slice(0, 8))}</code>`) +
       kv("Refusé", dep.refuse ? `<span class="neg">${esc(dep.refuse.slice(0, 8))}</span>` : "aucun") + kv("Échecs", echecs.length ? `<span class="neg">${esc(echecs.join(", "))}</span>` : "aucun") +
       kv("Disque libre", dep.disque ? `${num(dep.disque.libre_go, 1)} Go / ${num(dep.disque.total_go, 0)} Go` : "–") + kv("Travaux", Object.keys(dep.jobs || {}).length);

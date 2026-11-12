@@ -200,7 +200,12 @@ def test_agents_t6_et_deployeur_dans_l_api():
               open(os.path.join(dp, "etat.json"), "w"))
     with open(os.path.join(S.MOON, "journal.jsonl"), "a") as f:
         f.write(json.dumps({"stage": "fable", "ts": "2026-11-12T20:00:00Z", "reason": "momentum", "data": {"coin": "ETH", "avis": "prendre"}}) + "\n")
+    sn = os.path.join(d, "sentinelle"); os.makedirs(sn)
+    json.dump({"ts": int(time.time()), "actives": [], "cles_jours": {"Moonshot": 164.2}}, open(os.path.join(sn, "status.json"), "w"))
+    open(os.path.join(sn, "alertes.jsonl"), "w").write(json.dumps({"t": 1, "cle": "regle:WIF", "texte": "WIF est DELISTE"}) + "\nx\n")
+    json.dump({"verdict": "AUCUN TRADE", "resume": "rien", "bots": []}, open(os.path.join(dp, "controle.json"), "w"))
     a = S.api()
+    assert a["sentinelle"]["alertes"][0]["texte"] == "WIF est DELISTE" and a["sentinelle"]["age_s"] < 60 and a["controle"]["verdict"] == "AUCUN TRADE"
     assert a["recolteur"]["cascades"] == 1 and a["recolteur"]["debut"] == 5 and a["recolteur"]["dernieres_cascades"][0]["coin"] == "WIF"
     assert a["deployeur"]["commits"][0]["sha"] == "abc1234"
     assert a["agents"]["chercheur"]["fichier"] == "bilan-2026-11-15.md" and a["agents"]["visionnaire"][0]["coin"] == "ETH"

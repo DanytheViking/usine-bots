@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Moonshot v2.2.1 : mise a jour sur place (bot, chien de garde, Fable Chercheur, essai d'execution). Usage sur le VPS, depuis le dossier extrait :
+# Moonshot v2.3.0 : mise a jour sur place (bot, chien de garde, Fable Chercheur, essai d'execution). Usage sur le VPS, depuis le dossier extrait :
 #   bash maj.sh
 # Conserve .env (cles) et data/ (etat, journal, positions). Le mode (reel) ne change pas.
 set -euo pipefail
@@ -26,7 +26,7 @@ cd "$APP" && $C build -q
 echo "== 4. tests hors ligne (sans reseau)"
 for t in tests/test_moon.py tests/test_garde_chercheur.py tests/test_essai.py; do
   docker run --rm --network none -v "$USINE":/usine:ro -v "$APP/docker-compose.yml":/app/docker-compose.yml:ro -e USINE_DIR=/usine -e PYTHONPATH=/app -e DATA_DIR=/tmp/t --tmpfs /tmp \
-    moonshot2:2.2.1 python3 -B "$t" | grep -E '^(ECHEC|[0-9]+/[0-9]+)'
+    moonshot2:2.3.0 python3 -B "$t" | grep -E '^(ECHEC|[0-9]+/[0-9]+)'
 done
 
 echo "== 5. redemarrage : bot, chien de garde, chercheur"

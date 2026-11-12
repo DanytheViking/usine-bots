@@ -2,7 +2,7 @@
 services:
   tableau:
     build: .
-    image: usine-tableau:1.3.0
+    image: usine-tableau:1.4.0
     container_name: usine-tableau
     environment:
       - DATA_ROOT=/d
@@ -20,6 +20,7 @@ services:
       - /root/rapport-usine-m2memes:/d/usine-m2memes:ro
       - /opt/recolteur/data:/d/recolteur:ro
       - /opt/usine-public:/d/deployeur:ro
+      - /opt/sentinelle/data:/d/sentinelle:ro
     ports:
       - "127.0.0.1:8090:8090"
     restart: unless-stopped

@@ -235,7 +235,7 @@ class Resp:
     def json(self): return {"content": [{"type": "text", "text": self._t}]}
 
 def test_fable_avis_enregistre_meme_si_eviter():
-    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; os.environ["FABLE_DECIDE"] = "0"
     try:
         m, s, b, info, ex, now = setup("reel")
         calls = []
@@ -246,6 +246,25 @@ def test_fable_avis_enregistre_meme_si_eviter():
         rows = [json.loads(l) for l in open(os.path.join(C.DATA_DIR, "journal.jsonl"))]
         assert any(r["stage"] == "fable" and r["decision"] == "eviter" for r in rows)
         assert not any("sk-test-cle" in json.dumps(r) for r in rows)
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
+
+def test_fable_decide():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    try:
+        m, s, b, info, ex, now = setup("reel")
+        assert C.FABLE_DECIDE
+        BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(200, '{"avis": "eviter", "confiance": 70, "raison": "essoufflement"}'))
+        assert "ETH" not in s["positions"] and not ex.sent                         # Fable ecarte : aucun ordre
+        rows = [json.loads(l) for l in open(os.path.join(C.DATA_DIR, "journal.jsonl"))]
+        r = [x for x in rows if x["stage"] == "signal" and x["decision"] == "ecarte par Fable"][0]
+        assert r["data"]["coin"] == "ETH" and r["data"]["bar_ts"] and r["data"]["ref"]   # mesurable plus tard
+        m, s, b, info, ex, now = setup("reel")
+        BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(200, '{"avis": "prendre", "confiance": 70, "raison": "ok"}'))
+        assert "ETH" in s["positions"]
+        m, s, b, info, ex, now = setup("reel")
+        BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(500, "erreur"))
+        assert "ETH" in s["positions"]                                             # avis absent : la regle M2 s'applique
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 

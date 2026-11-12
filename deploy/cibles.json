@@ -1,31 +1,188 @@
 [
- {"nom": "moonshot2", "source": "moonshot2", "dest": "/opt/moonshot2", "fenetre_4h": true,
-  "fichiers": ["moon", "tests", "Dockerfile", "docker-compose.yml", "requirements.txt"],
-  "composes": [{"projet": "moonshot2", "fichier": "docker-compose.yml", "services": 3}],
+ {
+  "nom": "moonshot2",
+  "source": "moonshot2",
+  "dest": "/opt/moonshot2",
+  "fenetre_4h": true,
+  "fichiers": [
+   "moon",
+   "tests",
+   "Dockerfile",
+   "docker-compose.yml",
+   "requirements.txt"
+  ],
+  "composes": [
+   {
+    "projet": "moonshot2",
+    "fichier": "docker-compose.yml",
+    "services": 3
+   }
+  ],
   "statut": "data/status.json",
-  "tests": ["tests/test_moon.py", "tests/test_garde_chercheur.py", "tests/test_essai.py"],
-  "test_volumes": ["/root/usine:/usine:ro", "{stage}/docker-compose.yml:/app/docker-compose.yml:ro"],
-  "test_env": {"USINE_DIR": "/usine", "PYTHONPATH": "/app"}},
- {"nom": "peanut2", "source": "moonshot2", "dest": "/opt/peanut2", "fenetre_4h": true,
-  "fichiers": ["moon", "tests", "Dockerfile", "docker-compose.peanut.yml", "requirements.txt"],
-  "composes": [{"projet": "peanut2", "fichier": "docker-compose.peanut.yml", "services": 2}],
+  "tests": [
+   "tests/test_moon.py",
+   "tests/test_garde_chercheur.py",
+   "tests/test_essai.py"
+  ],
+  "test_volumes": [
+   "/root/usine:/usine:ro",
+   "{stage}/docker-compose.yml:/app/docker-compose.yml:ro"
+  ],
+  "test_env": {
+   "USINE_DIR": "/usine",
+   "PYTHONPATH": "/app"
+  },
+  "audit": true
+ },
+ {
+  "nom": "peanut2",
+  "source": "moonshot2",
+  "dest": "/opt/peanut2",
+  "fenetre_4h": true,
+  "fichiers": [
+   "moon",
+   "tests",
+   "Dockerfile",
+   "docker-compose.peanut.yml",
+   "requirements.txt"
+  ],
+  "composes": [
+   {
+    "projet": "peanut2",
+    "fichier": "docker-compose.peanut.yml",
+    "services": 2
+   }
+  ],
   "statut": "data/status.json",
-  "tests": ["tests/test_moon.py", "tests/test_essai.py"],
-  "test_volumes": ["/root/usine:/usine:ro", "{stage}/docker-compose.yml:/app/docker-compose.yml:ro"],
-  "test_env": {"USINE_DIR": "/usine", "PYTHONPATH": "/app"}},
- {"nom": "recolteur", "source": "recolteur", "dest": "/opt/recolteur",
-  "fichiers": ["recolteur", "tests", "docs", "Dockerfile", "docker-compose.yml", "requirements.txt", "installer.sh"],
-  "composes": [{"projet": "recolteur", "fichier": "docker-compose.yml", "services": 1}],
+  "tests": [
+   "tests/test_moon.py",
+   "tests/test_essai.py"
+  ],
+  "test_volumes": [
+   "/root/usine:/usine:ro",
+   "{stage}/docker-compose.yml:/app/docker-compose.yml:ro"
+  ],
+  "test_env": {
+   "USINE_DIR": "/usine",
+   "PYTHONPATH": "/app"
+  },
+  "audit": true
+ },
+ {
+  "nom": "recolteur",
+  "source": "recolteur",
+  "dest": "/opt/recolteur",
+  "fichiers": [
+   "recolteur",
+   "tests",
+   "docs",
+   "Dockerfile",
+   "docker-compose.yml",
+   "requirements.txt",
+   "installer.sh"
+  ],
+  "composes": [
+   {
+    "projet": "recolteur",
+    "fichier": "docker-compose.yml",
+    "services": 1
+   }
+  ],
   "statut": "data/status.json",
-  "tests": ["tests/test_recolteur.py"], "test_env": {"DATA_DIR": "/tmp"}},
- {"nom": "tableau", "source": "tableau", "dest": "/opt/tableau",
-  "fichiers": ["tableau", "tests", "Dockerfile", "docker-compose.yml", "docker-compose.telecommande.yml"],
-  "composes": [{"projet": "tableau", "fichier": "docker-compose.yml", "services": 1},
-               {"projet": "telecommande", "fichier": "docker-compose.telecommande.yml", "services": 1}],
-  "tests": ["tests/test_tableau.py"]},
- {"nom": "usine", "source": "usine", "dest": "/root/usine",
-  "fichiers": ["usine", "tests", "specs", "docs", "Dockerfile", "lancer.sh", "lancer2.sh", "lancer3.sh"],
-  "tests": ["tests/test_usine.py", "tests/test_v2.py", "tests/test_v3.py", "tests/test_m2memes.py"],
-  "test_volumes": ["{stage}:/app:ro", "/root/sp-replay:/sp:ro"], "test_workdir": "/app",
-  "test_env": {"PYTHONPATH": "/sp:/app"}, "apres_copie": ["image_usine"]}
+  "tests": [
+   "tests/test_recolteur.py"
+  ],
+  "test_env": {
+   "DATA_DIR": "/tmp"
+  }
+ },
+ {
+  "nom": "sentinelle",
+  "source": "sentinelle",
+  "dest": "/opt/sentinelle",
+  "fichiers": [
+   "sentinelle",
+   "tests",
+   "Dockerfile",
+   "docker-compose.yml",
+   "requirements.txt"
+  ],
+  "composes": [
+   {
+    "projet": "sentinelle",
+    "fichier": "docker-compose.yml",
+    "services": 1
+   }
+  ],
+  "statut": "data/status.json",
+  "tests": [
+   "tests/test_sentinelle.py"
+  ],
+  "test_env": {
+   "DATA_DIR": "/tmp"
+  },
+  "apres_copie": [
+   "donnees_10001"
+  ]
+ },
+ {
+  "nom": "tableau",
+  "source": "tableau",
+  "dest": "/opt/tableau",
+  "fichiers": [
+   "tableau",
+   "tests",
+   "Dockerfile",
+   "docker-compose.yml",
+   "docker-compose.telecommande.yml"
+  ],
+  "composes": [
+   {
+    "projet": "tableau",
+    "fichier": "docker-compose.yml",
+    "services": 1
+   },
+   {
+    "projet": "telecommande",
+    "fichier": "docker-compose.telecommande.yml",
+    "services": 1
+   }
+  ],
+  "tests": [
+   "tests/test_tableau.py"
+  ]
+ },
+ {
+  "nom": "usine",
+  "source": "usine",
+  "dest": "/root/usine",
+  "fichiers": [
+   "usine",
+   "tests",
+   "specs",
+   "docs",
+   "Dockerfile",
+   "lancer.sh",
+   "lancer2.sh",
+   "lancer3.sh"
+  ],
+  "tests": [
+   "tests/test_usine.py",
+   "tests/test_v2.py",
+   "tests/test_v3.py",
+   "tests/test_m2memes.py",
+   "tests/test_controle.py"
+  ],
+  "test_volumes": [
+   "{stage}:/app:ro",
+   "/root/sp-replay:/sp:ro"
+  ],
+  "test_workdir": "/app",
+  "test_env": {
+   "PYTHONPATH": "/sp:/app"
+  },
+  "apres_copie": [
+   "image_usine"
+  ]
+ }
 ]
