@@ -199,7 +199,7 @@ async function rafraichir() {
     table("fil", ["Heure (UTC)", "Bot", "Étape", "Décision", "Détail"], ev.map(e => [esc(hhmm(e.ts)), esc(e.bot), esc(e.stage), esc(e.decision), esc(e.reason)]));
     const tr = lab(m.closed, "Moonshot").concat(p2 ? lab(p2.closed, "Smart Peanut") : []).sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
     table("trades", ["Fermé (UTC)", "Bot", "Actif", "Sens", "Issue", "P&L $", "R"], tr.map(c => [esc(hhmm(c.ts)), esc(c.bot), `<b>${esc(c.coin)}</b>`, esc(c.side), esc(c.issue), sign(c.pnl), sign(c.R)]));
-    table("verdicts", ["Catalogue", "Candidat", "Trades", "PF ×2", "Espérance", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), `<b>${esc(v.candidat)}</b>`, esc(v.trades), num(v.pf), sign(v.esperance_R, 3), String(v.verdict).startsWith("AVANTAGE") ? pill("AVANTAGE", "ok") : esc(v.verdict)]));
+    table("verdicts", ["Catalogue", "Candidat", "Trades", "PF ×2", "Espérance", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), `<b>${esc(v.candidat)}</b>`, esc(v.trades), v.pf === "inf" ? "∞" : num(v.pf), sign(v.esperance_R, 3), String(v.verdict).startsWith("AVANTAGE") ? pill("AVANTAGE", "ok") : esc(v.verdict)]));
 
     $("deploy").innerHTML = kv("Dernier passage", esc(hhmm(dep.ts))) + kv("Commit déployé", `<code>${esc((dep.deploye || "–").slice(0, 8))}</code>`) +
       kv("Refusé", dep.refuse ? `<span class="neg">${esc(dep.refuse.slice(0, 8))}</span>` : "aucun") + kv("Échecs", echecs.length ? `<span class="neg">${esc(echecs.join(", "))}</span>` : "aucun") +

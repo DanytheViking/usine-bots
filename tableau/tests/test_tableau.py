@@ -148,6 +148,20 @@ def init_data(token, user_id, auth_date, extra=None):
     data["hash"] = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
     return urllib.parse.urlencode(data)
 
+def test_json_strict_pour_le_navigateur():
+    d, S = build(); S.EX = S.Exchange(post=fake_post([]))
+    u = os.path.join(d, "usine-v3"); os.makedirs(u)
+    open(os.path.join(u, "verdicts.json"), "w").write('{"specification": "V3", "candidats": {"T5": {"verdict": "NON CONCLUANT", "evaluation_frais_doubles": {"global": {"trades": 3, "profit_factor": Infinity, "esperance_R": NaN}}}}}')
+    srv = S.ThreadingHTTPServer(("127.0.0.1", 0), S.Handler); port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        raw = urllib.request.urlopen(f"http://127.0.0.1:{port}/api/etat").read().decode()
+        assert "Infinity" not in raw and "NaN" not in raw
+        v = [x for x in json.loads(raw, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))["verdicts"] if x["candidat"] == "T5"][0]
+        assert v["pf"] == "inf" and v["esperance_R"] is None
+    finally:
+        srv.shutdown()
+
 def test_signature_telegram():
     d, S = build(); tok = "123:ABC"; now = 1_800_000_000
     good = init_data(tok, 4242, now - 60)

@@ -129,6 +129,14 @@ def visionnaire(base, n=8):
             out.append({"ts": r.get("ts"), "coin": r["data"].get("coin"), "avis": r["data"]["avis"], "raison": (r.get("reason") or "")[:240]})
     return out[-n:][::-1]
 
+def propre(x):
+    """JSON strict pour le navigateur : un nombre infini ou indefini devient une chaine (« inf ») ou null."""
+    if isinstance(x, float) and x != x: return None
+    if isinstance(x, float) and x in (float("inf"), float("-inf")): return "inf" if x > 0 else "-inf"
+    if isinstance(x, dict): return {k: propre(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)): return [propre(v) for v in x]
+    return x
+
 def verify_init(init, token=None, chat=None, now=None):
     """Signature Telegram d'une page ouverte depuis le bot : seul le compte de Richard (TELEGRAM_CHAT_ID) est accepte."""
     token, chat = token if token is not None else TOKEN, chat if chat is not None else CHAT
@@ -202,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(403); self.send_header("Content-Type", "application/json"); self.end_headers()
             self.wfile.write(b'{"erreur": "acces reserve"}'); return
         if self.path.startswith("/api/etat"):
-            body = json.dumps(api(), default=str).encode(); ctype = "application/json"
+            body = json.dumps(propre(api()), default=str, allow_nan=False).encode(); ctype = "application/json"
         elif self.path in ("/", "/index.html"):
             body, ctype = PAGE, "text/html; charset=utf-8"
         else:
