@@ -223,13 +223,17 @@ def test_auto_mise_a_jour_du_deployeur():
     w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
     old = open(os.path.join(w.install, "deployeur.py")).read()
     w.commit("deployeur/tests/test_deployeur.py", "print('2/2 tests ok')\n")
-    w.commit("deployeur/deployeur.py", "VERSION = 2\n")
+    sha = w.commit("deployeur/deployeur.py", "VERSION = 2\n")
+    D.cycle(w.ctx)
+    assert open(os.path.join(w.install, "deployeur.py")).read() == old                     # pas d'audit : rien ne change
+    w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve", "auditeur": "Auditeur"}))
     s = D.cycle(w.ctx)
     assert open(os.path.join(w.install, "deployeur.py")).read() == "VERSION = 2\n"
     assert open(os.path.join(D.BASE, "precedent", "deployeur.py")).read() == old
     assert any("Deployeur mis a jour par le depot" in m for m in w.ctx.sent)
     w.commit("deployeur/tests/test_deployeur.py", "import sys\nprint('1/2 tests ok')\nsys.exit(1)\n")
-    w.commit("deployeur/deployeur.py", "VERSION = 3\n")
+    sha = w.commit("deployeur/deployeur.py", "VERSION = 3\n")
+    w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve"}))
     D.cycle(w.ctx)
     assert open(os.path.join(w.install, "deployeur.py")).read() == "VERSION = 2\n" and any("refusee" in m for m in w.ctx.sent)
 
@@ -242,6 +246,60 @@ def test_vue_publique_pour_le_tableau():
     assert pub["deploye"] and pub["disque"]["total_go"] > 0 and isinstance(pub["journal"], list)
     assert oct(os.stat(os.path.join(D.PUBLIC, "etat.json")).st_mode)[-3:] == "644"
     assert "HL_AGENT_KEY" not in json.dumps(pub) and "1" * 64 not in json.dumps(pub)
+
+def with_audit_flags(w):
+    c = json.load(open(os.path.join(w.work, "deploy/cibles.json")))
+    for x in c:
+        if x["nom"] in ("moonshot2", "peanut2"): x["audit"] = True
+    return w.commit("deploy/cibles.json", json.dumps(c))
+
+def test_audit_bloque_puis_libere_les_bots():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
+    flags = with_audit_flags(w); s = D.cycle(w.ctx)
+    assert s["deploye"] == flags and not any(c[1] == "build" for c in w.ctx.docker)      # ajouter le drapeau ne redeploie rien
+    w.ctx.t = 1_794_000_000 // (4 * 3600) * (4 * 3600) + 3600
+    sha = w.commit("moonshot2/moon/bot.py", "x = 20\n")
+    s = D.cycle(w.ctx)
+    assert s["par_cible"]["moonshot2"] != sha and s["deploye"] != sha and any("en attente de l'Auditeur" in m for m in w.ctx.sent)
+    n = len(w.ctx.sent); D.cycle(w.ctx); assert len(w.ctx.sent) == n                           # annonce une seule fois
+    w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve"}))
+    s = D.cycle(w.ctx); new = sh("git", "rev-parse", "HEAD", cwd=w.work)
+    assert s["par_cible"]["moonshot2"] == new and s["par_cible"]["peanut2"] == new and s["deploye"] == new
+    sha2 = w.commit("moonshot2/moon/bot.py", "x = 21\n")
+    w.commit(f"audits/{sha2}.json", json.dumps({"commit": sha2, "verdict": "refuse", "raison": "stop du mauvais cote"}))
+    s = D.cycle(w.ctx); new = sh("git", "rev-parse", "HEAD", cwd=w.work)
+    assert s["echecs"]["moonshot2"] == new and any("REFUSEE par l'Auditeur" in m for m in w.ctx.sent)
+    w.commit(f"audits/{sha2}.json", json.dumps({"commit": "autre", "verdict": "approuve"}))  # approbation d'un autre commit : refus
+    s = D.cycle(w.ctx); new = sh("git", "rev-parse", "HEAD", cwd=w.work); assert s["echecs"]["moonshot2"] == new
+
+def test_audit_couvre_les_variables_du_bot():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True); with_audit_flags(w); D.cycle(w.ctx)
+    base = sh("git", "log", "-1", "--format=%H", "--", "moonshot2", cwd=w.work)
+    w.commit(f"audits/{base}.json", json.dumps({"commit": base, "verdict": "approuve"})); D.cycle(w.ctx)   # le code du bot est approuve
+    w.ctx.t = 1_794_000_000 // (4 * 3600) * (4 * 3600) + 3600
+    sha = w.commit("deploy/env/peanut2.json", json.dumps({"MODE": "reel"}))
+    s = D.cycle(w.ctx); assert s["par_cible"]["peanut2"] != sha and s["par_cible"]["recolteur"] == sha
+
+def test_controle_hebdomadaire():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
+    open(D.R("/opt/tableau/.env"), "w").write("MOON_ACCOUNT=0x" + "a" * 40 + "\nLABO_ACCOUNT=0x" + "c" * 40 + "\nTELEGRAM_BOT_TOKEN=x\n")
+    orig = w.ctx.run
+    def run(cmd, timeout=1800, cwd=None, env=None):
+        if cmd[:2] == ["docker", "run"] and "usine.controle" in cmd:
+            out = cmd[cmd.index("-v", cmd.index("/opt/peanut2/data:/b/peanut2:ro")) + 1].split(":")[0]
+            json.dump({"verdict": "CONFORME", "resume": "0 trade"}, open(os.path.join(out, "controle.json"), "w"))
+            w.ctx.docker.append(cmd); return 0, ""
+        return orig(cmd, timeout, cwd, env)
+    w.ctx.run = run
+    import datetime as dt
+    lundi = int(dt.datetime(2026, 11, 16, 7, 0, tzinfo=dt.timezone.utc).timestamp()); w.ctx.t = lundi
+    s = D.cycle(w.ctx)
+    assert s["jobs"]["controle-2026-s47"]["etat"] == "fait : CONFORME" and any("Controleur" in m for m in w.ctx.sent)
+    c = [x for x in w.ctx.docker if "usine.controle" in x][0]
+    assert "--bot" in c and any(a.startswith("moonshot2:0x") for a in c) and "--network" not in c
+    assert json.load(open(os.path.join(D.PUBLIC, "controle.json")))["verdict"] == "CONFORME"
+    n = len([x for x in w.ctx.docker if "usine.controle" in x]); w.ctx.t += 600; D.cycle(w.ctx)
+    assert len([x for x in w.ctx.docker if "usine.controle" in x]) == n                         # une fois par semaine
 
 def test_sources_propres():
     for f in ("deployeur.py", "bornes.py"):

@@ -28,7 +28,7 @@ LOG = os.path.join(BASE, "deployeur.log")
 H4 = 4 * 3600
 FENETRE_AVANT, FENETRE_APRES = 3 * 60, 8 * 60
 SANTE_ATTENTE = 90
-TYPES_JOBS = ("usine", "recolteur_rapport", "prevol")
+TYPES_JOBS = ("usine", "recolteur_rapport", "prevol", "controle")
 MODULE = re.compile(r"^usine\.[a-z0-9_]+$")
 ARG = re.compile(r"^[A-Za-z0-9_./=:\-]{1,200}$")
 ID = re.compile(r"^[a-z0-9][a-z0-9\-]{0,40}$")
@@ -87,10 +87,33 @@ def changed(ctx, old, new):
     if rc: return None
     return [l.strip() for l in out.splitlines() if l.strip()]
 
-def concerne(cible, paths):
+def entree(ctx, commit, nom):
+    rc, out = git(ctx, "show", f"{commit}:deploy/cibles.json")
+    try: return next(({k: v for k, v in c.items() if k != "audit"} for c in json.loads(out) if c.get("nom") == nom), None) if rc == 0 else None
+    except ValueError: return None
+
+def concerne(cible, paths, ctx=None, old=None, new=None):
     if paths is None: return True
     src = cible["source"].rstrip("/") + "/"
-    return any(p.startswith(src) for p in paths) or f"deploy/env/{cible['nom']}.json" in paths or "deploy/cibles.json" in paths
+    if any(p.startswith(src) for p in paths) or f"deploy/env/{cible['nom']}.json" in paths: return True
+    if "deploy/cibles.json" in paths:
+        if ctx is None or old is None: return True
+        return entree(ctx, old, cible["nom"]) != entree(ctx, new, cible["nom"])
+    return False
+
+def audit(ctx, cible, new, stage, chemins=None):
+    """Cibles en argent reel et Deployeur : le dernier commit qui les touche doit etre approuve par l'Auditeur
+    (audits/<sha>.json, verdict « approuve »). Renvoie True, False (refuse) ou None (en attente)."""
+    if chemins is None:
+        if not cible.get("audit"): return True
+        chemins = [cible["source"], f"deploy/env/{cible['nom']}.json"]
+    rc, sha = git(ctx, "log", "-1", "--format=%H", new, "--", *chemins); sha = sha.strip()
+    if rc or not sha: return True
+    p = os.path.join(stage, "audits", f"{sha}.json")
+    if not os.path.exists(p): return None
+    try: v = json.load(open(p))
+    except ValueError: return False
+    return v.get("commit") == sha and v.get("verdict") == "approuve"
 
 def en_fenetre_4h(ctx):
     t = int(ctx.now()) % H4
@@ -189,6 +212,10 @@ def deployer_cible(ctx, s, cible, commit, stage):
     if os.path.exists(envp): appliquer_env(cible, json.load(open(envp)))
     for cmd in cible.get("apres_copie", []):
         if cmd == "image_usine": ctx.run(["docker", "build", "-q", "-t", "usine-py:1", R(cible["dest"])], timeout=1800)
+        if cmd == "donnees_10001":
+            dd = os.path.join(R(cible["dest"]), "data"); os.makedirs(dd, exist_ok=True)
+            try: os.chown(dd, 10001, 10001)
+            except PermissionError: pass
     if not cible.get("composes"): return True, f"copie faite ({short})"
     rc, out = compose(ctx, cible, "up", "-d", "--build", "--remove-orphans")
     ok, why = (False, "demarrage impossible : " + out[-200:]) if rc else sante(ctx, cible)
@@ -209,6 +236,8 @@ def lancer_job(ctx, job, deploye_ok):
                "-v", "/root/usine:/app:ro", "-v", "/root/sp-replay:/sp:ro", "-v", "/root/donnees-usine:/d", "-v", f"{out}:/out",
                "-w", "/app", "-e", "PYTHONPATH=/sp:/app", "-e", "PYTHONDONTWRITEBYTECODE=1", "-e", "PYTHONUNBUFFERED=1",
                "usine-py:1", "python", "-B", "-m", mod, *args]
+    elif typ == "controle":
+        return controle(ctx, jid)
     elif typ == "recolteur_rapport":
         cmd = ["docker", "compose", "-p", "recolteur", "-f", "/opt/recolteur/docker-compose.yml", "run", "-d", "--name", name, "--no-deps",
                "recolteur", "python3", "-m", "recolteur.rapport"]
@@ -221,6 +250,39 @@ def lancer_job(ctx, job, deploye_ok):
     ctx.run(["docker", "rm", "-f", name])
     rc, o = ctx.run(cmd, cwd="/opt")
     return "lance" if rc == 0 else "echec au lancement : " + o[-200:]
+
+def adresses():
+    out = {}
+    try:
+        for l in open(R("/opt/tableau/.env")):
+            k, _, v = l.strip().partition("=")
+            if k in ("MOON_ACCOUNT", "LABO_ACCOUNT") and re.match(r"^0x[0-9a-fA-F]{40}$", v.strip().strip('"')): out[k] = v.strip().strip('"')
+    except OSError: pass
+    return out
+
+def controle(ctx, jid):
+    """Controleur : reel contre simule (entrees, frais, funding), sur les fills publics Hyperliquid et les journaux des bots."""
+    out = os.path.join(JOBS, jid); os.makedirs(out, exist_ok=True); ad = adresses(); bots = []
+    if ad.get("MOON_ACCOUNT"): bots.append(f"moonshot2:{ad['MOON_ACCOUNT']}:/b/moonshot2/journal.jsonl")
+    if ad.get("LABO_ACCOUNT"): bots.append(f"peanut2:{ad['LABO_ACCOUNT']}:/b/peanut2/journal.jsonl")
+    if not bots: return "refuse : adresses publiques des comptes introuvables"
+    cmd = ["docker", "run", "--rm", "--name", f"job-{jid}", "-v", "/root/usine:/app:ro", "-v", "/root/sp-replay:/sp:ro",
+           "-v", "/opt/moonshot2/data:/b/moonshot2:ro", "-v", "/opt/peanut2/data:/b/peanut2:ro", "-v", f"{out}:/out",
+           "-w", "/app", "-e", "PYTHONPATH=/sp:/app", "-e", "PYTHONDONTWRITEBYTECODE=1", "usine-py:1", "python", "-B", "-m", "usine.controle", "--out", "/out"]
+    for b in bots: cmd += ["--bot", b]
+    rc, o = ctx.run(cmd, timeout=600)
+    p = os.path.join(out, "controle.json")
+    if rc or not os.path.exists(p): return "echec : " + o.strip()[-200:]
+    rep = json.load(open(p)); os.makedirs(PUBLIC, exist_ok=True); shutil.copy2(p, os.path.join(PUBLIC, "controle.json"))
+    os.chmod(os.path.join(PUBLIC, "controle.json"), 0o644)
+    ctx.send("🧾 Controleur : " + rep.get("resume", "rapport ecrit"))
+    return "fait : " + rep.get("verdict", "?")
+
+def controle_hebdo(ctx, s):
+    t = dt.datetime.fromtimestamp(ctx.now(), dt.timezone.utc)
+    sem = f"controle-{t.isocalendar()[0]}-s{t.isocalendar()[1]:02d}"
+    if t.weekday() == 0 and t.hour >= 6 and sem not in s["jobs"]:
+        st = controle(ctx, sem); s["jobs"][sem] = {"etat": st, "debut": int(ctx.now()), "type": "controle"}; log(f"job {sem} : {st}")
 
 def jobs(ctx, s, stage):
     d = os.path.join(stage, "jobs")
@@ -333,8 +395,17 @@ def cycle(ctx, adopter=False):
             cibles = json.load(open(os.path.join(stage, "deploy", "cibles.json"))); termine = True
             for c in cibles:
                 if s["par_cible"].get(c["nom"]) == new: continue
-                if not concerne(c, changed(ctx, s["par_cible"].get(c["nom"]), new)): s["par_cible"][c["nom"]] = new; continue
+                old = s["par_cible"].get(c["nom"])
+                if not concerne(c, changed(ctx, old, new), ctx, old, new): s["par_cible"][c["nom"]] = new; continue
                 if s["echecs"].get(c["nom"]) == new: continue
+                a = audit(ctx, c, new, stage)
+                if a is None:
+                    termine = False
+                    if s.setdefault("attente_audit", {}).get(c["nom"]) != new:
+                        s["attente_audit"][c["nom"]] = new; log(f"{c['nom']} {new[:8]} : en attente de l'Auditeur"); ctx.send(f"{c['nom']} : mise a jour {new[:8]} en attente de l'Auditeur")
+                    continue
+                if a is False:
+                    s["echecs"][c["nom"]] = new; log(f"{c['nom']} {new[:8]} : refuse par l'Auditeur"); ctx.send(f"{c['nom']} : mise a jour {new[:8]} REFUSEE par l'Auditeur"); continue
                 if c.get("fenetre_4h") and en_fenetre_4h(ctx): termine = False; continue
                 try: ok, why = deployer_cible(ctx, s, c, new, stage)
                 except Exception as ex: ok, why = False, f"erreur {type(ex).__name__} : {ex}"
@@ -342,12 +413,17 @@ def cycle(ctx, adopter=False):
                 if ok: s["par_cible"][c["nom"]] = new
                 else: s["echecs"][c["nom"]] = new
                 save_state(s)
-            if termine:
-                s["deploye"] = new
-                r = auto_maj(ctx, stage)
-                if r: log(r[1]); ctx.send(r[1])
+            if termine: s["deploye"] = new
     if os.path.isdir(stage) and s.get("deploye") == new:
+        if s.get("maj_vue") != new:
+            a = audit(ctx, None, new, stage, ["deployeur"])
+            if a:
+                s["maj_vue"] = new; r = auto_maj(ctx, stage)
+                if r: log(r[1]); ctx.send(r[1])
+            elif a is False:
+                s["maj_vue"] = new; ctx.send(f"Nouvelle version du Deployeur {new[:8]} REFUSEE par l'Auditeur")
         jobs(ctx, s, stage); messages(ctx, s, stage)
+        controle_hebdo(ctx, s)
     save_state(s)
     try: publier(ctx, s)
     except Exception as ex: log(f"publication : {type(ex).__name__}")

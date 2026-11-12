@@ -24,7 +24,7 @@ INTERDITS_CODE = ("withdraw", "usd_transfer", "usdclasstransfer", "usd_class_tra
 INTERDITS_COMPOSE = ("docker.sock", "privileged", "network_mode: host", "network_mode: \"host\"", "pid: host", "cap_add", "devices:",
                      "/etc", "/root/.ssh", "/opt/deployeur", "- /:/", "userns_mode", "ipc: host")
 
-DESTINATIONS = {"/opt/moonshot2", "/opt/peanut2", "/opt/recolteur", "/opt/tableau", "/root/usine"}
+DESTINATIONS = {"/opt/moonshot2", "/opt/peanut2", "/opt/recolteur", "/opt/tableau", "/root/usine", "/opt/sentinelle"}
 SOURCES_TEST = ("/root/usine", "/root/sp-replay", "{stage}")
 
 ENV_PERMIS = {"MODE": ("observation", "reel"), "COINS": None, "MIN_DAY_VOLUME_USD": (0, 1e10), "RISK_PER_TRADE": (0, 0.01),
