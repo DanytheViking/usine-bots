@@ -2,136 +2,210 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Usine de trading</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--txt:#e6edf3;--mute:#8b949e;--ok:#3fb950;--ko:#f85149;--warn:#d29922;--acc:#58a6ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
-h1{font-size:18px;margin:0}h2{font-size:15px;margin:0 0 10px}small,.mute{color:var(--mute)}
-main{display:grid;gap:14px;padding:16px 20px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
-.wide{grid-column:1/-1}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-.kpi{background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:10px}.kpi b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
-.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
-.ok{background:#12361f;color:var(--ok)}.ko{background:#3d1214;color:var(--ko)}.warn{background:#3a2b0a;color:var(--warn)}
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--mute);font-weight:500}.scroll{overflow-x:auto}.pos{color:var(--ok)}.neg{color:var(--ko)}
-svg{width:100%;height:180px;display:block}.feed{max-height:340px;overflow:auto}.feed td:last-child{white-space:normal}
-#err{color:var(--ko)}
+:root{--bg:#0a0d12;--panel:#11161d;--panel2:#161c25;--line:#232b36;--txt:#e7ecf2;--mute:#8592a3;--ok:#2fbf71;--ko:#f05252;--warn:#e3a008;--acc:#4c8dff;--acc2:#b07cff;--r:12px}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;max-width:1280px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px}.brand i{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-style:normal;font-size:15px}
+.live{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:12px;white-space:nowrap}.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,191,113,.6);animation:p 2s infinite}.dot.ko{background:var(--ko);animation:none}
+@keyframes p{70%{box-shadow:0 0 0 8px rgba(47,191,113,0)}100%{box-shadow:0 0 0 0 rgba(47,191,113,0)}}
+nav{display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px;max-width:1280px;margin:0 auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}
+nav button{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--mute);padding:7px 13px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer}
+nav button.on{background:var(--txt);color:var(--bg);border-color:var(--txt);font-weight:600}
+main{max-width:1280px;margin:0 auto;padding:16px;display:grid;gap:14px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.card h2{font-size:13px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.6px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hero{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}.stat small{color:var(--mute);font-size:12px}.stat b{display:block;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:-.3px}.stat span{font-size:12px;color:var(--mute)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.kv div{background:var(--panel2);border-radius:10px;padding:10px 12px}.kv small{color:var(--mute);font-size:11.5px;display:block}.kv b{font-variant-numeric:tabular-nums;font-size:15px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.ok{background:rgba(47,191,113,.14);color:var(--ok)}.ko{background:rgba(240,82,82,.14);color:var(--ko)}.warn{background:rgba(227,160,8,.14);color:var(--warn)}.info{background:rgba(76,141,255,.14);color:var(--acc)}.neu{background:var(--panel2);color:var(--mute)}
+.pos{color:var(--ok)}.neg{color:var(--ko)}.mute{color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute);font-weight:500;font-size:12px}tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}.feed{max-height:380px;overflow:auto}.wrap td:last-child{white-space:normal;min-width:220px}
+.bot{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.bot h3{margin:0;font-size:17px}.bot p{margin:2px 0 0;color:var(--mute);font-size:12.5px}
+.gauge{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:6px}.gauge i{display:block;height:100%;background:var(--ok)}
+svg{width:100%;height:200px;display:block}.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mute);margin-top:8px}.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.agent{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.agent:last-child{border-bottom:0}.agent .ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--panel2);font-size:18px}
+.agent b{display:block}.agent p{margin:2px 0 0;color:var(--mute);font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--panel2);border-radius:10px;padding:12px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#c9d3df;max-height:320px;overflow:auto;margin:0}
+.hide{display:none!important}#msg{padding:40px 16px;text-align:center;color:var(--mute)}
+@media (max-width:600px){.desk{display:none}.stat b{font-size:21px}main{padding:12px}}
 </style>
 </head>
 <body>
-<header>
-  <h1>🏭 Usine de trading</h1>
-  <div id="etat" class="mute">chargement…</div>
-</header>
-<main>
-  <section class="card wide">
-    <h2>Vue d'ensemble</h2>
-    <div class="kpis" id="kpis"></div>
+<div class="top">
+  <div class="bar">
+    <div class="brand"><i>🏭</i>Usine de trading</div>
+    <div class="live"><span class="dot" id="dot"></span><span id="maj">connexion…</span></div>
+  </div>
+  <nav id="nav">
+    <button data-v="tout" class="on">Vue d'ensemble</button><button data-v="bots">Bots</button><button data-v="t6">T6 Récolteur</button>
+    <button data-v="agents">Agents</button><button data-v="recherche">Recherche</button><button data-v="systeme">Système</button>
+  </nav>
+</div>
+<div id="msg" class="hide"></div>
+<main id="app">
+  <section class="hero" data-s="tout" id="hero"></section>
+
+  <section class="card" data-s="tout bots">
+    <h2>Performance depuis le départ <span class="mute desk" id="cloture"></span></h2>
+    <svg id="courbe" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="Performance des bots en pourcentage"></svg>
+    <div class="legend" id="legende"></div>
   </section>
-  <section class="card wide">
-    <h2>📈 Performance depuis le départ (%)</h2>
-    <svg id="courbe" viewBox="0 0 1000 180" preserveAspectRatio="none" role="img" aria-label="Performance des bots depuis le départ"></svg>
-    <div class="mute" id="courbe-legende"></div>
-  </section>
-  <section class="card">
-    <h2>Positions en direct (Hyperliquid)</h2>
+
+  <div class="grid" data-s="tout bots" id="bots"></div>
+
+  <section class="card" data-s="tout bots">
+    <h2>Positions en direct · Hyperliquid</h2>
     <div class="scroll"><table id="positions"></table></div>
   </section>
-  <section class="card">
-    <h2>🛡️ Gardien et chien de garde</h2>
-    <div class="kpis" id="garde"></div>
-  </section>
-  <section class="card">
-    <h2>🔮 Fable</h2>
-    <div class="kpis" id="fable"></div>
-    <p class="mute" id="bilans"></p>
-  </section>
-  <section class="card">
-    <h2>🥜 Smart Peanut</h2>
-    <div class="kpis" id="peanut"></div>
-  </section>
-  <section class="card wide">
-    <h2>Fil des décisions</h2>
-    <div class="feed scroll"><table id="fil"></table></div>
-  </section>
-  <section class="card wide">
-    <h2>Derniers trades fermés</h2>
-    <div class="scroll"><table id="trades"></table></div>
-  </section>
-  <section class="card wide">
-    <h2>🧪 Verdicts du Testeur</h2>
-    <div class="scroll"><table id="verdicts"></table></div>
-  </section>
+
+  <div class="grid" data-s="tout t6 agents">
+    <section class="card" data-s="tout t6"><h2>T6 · Récolteur de cascades <span id="t6pill"></span></h2><div class="kv" id="t6"></div></section>
+    <section class="card" data-s="tout agents"><h2>Équipe</h2><div id="agents"></div></section>
+  </div>
+
+  <section class="card" data-s="t6"><h2>Dernières cascades détectées</h2><div class="scroll"><table id="cascades"></table></div></section>
+  <section class="card" data-s="agents"><h2>Activité de l'Ingénieur Dev · commits</h2><div class="scroll"><table id="commits" class="wrap"></table></div></section>
+  <section class="card" data-s="agents"><h2>Visionnaire · derniers avis de Fable</h2><div class="scroll"><table id="avis" class="wrap"></table></div></section>
+  <section class="card" data-s="agents"><h2>Chercheur · dernier bilan <span class="mute" id="bilan-nom"></span></h2><pre id="bilan">Pas encore de bilan hebdomadaire.</pre></section>
+
+  <section class="card" data-s="tout bots"><h2>Fil des décisions</h2><div class="feed scroll"><table id="fil" class="wrap"></table></div></section>
+  <section class="card" data-s="bots"><h2>Derniers trades fermés</h2><div class="scroll"><table id="trades"></table></div></section>
+  <section class="card" data-s="recherche"><h2>Verdicts du Testeur</h2><div class="scroll"><table id="verdicts" class="wrap"></table></div></section>
+
+  <div class="grid" data-s="systeme">
+    <section class="card"><h2>Déployeur</h2><div class="kv" id="deploy"></div></section>
+    <section class="card"><h2>Conteneurs</h2><div class="scroll"><table id="conteneurs"></table></div></section>
+  </div>
+  <section class="card" data-s="systeme"><h2>Journal du Déployeur</h2><pre id="dlog">–</pre></section>
 </main>
 <script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor("#0a0d12"); tg.setBackgroundColor("#0a0d12"); } catch (e) {} }
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "–").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const num = (x, d=2) => x === null || x === undefined || isNaN(x) ? "–" : Number(x).toFixed(d);
-const sign = (x, d=2) => x === null || x === undefined ? "–" : `<span class="${x >= 0 ? "pos" : "neg"}">${x >= 0 ? "+" : ""}${num(x, d)}</span>`;
+const num = (x, d=2) => x === null || x === undefined || x === "" || isNaN(x) ? "–" : Number(x).toLocaleString("fr-FR", {minimumFractionDigits: d, maximumFractionDigits: d});
+const sign = (x, d=2, suf="") => x === null || x === undefined || isNaN(x) ? "–" : `<span class="${x >= 0 ? "pos" : "neg"}">${x >= 0 ? "+" : ""}${num(x, d)}${suf}</span>`;
 const pill = (t, c) => `<span class="pill ${c}">${esc(t)}</span>`;
-const kpi = (label, val) => `<div class="kpi"><small>${esc(label)}</small><b>${val}</b></div>`;
-const dur = s => s === null || s === undefined ? "–" : s < 60 ? `${s} s` : s < 3600 ? `${Math.floor(s/60)} min` : `${Math.floor(s/3600)} h ${Math.floor(s%3600/60)} min`;
+const kv = (l, v) => `<div><small>${esc(l)}</small><b>${v}</b></div>`;
+const dur = s => s === null || s === undefined ? "–" : s < 60 ? `${s} s` : s < 3600 ? `${Math.floor(s/60)} min` : s < 86400 ? `${Math.floor(s/3600)} h ${Math.floor(s%3600/60)} min` : `${Math.floor(s/86400)} j ${Math.floor(s%86400/3600)} h`;
+const hhmm = ts => ts ? String(ts).slice(5, 16).replace("T", " ") : "–";
+const fromMs = ms => ms ? new Date(ms).toISOString().slice(5, 16).replace("T", " ") : "–";
 const table = (el, head, rows) => { $(el).innerHTML = `<tr>${head.map(h => `<th>${h}</th>`).join("")}</tr>` + (rows.length ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" class="mute">rien pour l'instant</td></tr>`); };
+const gauge = (v, max) => { const p = Math.min(100, Math.max(0, (v || 0) / max * 100)); return `<div class="gauge"><i style="width:${p}%;background:${p > 66 ? "var(--ko)" : p > 33 ? "var(--warn)" : "var(--ok)"}"></i></div>`; };
+
+let vue = "tout";
+$("nav").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  vue = b.dataset.v; for (const x of $("nav").children) x.classList.toggle("on", x === b);
+  for (const el of document.querySelectorAll("[data-s]")) el.classList.toggle("hide", !el.dataset.s.split(" ").includes(vue));
+  window.scrollTo({top: 0});
+  if (tg) try { tg.HapticFeedback.selectionChanged(); } catch (e) {}
+});
 
 function courbe(series) {
   const svg = $("courbe"), all = [];
   for (const sr of series) { sr.pct = (sr.pts || []).map(p => [p[0], sr.start ? (p[1] / sr.start - 1) * 100 : 0]); all.push(...sr.pct); }
-  if (!all.length) { svg.innerHTML = `<text x="10" y="90" fill="#8b949e">pas encore de données</text>`; return; }
-  const ys = all.map(p => p[1]).concat([0, -50]), ts = all.map(p => p[0]);
-  const lo = Math.min(...ys) - 1, hi = Math.max(...ys) + 1, t0 = Math.min(...ts), t1 = Math.max(...ts);
-  const X = t => (t1 === t0 ? 0 : (t - t0) / (t1 - t0) * 1000), Y = v => 170 - (v - lo) / (hi - lo || 1) * 160;
-  const line = (v, c, dash) => `<line x1="0" x2="1000" y1="${Y(v)}" y2="${Y(v)}" stroke="${c}" stroke-dasharray="${dash}" stroke-width="1"/>`;
-  svg.innerHTML = line(0, "#8b949e", "4 4") + line(-50, "#f85149", "6 4") + series.filter(sr => sr.pct.length).map(sr =>
-    `<polyline fill="none" stroke="${sr.color}" stroke-width="2" points="${sr.pct.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}"/>`).join("");
-  $("courbe-legende").innerHTML = series.map(sr => `<span style="color:${sr.color}">━</span> ${esc(sr.nom)} (départ ${num(sr.start)} USDC)`).join(" &nbsp; ") +
-    ` &nbsp; Pointillé gris : 0 %. Pointillé rouge : arrêt de ligne à −50 %.`;
+  if (!all.length) { svg.innerHTML = `<text x="500" y="105" text-anchor="middle" fill="#8592a3" font-size="14">pas encore de données</text>`; $("legende").innerHTML = ""; return; }
+  const ys = all.map(p => p[1]).concat([0]), ts = all.map(p => p[0]);
+  const lo = Math.min(...ys) - 0.5, hi = Math.max(...ys) + 0.5, t0 = Math.min(...ts), t1 = Math.max(...ts);
+  const X = t => (t1 === t0 ? 0 : (t - t0) / (t1 - t0) * 1000), Y = v => 190 - (v - lo) / (hi - lo || 1) * 180;
+  let g = `<line x1="0" x2="1000" y1="${Y(0)}" y2="${Y(0)}" stroke="#2b3542" stroke-dasharray="4 4"/>`;
+  for (const sr of series.filter(s => s.pct.length)) {
+    const pts = sr.pct.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ");
+    g += `<polygon fill="${sr.color}" opacity=".08" points="0,${Y(lo)} ${pts} 1000,${Y(lo)}"/><polyline fill="none" stroke="${sr.color}" stroke-width="2.2" vector-effect="non-scaling-stroke" points="${pts}"/>`;
+  }
+  svg.innerHTML = g;
+  $("legende").innerHTML = series.map(sr => `<span><i style="background:${sr.color}"></i>${esc(sr.nom)} ${sign(sr.pct.length ? sr.pct[sr.pct.length - 1][1] : null, 2, " %")}</span>`).join("") + `<span>Arrêt de ligne à −50 %</span>`;
+}
+
+function carteBot(nom, ic, b, compte, couleur) {
+  if (!b) return "";
+  const vivant = b.age_s !== null && b.age_s < 900, mode = (b.status.mode || "?");
+  const perf = b.start_equity && compte.valeur ? (compte.valeur / b.start_equity - 1) * 100 : null;
+  const etat = b.kill ? pill("KILL", "ko") : vivant ? pill("en marche", "ok") : pill("silencieux", "ko");
+  return `<section class="card"><div class="bot"><div><h3>${ic} ${esc(nom)}</h3><p>Stratégie M2 · croisement EMA 50/200 · 4 h${b.status.version ? " · v" + esc(b.status.version) : ""}</p></div>
+    <div>${etat} ${pill(mode === "reel" ? "RÉEL" : mode.toUpperCase(), mode === "reel" ? "warn" : "info")}</div></div>
+    <div class="kv">${kv("Capital", num(compte.valeur) + " $")}${kv("Depuis le départ", sign(perf, 2, " %"))}${kv("Positions", Object.keys(b.positions || {}).length)}
+    ${kv("R cumulé", sign(b.r_cumule))}${kv("Baisse", `${num(b.baisse_R, 1)} / 30 R` + gauge(b.baisse_R, 30))}${kv("Pertes d'affilée", `${b.pertes_affilee} / 20` + gauge(b.pertes_affilee, 20))}
+    ${kv("Arrêt de ligne", num(b.line_stop) + " $")}${kv("Signe de vie", dur(b.age_s))}${kv("Note", esc(b.status.note || "–"))}</div>
+    ${b.kill ? `<p class="neg" style="margin:10px 0 0">${esc(b.kill_reason)}</p>` : ""}</section>`;
 }
 
 async function rafraichir() {
   try {
-    const r = await fetch("/api/etat", {cache: "no-store"}); const d = await r.json();
-    const m = d.moonshot, x = d.exchange, p = d.peanut, cm = (x.comptes || {})["Moonshot"] || {}, cl = (x.comptes || {})["Smart Peanut"] || {};
-    const vivant = m.age_s !== null && m.age_s < 900;
-    $("etat").innerHTML = `${vivant ? pill("Moonshot en marche", "ok") : pill("Moonshot silencieux", "ko")} ${m.kill ? pill("KILL", "ko") : ""} ${pill((m.status.mode || "?").toUpperCase(), m.status.mode === "reel" ? "warn" : "ok")}
-      <span class="mute">· mis à jour ${new Date(d.maintenant * 1000).toLocaleTimeString("fr-FR")}${x.erreur ? ` · <span id="err">${esc(x.erreur)}</span>` : ""}</span>`;
-    const total = (cm.valeur || 0) + (cl.valeur || 0);
-    const perf = m.start_equity && cm.valeur ? (cm.valeur / m.start_equity - 1) * 100 : null;
-    $("kpis").innerHTML = kpi("Capital total (USDC)", num(total)) + kpi("Moonshot (USDC)", num(cm.valeur)) + kpi("Depuis le départ", perf === null ? "–" : sign(perf, 2) + " %") +
-      kpi("Smart Peanut (USDC)", num(cl.valeur)) + kpi("Positions ouvertes", (cm.positions || []).length + (cl.positions || []).length) +
-      kpi("Prochaine clôture 4 h", dur(m.prochaine_cloture_s)) + Object.entries(x.prix || {}).map(([c, v]) => kpi(c, v ? Number(v).toPrecision(6) : "–")).join("");
-    const p2 = d.peanut2;
-    courbe([{nom: "Moonshot", pts: m.equity || [], start: m.start_equity, color: "#58a6ff"}].concat(p2 ? [{nom: "Smart Peanut v2", pts: p2.equity || [], start: p2.start_equity, color: "#d29922"}] : []));
+    const headers = tg && tg.initData ? {"X-Telegram-Init": tg.initData} : {};
+    const r = await fetch("api/etat", {cache: "no-store", headers});
+    if (r.status === 403) { $("app").classList.add("hide"); $("msg").classList.remove("hide"); $("msg").textContent = "Accès réservé : ouvre le tableau de bord depuis le bot Telegram de l'usine."; $("dot").className = "dot ko"; $("maj").textContent = "accès refusé"; return; }
+    const d = await r.json();
+    const m = d.moonshot, p2 = d.peanut2, x = d.exchange || {}, comptes = x.comptes || {};
+    const cm = comptes["Moonshot"] || {}, cl = comptes["Smart Peanut"] || {}, t6 = d.recolteur || {}, dep = d.deployeur || {};
+    const vivants = [m, p2].filter(Boolean).every(b => b.age_s !== null && b.age_s < 900 && !b.kill);
+    $("dot").className = "dot" + (vivants && !x.erreur ? "" : " ko");
+    $("maj").textContent = `${vivants ? "tout est en marche" : "à vérifier"} · ${new Date(d.maintenant * 1000).toLocaleTimeString("fr-FR")}`;
+
+    const total = (cm.valeur || 0) + (cl.valeur || 0), depart = (m.start_equity || 0) + ((p2 && p2.start_equity) || 0);
+    const npos = (cm.positions || []).length + (cl.positions || []).length, sansStop = [...(cm.positions || []), ...(cl.positions || [])].filter(q => !q.stop).length;
+    const stat = (l, v, s) => `<div class="stat"><small>${l}</small><b>${v}</b><span>${s || "&nbsp;"}</span></div>`;
+    $("hero").innerHTML = stat("Capital total", num(total) + " $", depart ? `départ ${num(depart)} $` : "") +
+      stat("Résultat", sign(total - depart, 2, " $"), depart ? sign((total / depart - 1) * 100, 2, " %") : "") +
+      stat("Positions ouvertes", npos, sansStop ? `<span class="neg">${sansStop} sans stop</span>` : npos ? "toutes protégées par un stop" : "aucune exposition") +
+      stat("Prochaine clôture 4 h", dur(m.prochaine_cloture_s), "lecture des signaux M2") +
+      stat("T6 Récolteur", esc(((t6.status || {}).phase || "–")), `${t6.cascades ?? 0} cascades journalisées`) +
+      stat("BTC", x.prix && x.prix.BTC ? num(x.prix.BTC, 0) + " $" : "–", x.erreur ? `<span class="neg">${esc(x.erreur)}</span>` : "prix Hyperliquid");
+    $("cloture").textContent = `prochaine clôture 4 h dans ${dur(m.prochaine_cloture_s)}`;
+
+    courbe([{nom: "Moonshot", pts: m.equity || [], start: m.start_equity, color: "#4c8dff"}].concat(p2 ? [{nom: "Smart Peanut", pts: p2.equity || [], start: p2.start_equity, color: "#e3a008"}] : []));
+    $("bots").innerHTML = carteBot("Moonshot", "🚀", m, cm) + carteBot("Smart Peanut", "🥜", p2, cl);
+
     const pos = [];
-    for (const [compte, c] of Object.entries(x.comptes || {})) for (const q of c.positions || [])
-      pos.push([esc(compte), esc(q.coin), q.sens === "long" ? pill("LONG", "ok") : pill("SHORT", "ko"), num(q.entree, 5), num(q.prix, 5), sign(q.pnl), num(q.liquidation, 5), q.stop ? pill("stop ✓", "ok") : pill("SANS STOP", "ko")]);
-    table("positions", ["Compte", "Actif", "Sens", "Entrée", "Prix", "P&L", "Liquidation", "Stop"], pos);
-    $("garde").innerHTML = kpi("Dernier signe de vie", dur(m.age_s)) + kpi("R cumulé (réel)", sign(m.r_cumule)) + kpi("Baisse depuis le sommet", `${num(m.baisse_R, 1)} / 30 R`) +
-      kpi("Pertes d'affilée", `${m.pertes_affilee} / 20`) + kpi("Arrêt de ligne", `${num(m.line_stop)} USDC`) + kpi("Note", esc(m.status.note || "–")) +
-      (m.kill ? kpi("KILL", esc(m.kill_reason)) : "");
-    const f = m.fable || {};
-    const nt = n => `${n ?? 0} trade${(n ?? 0) > 1 ? "s" : ""}`;
-    $("fable").innerHTML = kpi("Avis « prendre »", `${nt(f.prendre?.trades)} · ${f.prendre?.R_moyen ?? "–"} R`) + kpi("Avis « éviter »", `${nt(f.eviter?.trades)} · ${f.eviter?.R_moyen ?? "–"} R`);
-    $("bilans").innerHTML = (m.chercheur || []).length ? "Bilans du Chercheur : " + m.chercheur.map(esc).join(", ") : "Pas encore de bilan hebdomadaire.";
-    if (p2) {
-      const v2 = p2.age_s !== null && p2.age_s < 900;
-      $("peanut").innerHTML = kpi("État", (v2 ? pill("en marche", "ok") : pill("silencieux", "ko")) + " " + (p2.kill ? pill("KILL", "ko") : pill((p2.status.mode || "?").toUpperCase(), p2.status.mode === "reel" ? "warn" : "ok"))) +
-        kpi("Capital (USDC)", num(cl.valeur)) + kpi("Positions", Object.keys(p2.positions || {}).length) + kpi("R cumulé (réel)", sign(p2.r_cumule)) +
-        kpi("Baisse depuis le sommet", `${num(p2.baisse_R, 1)} / 30 R`) + kpi("Pertes d'affilée", `${p2.pertes_affilee} / 20`) + kpi("Arrêt de ligne", `${num(p2.line_stop)} USDC`) +
-        (p2.kill ? kpi("Raison", esc(p2.kill_reason)) : "");
-    } else {
-      $("peanut").innerHTML = kpi("État", p.kill ? pill("ARRÊTÉ (KILL)", "ko") : pill("actif", "ok")) + kpi("Trades réels", p.trades) + kpi("Gagnants", p.gagnants) + kpi("P&L cumulé", sign(p.pnl)) +
-        (p.kill ? kpi("Raison", esc(p.kill_reason)) : "");
-    }
-    const lab = (arr, nom) => (arr || []).map(x => ({...x, bot: nom}));
-    const ev = lab(m.events, "Moonshot").concat(p2 ? lab(p2.events, "Peanut v2") : []).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 80);
-    table("fil", ["Heure (UTC)", "Bot", "Étape", "Décision", "Détail"], ev.map(e => [esc(e.ts.slice(5, 16).replace("T", " ")), esc(e.bot), esc(e.stage), esc(e.decision), esc(e.reason)]));
-    const tr = lab(m.closed, "Moonshot").concat(p2 ? lab(p2.closed, "Peanut v2") : []).sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
-    table("trades", ["Fermé (UTC)", "Bot", "Actif", "Sens", "Issue", "P&L (USDC)", "R"], tr.map(c => [esc((c.ts || "").slice(5, 16).replace("T", " ")), esc(c.bot), esc(c.coin), esc(c.side), esc(c.issue), sign(c.pnl), sign(c.R)]));
-    table("verdicts", ["Catalogue", "Candidat", "Trades éval.", "PF (frais ×2)", "Espérance (R)", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), esc(v.candidat), esc(v.trades), num(v.pf), num(v.esperance_R, 3), esc(v.verdict)]));
-  } catch (e) { $("etat").innerHTML = pill("tableau de bord injoignable", "ko"); }
+    for (const [compte, c] of Object.entries(comptes)) for (const q of c.positions || [])
+      pos.push([esc(compte), `<b>${esc(q.coin)}</b>`, q.sens === "long" ? pill("LONG", "ok") : pill("SHORT", "ko"), num(q.entree, 5), num(q.prix, 5), sign(q.pnl), num(q.liquidation, 5), q.stop ? pill("stop posé", "ok") : pill("SANS STOP", "ko")]);
+    table("positions", ["Compte", "Actif", "Sens", "Entrée", "Prix", "P&L $", "Liquidation", "Stop"], pos);
+
+    const st6 = t6.status || {};
+    $("t6pill").innerHTML = st6.phase ? pill(st6.phase === "papier" ? "PAPIER" : st6.phase === "mesure" ? "SEMAINE DE MESURE" : st6.phase.toUpperCase(), st6.phase === "abandon" ? "ko" : "info") : pill("absent", "neu");
+    const finMesure = t6.debut ? t6.debut + 7 * 86400000 : null;
+    $("t6").innerHTML = kv("Phase", esc(st6.phase)) + kv(st6.phase === "mesure" ? "Fin de la mesure" : "Équité papier", st6.phase === "mesure" ? fromMs(finMesure) : num(st6.equite) + " $") +
+      kv("Actifs prêts", (st6.prets || []).length) + kv("Cascades", `${t6.cascades ?? 0} (${t6.cascades_completes ?? 0} complètes)`) +
+      kv("Trades papier", `${st6.trades ?? 0} / 60`) + kv("PF net (frais ×3)", esc(st6.pf_stress ?? "–")) +
+      kv("Univers", (st6.univers || []).length ? esc(st6.univers.join(", ")) : "pas encore figé") + kv("Signe de vie", dur(t6.age_s));
+    table("cascades", ["Heure (UTC)", "Actif", "Baisse", "Signal", "Refus"], (t6.dernieres_cascades || []).map(c => [fromMs(c.t), `<b>${esc(c.coin)}</b>`, num(c.baisse, 5), c.complet ? pill("complet", "ok") : pill("partiel", "neu"), esc(c.refus || "pris")]));
+
+    const commits = dep.commits || [], ag = d.agents || {};
+    const dernierCommit = commits[0], echecs = Object.keys(dep.echecs || {});
+    const agent = (ic, nom, role, etat, detail) => `<div class="agent"><div class="ic">${ic}</div><div style="min-width:0;flex:1"><b>${nom} ${etat}</b><p>${role}</p>${detail ? `<p>${detail}</p>` : ""}</div></div>`;
+    $("agents").innerHTML =
+      agent("🛠️", "Ingénieur Dev", "Met à jour les bots chaque jour à 10 h 23, sur les conseils de l'équipe", dernierCommit ? pill("actif", "ok") : pill("en attente", "neu"), dernierCommit ? `Dernier commit ${esc(hhmm(dernierCommit.date))} · ${esc(dernierCommit.message)}` : "") +
+      agent("🚚", "Déployeur", "Teste, déploie et revient en arrière seul, toutes les 10 min", dep.absent ? pill("absent", "neu") : echecs.length ? pill(`${echecs.length} échec(s)`, "ko") : pill("à jour", "ok"), dep.ts ? `Dernier passage ${esc(hhmm(dep.ts))} · déployé ${esc((dep.deploye || "").slice(0, 8))}` : "") +
+      agent("🔬", "Chercheur", "Bilan hebdomadaire de Fable, le dimanche", ag.chercheur ? pill("bilan disponible", "ok") : pill("premier bilan dimanche", "neu"), ag.chercheur ? esc(ag.chercheur.fichier) : "") +
+      agent("🔮", "Visionnaire", "Avis de Fable sur chaque signal, en observation", (ag.visionnaire || []).length ? pill(`${ag.visionnaire.length} avis récents`, "info") : pill("aucun signal", "neu"), "") +
+      agent("🧪", "Testeur", "Juge chaque idée sur l'historique, sans complaisance", pill(`${(d.verdicts || []).length} verdicts`, "info"), "") +
+      agent("🛡️", "Directeur des risques", "Bornes, Gardien, chiens de garde, KILL", [m, p2].some(b => b && b.kill) ? pill("KILL actif", "ko") : pill("aucune alerte", "ok"), "1 % par trade · levier 5 max · arrêt à −50 %, 30 R ou 20 pertes");
+    table("commits", ["Date (UTC)", "Commit", "Message"], commits.map(c => [esc(hhmm(c.date)), `<code>${esc(c.sha)}</code>`, esc(c.message)]));
+    table("avis", ["Heure (UTC)", "Actif", "Avis", "Raison"], (ag.visionnaire || []).map(a => [esc(hhmm(a.ts)), esc(a.coin), a.avis === "prendre" ? pill("prendre", "ok") : pill("éviter", "ko"), esc(a.raison)]));
+    if (ag.chercheur) { $("bilan").textContent = ag.chercheur.texte; $("bilan-nom").textContent = ag.chercheur.fichier; }
+
+    const lab = (arr, nom) => (arr || []).map(e => ({...e, bot: nom}));
+    const ev = lab(m.events, "Moonshot").concat(p2 ? lab(p2.events, "Smart Peanut") : []).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 80);
+    table("fil", ["Heure (UTC)", "Bot", "Étape", "Décision", "Détail"], ev.map(e => [esc(hhmm(e.ts)), esc(e.bot), esc(e.stage), esc(e.decision), esc(e.reason)]));
+    const tr = lab(m.closed, "Moonshot").concat(p2 ? lab(p2.closed, "Smart Peanut") : []).sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
+    table("trades", ["Fermé (UTC)", "Bot", "Actif", "Sens", "Issue", "P&L $", "R"], tr.map(c => [esc(hhmm(c.ts)), esc(c.bot), `<b>${esc(c.coin)}</b>`, esc(c.side), esc(c.issue), sign(c.pnl), sign(c.R)]));
+    table("verdicts", ["Catalogue", "Candidat", "Trades", "PF ×2", "Espérance", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), `<b>${esc(v.candidat)}</b>`, esc(v.trades), num(v.pf), sign(v.esperance_R, 3), String(v.verdict).startsWith("AVANTAGE") ? pill("AVANTAGE", "ok") : esc(v.verdict)]));
+
+    $("deploy").innerHTML = kv("Dernier passage", esc(hhmm(dep.ts))) + kv("Commit déployé", `<code>${esc((dep.deploye || "–").slice(0, 8))}</code>`) +
+      kv("Refusé", dep.refuse ? `<span class="neg">${esc(dep.refuse.slice(0, 8))}</span>` : "aucun") + kv("Échecs", echecs.length ? `<span class="neg">${esc(echecs.join(", "))}</span>` : "aucun") +
+      kv("Disque libre", dep.disque ? `${num(dep.disque.libre_go, 1)} Go / ${num(dep.disque.total_go, 0)} Go` : "–") + kv("Travaux", Object.keys(dep.jobs || {}).length);
+    table("conteneurs", ["Conteneur", "État"], (dep.conteneurs || []).map(c => { const [n, s] = c.split(" | "); return [esc(n), (s || "").startsWith("Up") ? pill(s, "ok") : pill(s || "?", "ko")]; }));
+    $("dlog").textContent = (dep.journal || []).join("\n") || "–";
+  } catch (e) { $("dot").className = "dot ko"; $("maj").textContent = "tableau de bord injoignable"; }
 }
 rafraichir(); setInterval(rafraichir, 15000);
 </script>

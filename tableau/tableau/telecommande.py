@@ -2,7 +2,7 @@
 et ne sait faire qu'une seule action, poser un KILL (arreter les nouvelles entrees d'un bot). Elle ne peut ni ouvrir un trade,
 ni retirer un KILL : la reprise se fait volontairement sur le VPS.
 Seul le chat TELEGRAM_CHAT_ID est obei ; tout autre expediteur est ignore.
-Commandes : /etat  /positions  /pnl  /kill moonshot|peanut|tous (puis /confirmer dans les 60 s)  /aide"""
+Commandes : /dashboard  /etat  /positions  /pnl  /kill moonshot|peanut|tous (puis /confirmer dans les 60 s)  /aide"""
 import os, time, json, logging, datetime as dt
 from . import server as S
 
@@ -10,7 +10,8 @@ log = logging.getLogger("telecommande")
 TOKEN, CHAT = os.getenv("TELEGRAM_BOT_TOKEN", ""), str(os.getenv("TELEGRAM_CHAT_ID", ""))
 BOTS = {"moonshot": ("Moonshot", S.MOON), "peanut": ("Smart Peanut v2", S.PEANUT2)}
 CONFIRM_S = 60
-AIDE = ("Commandes :\n/etat : resume des deux bots\n/positions : positions ouvertes et stops sur Hyperliquid\n/pnl : resultat depuis le depart\n"
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "")
+AIDE = ("Commandes :\n/dashboard : ouvrir le tableau de bord\n/etat : resume des deux bots\n/positions : positions ouvertes et stops sur Hyperliquid\n/pnl : resultat depuis le depart\n"
         "/kill moonshot | peanut | tous : arreter les nouvelles entrees (confirmation demandee)\n/aide : cette liste\n"
         "La reprise apres un KILL se fait sur le VPS, jamais depuis Telegram.")
 
@@ -48,6 +49,11 @@ def pnl():
         lines.append(f"{nom} : {perf} · {n} trades recents dont {g} gagnants")
     return "\n".join(lines)
 
+def dashboard():
+    if not DASHBOARD_URL: return "Tableau de bord pas encore publie (DASHBOARD_URL absent)."
+    return {"text": "🏭 Tableau de bord de l'usine : bots, T6, agents, recherche et systeme, mis a jour toutes les 15 s.",
+            "reply_markup": {"inline_keyboard": [[{"text": "📊 Ouvrir le dashboard", "web_app": {"url": DASHBOARD_URL}}]]}}
+
 def poser_kill(cibles):
     done = []
     for key in cibles:
@@ -68,6 +74,7 @@ class Telecommande:
         if not t: return None
         cmd, arg = t[0].split("@")[0], (t[1] if len(t) > 1 else "")
         if cmd in ("/aide", "/start", "/help"): return AIDE
+        if cmd in ("/dashboard", "/tableau"): return dashboard()
         if cmd == "/etat": return etat()
         if cmd == "/positions": return positions()
         if cmd == "/pnl": return pnl()
@@ -88,8 +95,9 @@ def _api(method, payload=None, timeout=40):
     r = requests.post(f"https://api.telegram.org/bot{TOKEN}/{method}", json=payload or {}, timeout=timeout)
     return r.json()
 
-def send(text):
-    try: _api("sendMessage", {"chat_id": CHAT, "text": text[:4000], "disable_web_page_preview": True}, timeout=10)
+def send(msg):
+    body = msg if isinstance(msg, dict) else {"text": msg}
+    try: _api("sendMessage", {"chat_id": CHAT, **body, "text": body["text"][:4000], "disable_web_page_preview": True}, timeout=10)
     except Exception as ex: log.warning("envoi : %s", type(ex).__name__)
 
 def main():
@@ -100,7 +108,10 @@ def main():
         r = _api("getUpdates", {"timeout": 0})                           # ignore les vieux messages en attente
         if r.get("result"): offset = r["result"][-1]["update_id"] + 1
     except Exception: pass
-    send("🎛 Telecommande active. /aide pour la liste des commandes.")
+    if DASHBOARD_URL:
+        try: _api("setChatMenuButton", {"chat_id": CHAT, "menu_button": {"type": "web_app", "text": "Dashboard", "web_app": {"url": DASHBOARD_URL}}}, timeout=10)
+        except Exception as ex: log.warning("bouton de menu : %s", type(ex).__name__)
+    send("🎛 Telecommande active. /dashboard pour le tableau de bord, /aide pour la liste des commandes.")
     while True:
         try:
             r = _api("getUpdates", {"timeout": 30, "offset": offset, "allowed_updates": ["message"]})

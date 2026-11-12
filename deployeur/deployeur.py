@@ -17,6 +17,7 @@ RACINE = os.getenv("DEPLOYEUR_RACINE", "")                                  # pr
 def R(p): return RACINE + p
 BASE = os.getenv("DEPLOYEUR_BASE", "/opt/deployeur")
 INSTALL = os.getenv("DEPLOYEUR_INSTALL", os.path.dirname(os.path.abspath(__file__)))
+PUBLIC = os.getenv("DEPLOYEUR_PUBLIC", R("/opt/usine-public"))
 FICHIERS_DEPLOYEUR = ("deployeur.py", "bornes.py", "installer.sh", "lanceur.sh")
 REPO = os.path.join(BASE, "depot")
 ETAT = os.path.join(BASE, "etat.json")
@@ -348,9 +349,27 @@ def cycle(ctx, adopter=False):
     if os.path.isdir(stage) and s.get("deploye") == new:
         jobs(ctx, s, stage); messages(ctx, s, stage)
     save_state(s)
+    try: publier(ctx, s)
+    except Exception as ex: log(f"publication : {type(ex).__name__}")
     if ctx.now() - s.get("dernier_rapport", 0) >= 3300 or adopter:
         if rapport(ctx, s): s["dernier_rapport"] = int(ctx.now()); save_state(s)
     return s
+
+def publier(ctx, s):
+    """Vue publique pour le tableau de bord (aucun secret) : etat, conteneurs, commits recents, journal, disque."""
+    d = PUBLIC; os.makedirs(d, exist_ok=True)
+    rc, ps = ctx.run(["docker", "ps", "-a", "--format", "{{.Names}} | {{.Status}}"])
+    rc2, lg = git(ctx, "log", "origin/main", "-15", "--format=%h%x1f%cI%x1f%s")
+    commits = [dict(zip(("sha", "date", "message"), l.split("\x1f"))) for l in lg.splitlines() if l.count("\x1f") == 2] if rc2 == 0 else []
+    try: journal = open(LOG).read().splitlines()[-40:]
+    except OSError: journal = []
+    du = shutil.disk_usage("/")
+    out = {"ts": dt.datetime.now(dt.timezone.utc).isoformat()[:19] + "Z", "deploye": s.get("deploye"), "refuse": s.get("refuse"),
+           "echecs": s.get("echecs"), "jobs": {k: v.get("etat") for k, v in (s.get("jobs") or {}).items()},
+           "conteneurs": sorted(ps.strip().splitlines()) if rc == 0 else [], "commits": commits, "journal": journal,
+           "disque": {"libre_go": round(du.free / 1e9, 1), "total_go": round(du.total / 1e9, 1)}}
+    tmp = os.path.join(d, "etat.json.tmp"); open(tmp, "w").write(redact(json.dumps(out, ensure_ascii=False)))
+    os.chmod(tmp, 0o644); os.replace(tmp, os.path.join(d, "etat.json"))
 
 def main(argv=None):
     a = argv if argv is not None else sys.argv[1:]

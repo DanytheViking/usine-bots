@@ -4,15 +4,21 @@ Rassemble en une page qui se met a jour seule :
   - Smart Peanut (fichiers du bot) : etat, KILL, derniers trades ;
   - Hyperliquid en direct (API publique, adresses publiques seulement) : valeur des comptes, positions, ordres, stops ;
   - le Testeur : verdicts des catalogues de l'usine.
-Ecoute sur 8090 dans le conteneur, publie UNIQUEMENT sur 127.0.0.1 du VPS. Depuis le Mac :
+Ecoute sur 8090 dans le conteneur, publie sur 127.0.0.1 du VPS et derriere le portail HTTPS (bouton du bot Telegram,
+donnees servies seulement si la signature Telegram du compte de Richard est valide). Depuis le Mac, sans Telegram :
     ssh -N -L 8090:127.0.0.1:8090 root@<IP du VPS>      puis      http://localhost:8090"""
-import os, json, time, glob, threading, datetime as dt
+import os, json, time, glob, hmac, hashlib, threading, datetime as dt
+from urllib.parse import parse_qsl
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 DATA = os.getenv("DATA_ROOT", "/d")
 MOON = os.path.join(DATA, "moonshot")
 PEANUT = os.path.join(DATA, "peanut")
 PEANUT2 = os.path.join(DATA, "peanut2")
+RECOLTEUR = os.path.join(DATA, "recolteur")
+DEPLOYEUR = os.path.join(DATA, "deployeur")
+TOKEN, CHAT = os.getenv("TELEGRAM_BOT_TOKEN", ""), str(os.getenv("TELEGRAM_CHAT_ID", ""))
+AUTH_MAX_S = 24 * 3600
 ACCOUNTS = {"Moonshot": os.getenv("MOON_ACCOUNT", ""), "Smart Peanut": os.getenv("LABO_ACCOUNT", "")}
 INFO_URL = "https://api.hyperliquid.xyz/info"
 CACHE_S = 20
@@ -65,7 +71,7 @@ def moonshot(base=None):
         else: break
     eq = [[p["t"], p["eq"]] for p in tail(os.path.join(dossier, "equity.jsonl"), 20000) if p.get("eq") is not None]
     now_ms = int(time.time() * 1000)
-    events = [{"ts": r["ts"], "stage": r["stage"], "decision": r["decision"], "reason": r["reason"]} for r in journal
+    events = [{"ts": r.get("ts", ""), "stage": r.get("stage"), "decision": r.get("decision", ""), "reason": r.get("reason", "")} for r in journal
               if r.get("stage") in ("signal", "execution", "cloture", "fable", "risque", "demarrage")][-60:][::-1]
     start = s.get("start_equity")
     return {"status": st, "age_s": age_s(st.get("ts", "")), "positions": s.get("positions", {}), "closed": closed[-30:][::-1],
@@ -94,6 +100,49 @@ def verdicts():
             out.append({"catalogue": rep.get("specification", "?"), "candidat": name, "verdict": r.get("verdict", "?"),
                         "trades": ev.get("trades"), "pf": ev.get("profit_factor"), "esperance_R": ev.get("esperance_R")})
     return out
+
+def recolteur():
+    st = _json(os.path.join(RECOLTEUR, "status.json"), {})
+    j = tail(os.path.join(RECOLTEUR, "journal.jsonl"), 4000)
+    cas = [r for r in j if r.get("type") == "cascade"]
+    sorties = [r["data"] for r in j if r.get("type") == "sortie"]
+    return {"status": st, "age_s": int(time.time() - st["ts"]) if st.get("ts") else None,
+            "cascades": len(cas), "cascades_completes": sum(1 for r in cas if r["data"].get("signal_complet")),
+            "dernieres_cascades": [{"t": r.get("t_hl"), "coin": r["data"].get("coin"), "baisse": r["data"].get("baisse"),
+                                    "complet": r["data"].get("signal_complet"), "refus": r["data"].get("refus")} for r in cas[-12:]][::-1],
+            "derniers_trades": [{k: t.get(k) for k in ("coin", "issue", "R", "t_sortie", "duree_ms")} for t in sorties[-10:]][::-1],
+            "debut": next((r.get("t_hl") for r in j if r.get("type") == "demarrage_mesure"), None)}
+
+def deployeur():
+    d = _json(os.path.join(DEPLOYEUR, "etat.json"), {})
+    return d or {"absent": True}
+
+def chercheur(base):
+    fs = sorted(glob.glob(os.path.join(base, "chercheur", "bilan-*.md")))
+    if not fs: return None
+    return {"fichier": os.path.basename(fs[-1]), "texte": open(fs[-1], encoding="utf-8", errors="ignore").read()[:4000]}
+
+def visionnaire(base, n=8):
+    out = []
+    for r in tail(os.path.join(base, "journal.jsonl"), 3000):
+        if r.get("stage") == "fable" and r.get("data", {}).get("avis"):
+            out.append({"ts": r.get("ts"), "coin": r["data"].get("coin"), "avis": r["data"]["avis"], "raison": (r.get("reason") or "")[:240]})
+    return out[-n:][::-1]
+
+def verify_init(init, token=None, chat=None, now=None):
+    """Signature Telegram d'une page ouverte depuis le bot : seul le compte de Richard (TELEGRAM_CHAT_ID) est accepte."""
+    token, chat = token if token is not None else TOKEN, chat if chat is not None else CHAT
+    if not (init and token and chat): return False
+    try: data = dict(parse_qsl(init, keep_blank_values=True, strict_parsing=True))
+    except ValueError: return False
+    h = data.pop("hash", "")
+    check = "\n".join(f"{k}={v}" for k, v in sorted(data.items()))
+    secret = hmac.new(b"WebAppData", token.encode(), hashlib.sha256).digest()
+    if not hmac.compare_digest(hmac.new(secret, check.encode(), hashlib.sha256).hexdigest(), h): return False
+    try:
+        if (now or time.time()) - int(data.get("auth_date", "0")) > AUTH_MAX_S: return False
+        return str(json.loads(data.get("user", "{}")).get("id")) == chat
+    except (ValueError, TypeError): return False
 
 class Exchange:
     """Lecture publique Hyperliquid, mise en cache 20 s pour menager la limite de poids de l'IP (partagee avec les bots)."""
@@ -136,12 +185,22 @@ EX = Exchange()
 
 def api():
     p2 = moonshot(PEANUT2) if os.path.exists(os.path.join(PEANUT2, "status.json")) else None
-    return {"maintenant": int(time.time()), "moonshot": moonshot(), "peanut": peanut(), "peanut2": p2, "exchange": EX.get(), "verdicts": verdicts()}
+    return {"maintenant": int(time.time()), "moonshot": moonshot(), "peanut": peanut(), "peanut2": p2, "exchange": EX.get(), "verdicts": verdicts(),
+            "recolteur": recolteur(), "deployeur": deployeur(),
+            "agents": {"chercheur": chercheur(MOON), "visionnaire": visionnaire(MOON) + (visionnaire(PEANUT2) if p2 else [])}}
 
 PAGE = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "page.html"), "rb").read()
 
 class Handler(BaseHTTPRequestHandler):
+    def autorise(self):
+        """En local (tunnel SSH, port 127.0.0.1) : libre. Via le portail HTTPS (en-tete X-Forwarded-For) : signature Telegram exigee."""
+        if not self.headers.get("X-Forwarded-For"): return True
+        return verify_init(self.headers.get("X-Telegram-Init", ""))
+
     def do_GET(self):
+        if self.path.startswith("/api/") and not self.autorise():
+            self.send_response(403); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(b'{"erreur": "acces reserve"}'); return
         if self.path.startswith("/api/etat"):
             body = json.dumps(api(), default=str).encode(); ctype = "application/json"
         elif self.path in ("/", "/index.html"):
@@ -149,7 +208,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_response(404); self.end_headers(); return
         self.send_response(200); self.send_header("Content-Type", ctype); self.send_header("Cache-Control", "no-store")
-        self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'")
+        self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://telegram.org; frame-ancestors https://web.telegram.org 'self'")
         self.end_headers(); self.wfile.write(body)
     def log_message(self, *a): pass
 

@@ -233,6 +233,16 @@ def test_auto_mise_a_jour_du_deployeur():
     D.cycle(w.ctx)
     assert open(os.path.join(w.install, "deployeur.py")).read() == "VERSION = 2\n" and any("refusee" in m for m in w.ctx.sent)
 
+def test_vue_publique_pour_le_tableau():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
+    w.commit("recolteur/recolteur/main.py", "x = 11\n", msg="Correction du recolteur")
+    D.cycle(w.ctx)
+    pub = json.load(open(os.path.join(D.PUBLIC, "etat.json")))
+    assert pub["commits"][0]["message"] == "Correction du recolteur" and len(pub["commits"][0]["sha"]) >= 7
+    assert pub["deploye"] and pub["disque"]["total_go"] > 0 and isinstance(pub["journal"], list)
+    assert oct(os.stat(os.path.join(D.PUBLIC, "etat.json")).st_mode)[-3:] == "644"
+    assert "HL_AGENT_KEY" not in json.dumps(pub) and "1" * 64 not in json.dumps(pub)
+
 def test_sources_propres():
     for f in ("deployeur.py", "bornes.py"):
         src = open(os.path.join(HERE, f), encoding="utf-8").read()

@@ -140,6 +140,64 @@ def test_telecommande_ne_sait_ni_trader_ni_reprendre():
     for interdit in ("os.remove", "unlink", "exchange", "order", "HL_AGENT_KEY", "/reprendre"):
         assert interdit not in src.split('"""', 2)[2], interdit
 
+def init_data(token, user_id, auth_date, extra=None):
+    import hmac, hashlib, urllib.parse
+    data = {"auth_date": str(auth_date), "user": json.dumps({"id": user_id, "first_name": "R"}), "query_id": "AAE", **(extra or {})}
+    check = "\n".join(f"{k}={v}" for k, v in sorted(data.items()))
+    secret = hmac.new(b"WebAppData", token.encode(), hashlib.sha256).digest()
+    data["hash"] = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
+    return urllib.parse.urlencode(data)
+
+def test_signature_telegram():
+    d, S = build(); tok = "123:ABC"; now = 1_800_000_000
+    good = init_data(tok, 4242, now - 60)
+    assert S.verify_init(good, tok, "4242", now)
+    assert not S.verify_init(good, tok, "9999", now)                                     # autre compte
+    assert not S.verify_init(good, "123:AUTRE", "4242", now)                             # autre bot
+    assert not S.verify_init(init_data(tok, 4242, now - 2 * 86400), tok, "4242", now)   # expire
+    assert not S.verify_init(good.replace("first_name", "first_nam"), tok, "4242", now) # modifie
+    assert not S.verify_init("", tok, "4242", now) and not S.verify_init(good, "", "4242", now)
+
+def test_portail_exige_telegram_mais_local_libre():
+    d, S = build(); S.EX = S.Exchange(post=fake_post([])); S.TOKEN, S.CHAT = "123:ABC", "4242"
+    srv = S.ThreadingHTTPServer(("127.0.0.1", 0), S.Handler); port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    def get(path, headers):
+        req = urllib.request.Request(f"http://127.0.0.1:{port}{path}", headers=headers)
+        try: return urllib.request.urlopen(req).status
+        except urllib.error.HTTPError as e: return e.code
+    try:
+        assert get("/api/etat", {}) == 200                                                   # tunnel SSH local
+        assert get("/api/etat", {"X-Forwarded-For": "1.2.3.4"}) == 403                       # via le portail, sans signature
+        assert get("/api/etat", {"X-Forwarded-For": "1.2.3.4", "X-Telegram-Init": init_data("123:ABC", 9999, int(time.time()))}) == 403
+        assert get("/api/etat", {"X-Forwarded-For": "1.2.3.4", "X-Telegram-Init": init_data("123:ABC", 4242, int(time.time()))}) == 200
+        assert get("/", {"X-Forwarded-For": "1.2.3.4"}) == 200                               # la page seule ne contient aucune donnee
+    finally:
+        srv.shutdown()
+
+def test_agents_t6_et_deployeur_dans_l_api():
+    d, S = build(); S.EX = S.Exchange(post=fake_post([]))
+    r = os.path.join(d, "recolteur"); os.makedirs(r); dp = os.path.join(d, "deployeur"); os.makedirs(dp)
+    json.dump({"phase": "mesure", "ts": int(time.time()), "prets": ["WIF"], "trades": 0}, open(os.path.join(r, "status.json"), "w"))
+    with open(os.path.join(r, "journal.jsonl"), "w") as f:
+        f.write(json.dumps({"type": "demarrage_mesure", "t_hl": 5, "data": {}}) + "\n")
+        f.write(json.dumps({"type": "cascade", "t_hl": 9, "data": {"coin": "WIF", "baisse": 0.01, "signal_complet": True, "refus": "phase mesure"}}) + "\n")
+    json.dump({"ts": "2026-11-12T20:10:00Z", "deploye": "abc", "commits": [{"sha": "abc1234", "date": "2026-11-12T20:00:00+00:00", "message": "x"}]},
+              open(os.path.join(dp, "etat.json"), "w"))
+    with open(os.path.join(S.MOON, "journal.jsonl"), "a") as f:
+        f.write(json.dumps({"stage": "fable", "ts": "2026-11-12T20:00:00Z", "reason": "momentum", "data": {"coin": "ETH", "avis": "prendre"}}) + "\n")
+    a = S.api()
+    assert a["recolteur"]["cascades"] == 1 and a["recolteur"]["debut"] == 5 and a["recolteur"]["dernieres_cascades"][0]["coin"] == "WIF"
+    assert a["deployeur"]["commits"][0]["sha"] == "abc1234"
+    assert a["agents"]["chercheur"]["fichier"] == "bilan-2026-11-15.md" and a["agents"]["visionnaire"][0]["coin"] == "ETH"
+
+def test_telecommande_bouton_dashboard():
+    d, S, T = tc_setup(); tc = T.Telecommande(lambda x: None)
+    assert "pas encore" in tc.handle(4242, "/dashboard")
+    T.DASHBOARD_URL = "https://exemple.test/"
+    r = tc.handle(4242, "/dashboard")
+    assert r["reply_markup"]["inline_keyboard"][0][0]["web_app"]["url"] == "https://exemple.test/" and tc.handle(9999, "/dashboard") is None
+
 if __name__ == "__main__":
     only = sys.argv[1:]; tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and (not only or n in only)]
     bad = 0
