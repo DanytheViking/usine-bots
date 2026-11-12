@@ -144,6 +144,7 @@ async function rafraichir() {
     const headers = tg && tg.initData ? {"X-Telegram-Init": tg.initData} : {};
     const r = await fetch("api/etat", {cache: "no-store", headers});
     if (r.status === 403) { $("app").classList.add("hide"); $("msg").classList.remove("hide"); $("msg").textContent = "Accès réservé : ouvre le tableau de bord depuis le bot Telegram de l'usine."; $("dot").className = "dot ko"; $("maj").textContent = "accès refusé"; return; }
+    if (!r.ok) throw new Error(`reponse ${r.status}`);
     const d = await r.json();
     const m = d.moonshot, p2 = d.peanut2, x = d.exchange || {}, comptes = x.comptes || {};
     const cm = comptes["Moonshot"] || {}, cl = comptes["Smart Peanut"] || {}, t6 = d.recolteur || {}, dep = d.deployeur || {};
@@ -205,7 +206,7 @@ async function rafraichir() {
       kv("Disque libre", dep.disque ? `${num(dep.disque.libre_go, 1)} Go / ${num(dep.disque.total_go, 0)} Go` : "–") + kv("Travaux", Object.keys(dep.jobs || {}).length);
     table("conteneurs", ["Conteneur", "État"], (dep.conteneurs || []).map(c => { const [n, s] = c.split(" | "); return [esc(n), (s || "").startsWith("Up") ? pill(s, "ok") : pill(s || "?", "ko")]; }));
     $("dlog").textContent = (dep.journal || []).join("\n") || "–";
-  } catch (e) { $("dot").className = "dot ko"; $("maj").textContent = "tableau de bord injoignable"; }
+  } catch (e) { $("dot").className = "dot ko"; $("maj").textContent = "erreur : " + String(e && e.message || e).slice(0, 120); }
 }
 rafraichir(); setInterval(rafraichir, 15000);
 </script>
