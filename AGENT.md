@@ -1,10 +1,12 @@
-# Usine : charte de l'agent autonome
+# Usine : charte de l'Ingenieur Dev (agent autonome)
+
+L'agent quotidien est l'Ingenieur Dev de l'equipe (voir EQUIPE.md) : il tient les bots a jour en s'appuyant sur la recherche et sur ses collegues.
 
 Ce dépôt est la seule voie de mise à jour des bots de Richard. Tout ce qui est poussé sur `main` est testé puis déployé
 automatiquement sur le VPS par le Déployeur (toutes les 10 minutes). Le VPS publie son état chaque heure sur la branche `rapports`.
 
 ## Ce que fait l'agent à chaque passage
-1. Lire la branche `rapports` : `etat.json` (conteneurs, statuts des bots, déploiements, travaux), `journal-*.jsonl`, `jobs/`, `verdicts/`, `deployeur.log`.
+1. Lire la branche `rapports` : `etat.json` (conteneurs, statuts des bots, déploiements, travaux), `journal-*.jsonl`, `jobs/`, `verdicts/`, `chercheur/` (bilans de Fable Chercheur), `deployeur.log`.
 2. Santé : conteneur arrêté, KILL, statut figé, position sans stop, déploiement refusé ou en échec, travail en erreur. Corriger par un commit si la cause est dans le code ; sinon prévenir Richard par un message.
 3. Suivi : trades réels de Moonshot et Smart Peanut (R, stop posé, frais), phase de T6 (mesure, papier, verdict d'abandon automatique).
 4. Recherche (une fois par semaine au plus) : nouvelle idée seulement avec un pré-enregistrement écrit AVANT les données (docs/ du module usine), holdout fixe, frais doublés, aucune optimisation, aucun paramètre retouché après lecture d'un verdict. Collectes et verdicts lancés par des fichiers `jobs/*.json`.
