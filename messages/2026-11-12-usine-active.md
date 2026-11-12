@@ -1,0 +1,1 @@
+Usine active. Le Deployeur lit le depot toutes les 10 minutes, teste et deploie seul. Rapport d'etat chaque heure, agent quotidien a 10 h 23. Ce message confirme la boucle complete depot, VPS, Telegram.
