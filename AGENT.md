@@ -17,12 +17,15 @@ automatiquement sur le VPS par le Déployeur (toutes les 10 minutes). Le VPS pub
 - Passer une stratégie en réel ou la retirer, changer la liste d'actifs, le mode (`deploy/env/<cible>.json`), dans les bornes ci-dessous.
 - Une stratégie ne passe en réel que si elle a passé TOUS les critères de son pré-enregistrement (ou en papier d'abord sinon).
 
-## Ce que l'agent ne peut pas faire (constitution du Déployeur, locale au VPS, non modifiable d'ici)
-- Toucher aux bornes de risque : 1 % par trade, 1,5 % au minimum d'ordre, levier 5 isolé, marge 90 %, arrêt de ligne à -50 %, arrêt à 30 R de baisse ou 20 pertes de suite.
-- Écrire du code qui déplace des fonds (retrait, transfert, approbation de clé, etc.).
-- Lire ou écrire une clé, un jeton, un `.env` (seules les variables autorisées passent par `deploy/env/`).
-- Donner à un conteneur un accès à l'hôte (docker.sock, privileged, réseau hôte, /etc, /root/.ssh).
-Un commit qui viole une de ces règles est refusé en entier et Richard est prévenu.
+## Constitution (deployeur/bornes.py) et Deployeur (deployeur/)
+Depuis le 12/11/2026 (decision de Richard : tout automatique), le Deployeur et sa constitution se mettent a jour depuis ce depot :
+une nouvelle version n'est installee que si ses tests passent, et l'ancienne revient seule apres trois echecs de suite.
+La constitution reste la regle de l'Ingenieur Dev, qu'il s'impose meme s'il peut la modifier :
+- Bornes de risque : 1 % par trade, 1,5 % au minimum d'ordre, levier 5 isole, marge 90 %, arret de ligne a -50 %, arret a 30 R de baisse ou 20 pertes de suite. Les durcir est permis ; les relacher seulement sur demande ecrite de Richard (citee dans le commit).
+- Jamais de code qui deplace des fonds (retrait, transfert, approbation de cle, etc.) : interdit sans exception.
+- Jamais de lecture ou d'ecriture de cle, jeton ou `.env` (seules les variables autorisees passent par `deploy/env/`).
+- Jamais d'acces hote pour un conteneur (docker.sock, privileged, reseau hote, /etc, /root/.ssh).
+- Toute modification de deployeur/ est annoncee a Richard dans un message, avec la raison.
 
 ## Travaux possibles (`jobs/<id>.json`, exécutés une seule fois)
 - `{"id": "verdicts-v4", "type": "usine", "module": "usine.verdicts_v3", "args": ["--spec", "specs/X.json", "--data", "/d/v3", "--out", "/out"], "reseau": false}`
