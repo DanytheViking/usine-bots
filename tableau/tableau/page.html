@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usine de trading</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--txt:#e6edf3;--mute:#8b949e;--ok:#3fb950;--ko:#f85149;--warn:#d29922;--acc:#58a6ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+h1{font-size:18px;margin:0}h2{font-size:15px;margin:0 0 10px}small,.mute{color:var(--mute)}
+main{display:grid;gap:14px;padding:16px 20px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.wide{grid-column:1/-1}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:10px}.kpi b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.ok{background:#12361f;color:var(--ok)}.ko{background:#3d1214;color:var(--ko)}.warn{background:#3a2b0a;color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-weight:500}.scroll{overflow-x:auto}.pos{color:var(--ok)}.neg{color:var(--ko)}
+svg{width:100%;height:180px;display:block}.feed{max-height:340px;overflow:auto}.feed td:last-child{white-space:normal}
+#err{color:var(--ko)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏭 Usine de trading</h1>
+  <div id="etat" class="mute">chargement…</div>
+</header>
+<main>
+  <section class="card wide">
+    <h2>Vue d'ensemble</h2>
+    <div class="kpis" id="kpis"></div>
+  </section>
+  <section class="card wide">
+    <h2>📈 Performance depuis le départ (%)</h2>
+    <svg id="courbe" viewBox="0 0 1000 180" preserveAspectRatio="none" role="img" aria-label="Performance des bots depuis le départ"></svg>
+    <div class="mute" id="courbe-legende"></div>
+  </section>
+  <section class="card">
+    <h2>Positions en direct (Hyperliquid)</h2>
+    <div class="scroll"><table id="positions"></table></div>
+  </section>
+  <section class="card">
+    <h2>🛡️ Gardien et chien de garde</h2>
+    <div class="kpis" id="garde"></div>
+  </section>
+  <section class="card">
+    <h2>🔮 Fable</h2>
+    <div class="kpis" id="fable"></div>
+    <p class="mute" id="bilans"></p>
+  </section>
+  <section class="card">
+    <h2>🥜 Smart Peanut</h2>
+    <div class="kpis" id="peanut"></div>
+  </section>
+  <section class="card wide">
+    <h2>Fil des décisions</h2>
+    <div class="feed scroll"><table id="fil"></table></div>
+  </section>
+  <section class="card wide">
+    <h2>Derniers trades fermés</h2>
+    <div class="scroll"><table id="trades"></table></div>
+  </section>
+  <section class="card wide">
+    <h2>🧪 Verdicts du Testeur</h2>
+    <div class="scroll"><table id="verdicts"></table></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "–").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = (x, d=2) => x === null || x === undefined || isNaN(x) ? "–" : Number(x).toFixed(d);
+const sign = (x, d=2) => x === null || x === undefined ? "–" : `<span class="${x >= 0 ? "pos" : "neg"}">${x >= 0 ? "+" : ""}${num(x, d)}</span>`;
+const pill = (t, c) => `<span class="pill ${c}">${esc(t)}</span>`;
+const kpi = (label, val) => `<div class="kpi"><small>${esc(label)}</small><b>${val}</b></div>`;
+const dur = s => s === null || s === undefined ? "–" : s < 60 ? `${s} s` : s < 3600 ? `${Math.floor(s/60)} min` : `${Math.floor(s/3600)} h ${Math.floor(s%3600/60)} min`;
+const table = (el, head, rows) => { $(el).innerHTML = `<tr>${head.map(h => `<th>${h}</th>`).join("")}</tr>` + (rows.length ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" class="mute">rien pour l'instant</td></tr>`); };
+
+function courbe(series) {
+  const svg = $("courbe"), all = [];
+  for (const sr of series) { sr.pct = (sr.pts || []).map(p => [p[0], sr.start ? (p[1] / sr.start - 1) * 100 : 0]); all.push(...sr.pct); }
+  if (!all.length) { svg.innerHTML = `<text x="10" y="90" fill="#8b949e">pas encore de données</text>`; return; }
+  const ys = all.map(p => p[1]).concat([0, -50]), ts = all.map(p => p[0]);
+  const lo = Math.min(...ys) - 1, hi = Math.max(...ys) + 1, t0 = Math.min(...ts), t1 = Math.max(...ts);
+  const X = t => (t1 === t0 ? 0 : (t - t0) / (t1 - t0) * 1000), Y = v => 170 - (v - lo) / (hi - lo || 1) * 160;
+  const line = (v, c, dash) => `<line x1="0" x2="1000" y1="${Y(v)}" y2="${Y(v)}" stroke="${c}" stroke-dasharray="${dash}" stroke-width="1"/>`;
+  svg.innerHTML = line(0, "#8b949e", "4 4") + line(-50, "#f85149", "6 4") + series.filter(sr => sr.pct.length).map(sr =>
+    `<polyline fill="none" stroke="${sr.color}" stroke-width="2" points="${sr.pct.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}"/>`).join("");
+  $("courbe-legende").innerHTML = series.map(sr => `<span style="color:${sr.color}">━</span> ${esc(sr.nom)} (départ ${num(sr.start)} USDC)`).join(" &nbsp; ") +
+    ` &nbsp; Pointillé gris : 0 %. Pointillé rouge : arrêt de ligne à −50 %.`;
+}
+
+async function rafraichir() {
+  try {
+    const r = await fetch("/api/etat", {cache: "no-store"}); const d = await r.json();
+    const m = d.moonshot, x = d.exchange, p = d.peanut, cm = (x.comptes || {})["Moonshot"] || {}, cl = (x.comptes || {})["Smart Peanut"] || {};
+    const vivant = m.age_s !== null && m.age_s < 900;
+    $("etat").innerHTML = `${vivant ? pill("Moonshot en marche", "ok") : pill("Moonshot silencieux", "ko")} ${m.kill ? pill("KILL", "ko") : ""} ${pill((m.status.mode || "?").toUpperCase(), m.status.mode === "reel" ? "warn" : "ok")}
+      <span class="mute">· mis à jour ${new Date(d.maintenant * 1000).toLocaleTimeString("fr-FR")}${x.erreur ? ` · <span id="err">${esc(x.erreur)}</span>` : ""}</span>`;
+    const total = (cm.valeur || 0) + (cl.valeur || 0);
+    const perf = m.start_equity && cm.valeur ? (cm.valeur / m.start_equity - 1) * 100 : null;
+    $("kpis").innerHTML = kpi("Capital total (USDC)", num(total)) + kpi("Moonshot (USDC)", num(cm.valeur)) + kpi("Depuis le départ", perf === null ? "–" : sign(perf, 2) + " %") +
+      kpi("Smart Peanut (USDC)", num(cl.valeur)) + kpi("Positions ouvertes", (cm.positions || []).length + (cl.positions || []).length) +
+      kpi("Prochaine clôture 4 h", dur(m.prochaine_cloture_s)) + Object.entries(x.prix || {}).map(([c, v]) => kpi(c, v ? Number(v).toPrecision(6) : "–")).join("");
+    const p2 = d.peanut2;
+    courbe([{nom: "Moonshot", pts: m.equity || [], start: m.start_equity, color: "#58a6ff"}].concat(p2 ? [{nom: "Smart Peanut v2", pts: p2.equity || [], start: p2.start_equity, color: "#d29922"}] : []));
+    const pos = [];
+    for (const [compte, c] of Object.entries(x.comptes || {})) for (const q of c.positions || [])
+      pos.push([esc(compte), esc(q.coin), q.sens === "long" ? pill("LONG", "ok") : pill("SHORT", "ko"), num(q.entree, 5), num(q.prix, 5), sign(q.pnl), num(q.liquidation, 5), q.stop ? pill("stop ✓", "ok") : pill("SANS STOP", "ko")]);
+    table("positions", ["Compte", "Actif", "Sens", "Entrée", "Prix", "P&L", "Liquidation", "Stop"], pos);
+    $("garde").innerHTML = kpi("Dernier signe de vie", dur(m.age_s)) + kpi("R cumulé (réel)", sign(m.r_cumule)) + kpi("Baisse depuis le sommet", `${num(m.baisse_R, 1)} / 30 R`) +
+      kpi("Pertes d'affilée", `${m.pertes_affilee} / 20`) + kpi("Arrêt de ligne", `${num(m.line_stop)} USDC`) + kpi("Note", esc(m.status.note || "–")) +
+      (m.kill ? kpi("KILL", esc(m.kill_reason)) : "");
+    const f = m.fable || {};
+    const nt = n => `${n ?? 0} trade${(n ?? 0) > 1 ? "s" : ""}`;
+    $("fable").innerHTML = kpi("Avis « prendre »", `${nt(f.prendre?.trades)} · ${f.prendre?.R_moyen ?? "–"} R`) + kpi("Avis « éviter »", `${nt(f.eviter?.trades)} · ${f.eviter?.R_moyen ?? "–"} R`);
+    $("bilans").innerHTML = (m.chercheur || []).length ? "Bilans du Chercheur : " + m.chercheur.map(esc).join(", ") : "Pas encore de bilan hebdomadaire.";
+    if (p2) {
+      const v2 = p2.age_s !== null && p2.age_s < 900;
+      $("peanut").innerHTML = kpi("État", (v2 ? pill("en marche", "ok") : pill("silencieux", "ko")) + " " + (p2.kill ? pill("KILL", "ko") : pill((p2.status.mode || "?").toUpperCase(), p2.status.mode === "reel" ? "warn" : "ok"))) +
+        kpi("Capital (USDC)", num(cl.valeur)) + kpi("Positions", Object.keys(p2.positions || {}).length) + kpi("R cumulé (réel)", sign(p2.r_cumule)) +
+        kpi("Baisse depuis le sommet", `${num(p2.baisse_R, 1)} / 30 R`) + kpi("Pertes d'affilée", `${p2.pertes_affilee} / 20`) + kpi("Arrêt de ligne", `${num(p2.line_stop)} USDC`) +
+        (p2.kill ? kpi("Raison", esc(p2.kill_reason)) : "");
+    } else {
+      $("peanut").innerHTML = kpi("État", p.kill ? pill("ARRÊTÉ (KILL)", "ko") : pill("actif", "ok")) + kpi("Trades réels", p.trades) + kpi("Gagnants", p.gagnants) + kpi("P&L cumulé", sign(p.pnl)) +
+        (p.kill ? kpi("Raison", esc(p.kill_reason)) : "");
+    }
+    const lab = (arr, nom) => (arr || []).map(x => ({...x, bot: nom}));
+    const ev = lab(m.events, "Moonshot").concat(p2 ? lab(p2.events, "Peanut v2") : []).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 80);
+    table("fil", ["Heure (UTC)", "Bot", "Étape", "Décision", "Détail"], ev.map(e => [esc(e.ts.slice(5, 16).replace("T", " ")), esc(e.bot), esc(e.stage), esc(e.decision), esc(e.reason)]));
+    const tr = lab(m.closed, "Moonshot").concat(p2 ? lab(p2.closed, "Peanut v2") : []).sort((a, b) => String(b.ts).localeCompare(String(a.ts))).slice(0, 40);
+    table("trades", ["Fermé (UTC)", "Bot", "Actif", "Sens", "Issue", "P&L (USDC)", "R"], tr.map(c => [esc((c.ts || "").slice(5, 16).replace("T", " ")), esc(c.bot), esc(c.coin), esc(c.side), esc(c.issue), sign(c.pnl), sign(c.R)]));
+    table("verdicts", ["Catalogue", "Candidat", "Trades éval.", "PF (frais ×2)", "Espérance (R)", "Verdict"], (d.verdicts || []).map(v => [esc(v.catalogue), esc(v.candidat), esc(v.trades), num(v.pf), num(v.esperance_R, 3), esc(v.verdict)]));
+  } catch (e) { $("etat").innerHTML = pill("tableau de bord injoignable", "ko"); }
+}
+rafraichir(); setInterval(rafraichir, 15000);
+</script>
+</body>
+</html>

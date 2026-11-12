@@ -1,0 +1,27 @@
+{
+ "id": "USINE-SPEC-v2",
+ "gel_utc": "2026-11-12T08:00Z",
+ "annonce": "Catalogue v2 de l'usine. Holdout temporel fixe : seconde moitie de la fenetre de chaque jeu. Aucune retouche apres lecture.",
+ "prereg_sha256": "b9dc82ce3134caca313267a0952cda6969119022b9c5ad432a9565c588be62f9",
+ "mise_en_oeuvre_sha256": "f265b60b7b6ad22e9f26857aa6a8bdb590fa84219f2844312dad8110d226932f",
+ "candidats": [
+  "M2_etendu",
+  "C1_v2"
+ ],
+ "fraction_evaluation": 0.5,
+ "decoupe": "trades sortis avant la coupe = entrainement ; signal apres la coupe = evaluation ; a cheval exclus",
+ "scenarios_frais": [
+  1,
+  2
+ ],
+ "criteres": {
+  "trades_min": 30,
+  "pf_min": 1.2,
+  "jours_min_ic": 7
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261112,
+  "bloc": "jour UTC du signal"
+ }
+}

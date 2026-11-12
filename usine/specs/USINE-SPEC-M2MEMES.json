@@ -1,0 +1,27 @@
+{
+ "id": "USINE-SPEC-M2MEMES",
+ "gel_utc": "2026-11-12T15:40Z",
+ "annonce": "Verification de M2 sur les memecoins du jeu v3 (Smart Peanut v2). Parametres de M2 inchanges depuis le catalogue v1.",
+ "prereg_sha256": "bf67909fe6c55e428c30856f860d7e29b428edd10e3d94fb10ca0f40616c57fd",
+ "candidats": [
+  "M2_memes_filtre_volume",
+  "M2_memes_sans_filtre"
+ ],
+ "fraction_evaluation": 0.5,
+ "scenarios_frais": [
+  1,
+  2
+ ],
+ "stress_frais": 3,
+ "volume_min_usd": 2000000,
+ "criteres": {
+  "trades_min": 30,
+  "pf_min": 1.2,
+  "jours_min_ic": 7
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261112,
+  "bloc": "jour UTC du signal"
+ }
+}

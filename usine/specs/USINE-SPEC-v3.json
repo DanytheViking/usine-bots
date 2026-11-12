@@ -1,0 +1,33 @@
+{
+ "id": "USINE-SPEC-v3",
+ "gel_utc": "2026-11-12T11:45Z",
+ "annonce": "Catalogue v3, Team Chasseur (T1 a T5), Testeur durci. Holdout temporel fixe : seconde moitie de la fenetre de chaque candidat. Aucune retouche apres lecture.",
+ "prereg_sha256": "6de238c04eff61e601aed0270c428a7e8ed0220e5605879a4500dd8cfe7cc7b8",
+ "addendum_sha256": "6d75ecb1c96c39c328c480d29f3025960ba6d004458b847d40bf012f06d1c951",
+ "mise_en_oeuvre_sha256": "edd89f660d782a04a5cb6c1316d56f4ca83c679fda36177e708763925e124943",
+ "candidats": [
+  "T1_tortue",
+  "T2_tortue_disciplinee",
+  "T3_druckenmiller",
+  "T4_contrarien",
+  "T5_listings"
+ ],
+ "fraction_evaluation": 0.5,
+ "decoupe": "trades sortis avant la coupe = entrainement ; signal apres la coupe = evaluation ; a cheval exclus",
+ "scenarios_frais": [
+  1,
+  2
+ ],
+ "stress_frais": 3,
+ "criteres": {
+  "trades_min": 30,
+  "pf_min": 1.35,
+  "jours_min_ic": 7
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261112,
+  "bloc": "jour UTC du signal"
+ },
+ "leave_one_asset_out": true
+}

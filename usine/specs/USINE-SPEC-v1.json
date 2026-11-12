@@ -1,0 +1,30 @@
+{
+ "id": "USINE-SPEC-v1",
+ "gel_utc": "2026-11-09T13:30Z",
+ "annonce": "Catalogue v1 de l'usine. Holdout temporel fixe : seconde moitie de la fenetre de chaque jeu. Aucune retouche apres lecture : toute modification = nouvelle specification, nouveau sha256, nouveau dossier de sortie et nouvelle annonce.",
+ "prereg_sha256": "a3b5c37d771febc8c31b60b720dd4b53840915089c25a5b022e8282a0a1797e3",
+ "mise_en_oeuvre_sha256": "f265b60b7b6ad22e9f26857aa6a8bdb590fa84219f2844312dad8110d226932f",
+ "candidats": [
+  "M1_cassure_donchian_4h",
+  "M2_croisement_ema_4h",
+  "P1_cassure_volume_1h",
+  "P2_rotation_momentum_4h",
+  "C1_copie_baleines"
+ ],
+ "fraction_evaluation": 0.5,
+ "decoupe": "trades sortis avant la coupe = entrainement ; signal apres la coupe = evaluation ; a cheval exclus",
+ "scenarios_frais": [
+  1,
+  2
+ ],
+ "criteres": {
+  "trades_min": 30,
+  "pf_min": 1.2,
+  "jours_min_ic": 7
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261109,
+  "bloc": "jour UTC du signal"
+ }
+}

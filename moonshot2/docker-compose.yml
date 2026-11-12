@@ -1,0 +1,57 @@
+# Moonshot v2 : projet Docker separe (nom moonshot2, dossier /opt/moonshot2, donnees a part).
+x-commun: &commun
+  image: moonshot2:2.2.1
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
+services:
+  moon:
+    <<: *commun
+    build: .
+    container_name: moonshot2
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    mem_limit: 512m
+    cpus: 0.5
+
+  # Chien de garde : aucune cle de trading, donnees en lecture seule, seulement l'adresse publique et Telegram.
+  garde:
+    <<: *commun
+    container_name: moonshot2-garde
+    command: ["python3", "-m", "moon.garde"]
+    environment:
+      - DATA_DIR=/app/data
+      - MODE=${MODE}
+      - HL_ACCOUNT=${HL_ACCOUNT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - ./data:/app/data:ro
+    mem_limit: 128m
+    cpus: 0.2
+    depends_on: [moon]
+
+  # Fable Chercheur : bilan du dimanche 17:00 UTC. Aucune cle de trading ; ecrit seulement dans data/chercheur.
+  chercheur:
+    <<: *commun
+    container_name: moonshot2-chercheur
+    command: ["python3", "-m", "moon.chercheur"]
+    environment:
+      - DATA_DIR=/app/data
+      - MODE=${MODE}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FABLE_MODEL=${FABLE_MODEL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - ./data:/app/data:ro
+      - ./data/chercheur:/app/data/chercheur
+    mem_limit: 256m
+    cpus: 0.2
+    depends_on: [moon]

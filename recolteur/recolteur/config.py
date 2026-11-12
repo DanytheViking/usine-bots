@@ -1,0 +1,59 @@
+"""Parametres de T6 (figes par l'addendum v3, point B, et MISE-EN-OEUVRE-T6). Papier uniquement : aucune cle d'exchange."""
+import os, re
+
+NAME = "recolteur"
+VERSION = "1.0.1"
+DATA_DIR = os.getenv("DATA_DIR", "/app/data")
+CAPITAL = float(os.getenv("CAPITAL_PAPIER", "100"))
+
+MEMES = ("kPEPE", "kBONK", "kSHIB", "kFLOKI", "kNEIRO", "kDOGS", "DOGE", "WIF", "POPCAT", "FARTCOIN", "TRUMP", "MELANIA", "PUMP",
+         "PENGU", "MOODENG", "GOAT", "PNUT", "SPX", "MEW", "BRETT", "TURBO", "CHILLGUY", "USELESS", "MEME", "BOME", "MYRO",
+         "GRIFFAIN", "AI16Z", "VINE", "HPOS")
+
+S, M = 1000, 60_000
+H, D = 60 * M, 24 * 60 * M
+UNIVERS_N = 8
+MESURE_MS = 7 * D
+RECLASSEMENT_MS = 30 * D
+CHAUD_MS = 21 * M
+FRAIS_MS = 10 * S
+
+ATR_N = 14
+BAISSE_ATR = 1.5
+FENETRE_MS = 60 * S
+FENETRES_PREC = 20
+VOLUME_X = 3.0
+PROFONDEUR_X = 3.0
+PROFONDEUR_PCT = 0.01
+CASCADE_LOG_MS = 5 * M
+EVAL_MS = 250
+
+REGIME_BARRES = 12
+REGIME_MEDIANE = 2016
+REGIME_X = 3.0
+
+RISQUE = 0.01
+STOP_ATR = 2.5
+NOTIONNEL_MAX = 0.20
+LEVIER = 3
+NOTIONNEL_MIN = 10.0
+VWAP_DEBUT_MS, VWAP_FIN_MS = 360 * S, 60 * S
+ALO_RECUL = 0.0005
+ALO_ESSAIS = 5
+EXPIRATION_MS = 90 * S
+DUREE_MAX_MS = 15 * M
+FUNDING_SORTIE = 0.0005
+FEE_MAKER, FEE_TAKER, GLISSEMENT = 0.00015, 0.00045, 0.0005
+
+MAX_LIGNES = 2
+MAX_ORDRES_HEURE = 6
+PAUSE_ACTIF_MS = 30 * M
+PERTE_JOUR = 0.02
+PAUSE_MS = 12 * H
+PERTES_REDUIT, GAINS_NORMAL = 3, 2
+
+ABANDON_TRADES, ABANDON_PF, STRESS = 60, 1.2, 3.0
+FIN_REMPLISSAGES, FIN_PAPIER_MS = 500, 21 * D
+
+def redact(text: str) -> str:
+    return re.sub(r"\b\d{8,12}:[A-Za-z0-9_-]{30,}\b", "[jeton]", re.sub(r"0x[0-9a-fA-F]{64}", "[cle]", text))

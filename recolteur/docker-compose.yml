@@ -1,0 +1,18 @@
+# T6, le Recolteur de cascades : papier uniquement, aucune cle d'exchange, aucun ordre. Projet Docker separe (recolteur).
+services:
+  recolteur:
+    build: .
+    image: recolteur:1.0.1
+    container_name: recolteur
+    env_file: .env
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ./data:/app/data
+    mem_limit: 512m
+    cpus: 0.5
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "5"}

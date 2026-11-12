@@ -1,0 +1,26 @@
+# Tableau de bord de l'usine : lecture seule, aucune cle, publie seulement sur 127.0.0.1 (tunnel SSH).
+services:
+  tableau:
+    build: .
+    image: usine-tableau:1.2.0
+    container_name: usine-tableau
+    environment:
+      - DATA_ROOT=/d
+      - MOON_ACCOUNT=${MOON_ACCOUNT}
+      - LABO_ACCOUNT=${LABO_ACCOUNT}
+    volumes:
+      - /opt/moonshot2/data:/d/moonshot:ro
+      - /opt/smart-peanut/data:/d/peanut:ro
+      - /opt/peanut2/data:/d/peanut2:ro
+      - /root/rapport-usine-v1:/d/usine-v1:ro
+      - /root/rapport-usine-v2:/d/usine-v2:ro
+      - /root/rapport-usine-v3:/d/usine-v3:ro
+      - /root/rapport-usine-m2memes:/d/usine-m2memes:ro
+    ports:
+      - "127.0.0.1:8090:8090"
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.2

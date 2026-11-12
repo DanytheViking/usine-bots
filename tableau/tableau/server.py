@@ -1,0 +1,160 @@
+"""Tableau de bord de l'usine : LECTURE SEULE. Aucune cle, aucun bouton d'ordre, aucune ecriture.
+Rassemble en une page qui se met a jour seule :
+  - Moonshot v2 (fichiers du bot) : equity, positions, R, arrets, signaux, avis de Fable, chien de garde ;
+  - Smart Peanut (fichiers du bot) : etat, KILL, derniers trades ;
+  - Hyperliquid en direct (API publique, adresses publiques seulement) : valeur des comptes, positions, ordres, stops ;
+  - le Testeur : verdicts des catalogues de l'usine.
+Ecoute sur 8090 dans le conteneur, publie UNIQUEMENT sur 127.0.0.1 du VPS. Depuis le Mac :
+    ssh -N -L 8090:127.0.0.1:8090 root@<IP du VPS>      puis      http://localhost:8090"""
+import os, json, time, glob, threading, datetime as dt
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+
+DATA = os.getenv("DATA_ROOT", "/d")
+MOON = os.path.join(DATA, "moonshot")
+PEANUT = os.path.join(DATA, "peanut")
+PEANUT2 = os.path.join(DATA, "peanut2")
+ACCOUNTS = {"Moonshot": os.getenv("MOON_ACCOUNT", ""), "Smart Peanut": os.getenv("LABO_ACCOUNT", "")}
+INFO_URL = "https://api.hyperliquid.xyz/info"
+CACHE_S = 20
+TF_MS = 4 * 3_600_000
+
+def _json(path, default):
+    try: return json.load(open(path))
+    except Exception: return default
+
+def tail(path, n, max_bytes=600_000):
+    if not os.path.exists(path): return []
+    with open(path, "rb") as f:
+        f.seek(0, 2); size = f.tell(); f.seek(max(0, size - max_bytes)); lines = f.read().decode("utf-8", "ignore").splitlines()
+    if size > max_bytes: lines = lines[1:]
+    out = []
+    for l in lines[-n:]:
+        try: out.append(json.loads(l))
+        except ValueError: pass
+    return out
+
+def age_s(ts):
+    try: return int(time.time() - dt.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc).timestamp())
+    except Exception: return None
+
+def downsample(points, n=400):
+    if len(points) <= n: return points
+    step = len(points) / n
+    return [points[int(i * step)] for i in range(n)] + [points[-1]]
+
+def fable_score(journal, closed):
+    ops = {(r["data"].get("coin"), r["data"].get("bar_ts")): r["data"]["avis"] for r in journal
+           if r.get("stage") == "fable" and r.get("data", {}).get("avis") in ("prendre", "eviter")}
+    out = {"prendre": [], "eviter": []}
+    for c in closed:
+        a = ops.get((c.get("coin"), c.get("bar_ts")))
+        if a and c.get("R") is not None: out[a].append(c["R"])
+    return {k: {"trades": len(v), "R_moyen": round(sum(v) / len(v), 3) if v else None} for k, v in out.items()}
+
+def moonshot(base=None):
+    dossier = base or MOON
+    st = _json(os.path.join(dossier, "status.json"), {}); s = _json(os.path.join(dossier, "state.json"), {})
+    journal = tail(os.path.join(dossier, "journal.jsonl"), 3000)
+    closed = s.get("closed", [])
+    ledger = s.get("r_ledger", [])
+    peak = cur = dd = 0.0
+    for r in ledger: cur += r; peak = max(peak, cur); dd = max(dd, peak - cur)
+    streak = 0
+    for r in reversed(ledger):
+        if r < 0: streak += 1
+        else: break
+    eq = [[p["t"], p["eq"]] for p in tail(os.path.join(dossier, "equity.jsonl"), 20000) if p.get("eq") is not None]
+    now_ms = int(time.time() * 1000)
+    events = [{"ts": r["ts"], "stage": r["stage"], "decision": r["decision"], "reason": r["reason"]} for r in journal
+              if r.get("stage") in ("signal", "execution", "cloture", "fable", "risque", "demarrage")][-60:][::-1]
+    start = s.get("start_equity")
+    return {"status": st, "age_s": age_s(st.get("ts", "")), "positions": s.get("positions", {}), "closed": closed[-30:][::-1],
+            "start_equity": start, "line_stop": round(start * 0.5, 2) if start else None, "r_cumule": round(sum(ledger), 3),
+            "baisse_R": round(dd, 3), "pertes_affilee": streak, "kill": os.path.exists(os.path.join(dossier, "KILL")),
+            "kill_reason": open(os.path.join(dossier, "KILL")).read().strip()[:300] if os.path.exists(os.path.join(dossier, "KILL")) else "",
+            "equity": downsample(eq), "events": events, "fable": fable_score(journal, closed),
+            "prochaine_cloture_s": int(((now_ms // TF_MS + 1) * TF_MS - now_ms) / 1000),
+            "chercheur": sorted(os.path.basename(p) for p in glob.glob(os.path.join(dossier, "chercheur", "bilan-*.md")))[-5:]}
+
+def peanut():
+    st = _json(os.path.join(PEANUT, "status.json"), {}); s = _json(os.path.join(PEANUT, "state.json"), {})
+    k = os.path.join(PEANUT, "KILL")
+    closed = [c for c in s.get("closed", []) if c.get("issue") != "annulé (non rempli)"]
+    return {"version": st.get("version"), "age_s": age_s(st.get("ts", "")[:19] + "Z") if st.get("ts") else None,
+            "kill": os.path.exists(k), "kill_reason": open(k).read().strip()[:300] if os.path.exists(k) else "",
+            "trades": len(closed), "pnl": round(sum(float(c.get("pnl") or 0) for c in closed), 4),
+            "gagnants": sum(1 for c in closed if float(c.get("pnl") or 0) > 0), "derniers": closed[-10:][::-1]}
+
+def verdicts():
+    out = []
+    for p in sorted(glob.glob(os.path.join(DATA, "usine-*", "verdicts.json"))):
+        rep = _json(p, {})
+        for name, r in rep.get("candidats", {}).items():
+            ev = (r.get("evaluation_frais_doubles") or {}).get("global", {})
+            out.append({"catalogue": rep.get("specification", "?"), "candidat": name, "verdict": r.get("verdict", "?"),
+                        "trades": ev.get("trades"), "pf": ev.get("profit_factor"), "esperance_R": ev.get("esperance_R")})
+    return out
+
+class Exchange:
+    """Lecture publique Hyperliquid, mise en cache 20 s pour menager la limite de poids de l'IP (partagee avec les bots)."""
+    def __init__(self, post=None, clock=time.time):
+        self.post, self.clock, self.t, self.data, self.lock = post, clock, 0.0, {}, threading.Lock()
+
+    def _post(self, body):
+        if self.post: return self.post(body)
+        import requests
+        r = requests.post(INFO_URL, json=body, timeout=10); r.raise_for_status(); return r.json()
+
+    def get(self):
+        with self.lock:
+            if self.data and self.clock() - self.t < CACHE_S: return self.data
+            out = {"comptes": {}, "erreur": None}
+            try:
+                mids = {k: float(v) for k, v in self._post({"type": "allMids"}).items()}
+                for name, addr in ACCOUNTS.items():
+                    if not addr: continue
+                    st = self._post({"type": "clearinghouseState", "user": addr})
+                    orders = self._post({"type": "frontendOpenOrders", "user": addr})
+                    stops = {o["coin"] for o in orders if o.get("reduceOnly") and (o.get("isTrigger") and o.get("tpsl") == "sl" or "stop" in str(o.get("orderType", "")).lower())}
+                    pos = []
+                    for a in st.get("assetPositions", []):
+                        q = a["position"]; sz = float(q["szi"])
+                        if sz == 0: continue
+                        pos.append({"coin": q["coin"], "sens": "long" if sz > 0 else "short", "taille": abs(sz), "entree": float(q.get("entryPx") or 0),
+                                    "prix": mids.get(q["coin"]), "pnl": float(q.get("unrealizedPnl") or 0),
+                                    "liquidation": float(q["liquidationPx"]) if q.get("liquidationPx") else None, "stop": q["coin"] in stops})
+                    out["comptes"][name] = {"adresse": addr[:6] + "..." + addr[-4:], "valeur": float(st["marginSummary"]["accountValue"]),
+                                            "positions": pos, "ordres": len(orders)}
+                out["prix"] = {c: mids.get(c) for c in ("BTC", "ETH", "SOL", "HYPE", "kPEPE")}
+            except Exception as ex:
+                out["erreur"] = f"Hyperliquid illisible ({type(ex).__name__})"
+                if self.data: out = {**self.data, "erreur": out["erreur"]}
+            self.data, self.t = out, self.clock()
+            return out
+
+EX = Exchange()
+
+def api():
+    p2 = moonshot(PEANUT2) if os.path.exists(os.path.join(PEANUT2, "status.json")) else None
+    return {"maintenant": int(time.time()), "moonshot": moonshot(), "peanut": peanut(), "peanut2": p2, "exchange": EX.get(), "verdicts": verdicts()}
+
+PAGE = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "page.html"), "rb").read()
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path.startswith("/api/etat"):
+            body = json.dumps(api(), default=str).encode(); ctype = "application/json"
+        elif self.path in ("/", "/index.html"):
+            body, ctype = PAGE, "text/html; charset=utf-8"
+        else:
+            self.send_response(404); self.end_headers(); return
+        self.send_response(200); self.send_header("Content-Type", ctype); self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'")
+        self.end_headers(); self.wfile.write(body)
+    def log_message(self, *a): pass
+
+def main():
+    ThreadingHTTPServer(("0.0.0.0", 8090), Handler).serve_forever()
+
+if __name__ == "__main__":
+    main()

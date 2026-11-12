@@ -1,0 +1,38 @@
+# Smart Peanut v2 (memecoins, strategie M2) : projet Docker separe (nom peanut2, dossier /opt/peanut2, donnees a part).
+x-commun: &commun
+  image: peanut2:2.2.1
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
+services:
+  moon:
+    <<: *commun
+    build: .
+    container_name: peanut2
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    mem_limit: 512m
+    cpus: 0.5
+
+  garde:
+    <<: *commun
+    container_name: peanut2-garde
+    command: ["python3", "-m", "moon.garde"]
+    environment:
+      - DATA_DIR=/app/data
+      - MODE=${MODE}
+      - BOT_PREFIX=${BOT_PREFIX}
+      - HL_ACCOUNT=${HL_ACCOUNT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - ./data:/app/data:ro
+    mem_limit: 128m
+    cpus: 0.2
+    depends_on: [moon]

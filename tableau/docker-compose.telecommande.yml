@@ -1,0 +1,22 @@
+# Telecommande Telegram : aucune cle de trading. Seule ecriture possible : le fichier KILL des bots (dossiers data en ecriture).
+services:
+  telecommande:
+    image: usine-tableau:1.2.0
+    container_name: usine-telecommande
+    command: ["python3", "-m", "tableau.telecommande"]
+    environment:
+      - DATA_ROOT=/d
+      - MOON_ACCOUNT=${MOON_ACCOUNT}
+      - LABO_ACCOUNT=${LABO_ACCOUNT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    volumes:
+      - /opt/moonshot2/data:/d/moonshot
+      - /opt/peanut2/data:/d/peanut2
+    user: "10001"
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.2

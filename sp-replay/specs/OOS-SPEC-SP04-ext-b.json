@@ -1,0 +1,23 @@
+{
+ "id": "OOS-SP04-ext-b-v1",
+ "gel_utc": "2026-10-31T20:15Z",
+ "annonce": "Holdout temporel fixe, annoncé avant toute lecture de résultats PIT. Entraînement = première moitié de la fenêtre de chaque unité de temps, évaluation = seconde moitié. Aucune retouche après lecture : toute modification = nouvelle spécification, nouveau sha256, nouveau dossier de sortie et nouvelle annonce.",
+ "decoupe": "moitie_temporelle",
+ "fraction_evaluation": 0.5,
+ "embargo_min": 255,
+ "scenarios_frais": [
+  1,
+  2
+ ],
+ "criteres": {
+  "trades_min": 30,
+  "pf_min": 1.2,
+  "jours_min_ic": 7
+ },
+ "criteres_texte": "Évaluation, par candidat : au moins 30 trades ; PF ≥ 1,2 (frais de base) ; espérance > 0 en frais doublés ; borne basse (5 %) de l'IC bootstrap de l'espérance en frais doublés > 0 ; espérance > 0 sur l'entraînement (cohérence). L'intervalle de confiance doit reposer sur au moins 7 jours UTC d'évaluation, sinon NON CONCLUANT. Sinon : PAS D'AVANTAGE ou NON CONCLUANT. Référence : ne rien trader (0 R).",
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261031,
+  "bloc": "jour UTC du signal"
+ }
+}
