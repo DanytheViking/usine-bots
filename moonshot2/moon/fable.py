@@ -18,16 +18,27 @@ def context_text(coin, side, ev, ctx, df):
             f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(6)}, 7 jours {ret(42)}, 30 jours {ret(180)}.\n"
             f"Funding horaire : {ctx.get('funding_h', 0) * 100:.4f} %.")
 
+AVIS = {"prendre": "prendre", "pris": "prendre", "take": "prendre", "eviter": "eviter", "ecarter": "eviter", "avoid": "eviter", "skip": "eviter"}
+
+def sans_accents(s):
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))
+
 def parse(text: str):
-    m = re.search(r"\{.*\}", text or "", re.S)
-    if not m: return None
-    try: d = json.loads(m.group(0))
-    except ValueError: return None
-    avis = str(d.get("avis", "")).lower()
-    if avis not in ("prendre", "eviter"): return None
+    """Premier objet JSON lisible de la reponse (bloc de code, texte autour, accents toleres)."""
+    for m in re.finditer(r"\{[^{}]*\}", text or "", re.S):
+        try: d = json.loads(m.group(0))
+        except ValueError: continue
+        avis = AVIS.get(sans_accents(str(d.get("avis", ""))).strip().lower())
+        if avis: break
+    else:
+        return None
     try: conf = max(0, min(100, int(d.get("confiance", 0))))
     except (TypeError, ValueError): conf = 0
     return {"avis": avis, "confiance": conf, "raison": str(d.get("raison", ""))[:300]}
+
+def apercu(text: str):
+    return re.sub(r"\s+", " ", (text or ""))[:160]
 
 def opinion(prompt: str, state: dict, day: str, post=None):
     """Renvoie {"avis", "confiance", "raison"} ou {"absent": raison}. Plafond d'appels par jour UTC."""
@@ -40,9 +51,9 @@ def opinion(prompt: str, state: dict, day: str, post=None):
             import requests
             post = requests.post
         r = post(URL, timeout=60, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                 json={"model": C.FABLE_MODEL, "max_tokens": 400, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
+                 json={"model": C.FABLE_MODEL, "max_tokens": 1000, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
         if getattr(r, "status_code", 0) != 200: return {"absent": f"API {getattr(r, 'status_code', '?')}"}
         text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text")
-        return parse(text) or {"absent": "reponse illisible"}
+        return parse(text) or {"absent": "reponse illisible", "apercu": apercu(text)}
     except Exception as ex:
         return {"absent": f"erreur {type(ex).__name__}"}

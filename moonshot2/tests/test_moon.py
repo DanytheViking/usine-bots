@@ -249,6 +249,18 @@ def test_fable_avis_enregistre_meme_si_eviter():
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
 
+def test_fable_reponses_tolerees():
+    from moon import fable as F
+    assert F.parse('{"avis": "\u00e9viter", "confiance": 70, "raison": "x"}')["avis"] == "eviter"           # accent
+    assert F.parse('```json\n{"avis":"prendre","confiance":"80"}\n```') == {"avis": "prendre", "confiance": 80, "raison": ""}
+    assert F.parse('Analyse du contexte. {"avis": "Prendre", "raison": "ok"} Fin.')["avis"] == "prendre"
+    assert F.parse('{"note": 1} puis {"avis": "eviter"}')["avis"] == "eviter"
+    assert F.parse("rien de lisible") is None and F.parse('{"avis": "peut-etre"}') is None
+    old = F.C.ANTHROPIC_API_KEY; F.C.ANTHROPIC_API_KEY = "sk-test"
+    try: r = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: Resp(200, "pas de json ici"))
+    finally: F.C.ANTHROPIC_API_KEY = old
+    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici"} and len(F.apercu("x " * 500)) == 160
+
 def test_fable_decide():
     os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
     try:
