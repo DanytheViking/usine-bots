@@ -1,0 +1,7 @@
+{
+ "commit": "da2452681e4f11d09cce23d07712f869cda66ca1",
+ "verdict": "approuve",
+ "auditeur": "Aristote",
+ "date": "2026-11-13T10:50:18Z",
+ "raison": "Premier audit du Deployeur : relecture complete (deployeur.py, bornes.py, lanceur.sh, installer.sh, tests). Tests : test_deployeur 21/21. Constitution intacte et conforme a AGENT.md (1 %, 1,5 %, levier 5, marge 90 %, arret de ligne 50 %, 30 R, 20 pertes ; mots interdits de mouvement de fonds ; options d'acces hote interdites ; variables d'env bornees). Le diff da24526 relaie les messages meme quand un bot attend l'Auditeur, jamais pour un commit refuse par la constitution, et retire le fichier compile ; le nouveau test le verifie vraiment. Aucune cle lue hormis le jeton Telegram declare ; sauvegardes .env en 600 locales ; rapports passes par redact. Remarques a corriger par Socrate (durcissement, non bloquant aujourd'hui) : (1) le drapeau audit de deploy/cibles.json n'est pas protege : un commit qui retire audit: true de moonshot2 ou peanut2 n'est pas audite (entree() ignore cette cle) et ouvre ensuite le deploiement sans accord ; faire exiger audit: true pour ces cibles par bornes.verifier et inclure deploy/cibles.json dans les chemins audites ; (2) la docstring de bornes.py dit que le fichier n'est jamais mis a jour par le Deployeur alors que auto_maj le remplace depuis le 12/11 : la corriger ; (3) le visa audits/<sha>.json n'est pas authentifie (meme compte GitHub) : le controle repose sur la discipline des agents."
+}
