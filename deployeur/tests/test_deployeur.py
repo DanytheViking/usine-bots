@@ -275,6 +275,19 @@ def test_audit_bloque_puis_libere_les_bots():
     w.commit(f"audits/{sha2}.json", json.dumps({"commit": "autre", "verdict": "approuve"}))  # approbation d'un autre commit : refus
     s = D.cycle(w.ctx); new = sh("git", "rev-parse", "HEAD", cwd=w.work); assert s["echecs"]["moonshot2"] == new
 
+def test_messages_relayes_pendant_l_attente_de_l_auditeur():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True); with_audit_flags(w); D.cycle(w.ctx)
+    w.ctx.t = 1_794_000_000 // (4 * 3600) * (4 * 3600) + 3600
+    sha = w.commit("moonshot2/moon/bot.py", "x = 30\n")
+    w.commit("messages/2026-11-13-trade.md", "Trade XMR ouvert")
+    w.commit("jobs/attente.json", json.dumps({"id": "attente", "type": "usine", "module": "usine.verdicts_v3", "args": []}))
+    s = D.cycle(w.ctx)
+    assert s["par_cible"]["moonshot2"] != sha and "Trade XMR ouvert" in w.ctx.sent and "attente" not in s["jobs"]
+    n = len(w.ctx.sent); D.cycle(w.ctx); assert len(w.ctx.sent) == n                           # message relaye une seule fois
+    w.commit("messages/2026-11-13-refus.md", "ne doit pas partir")
+    w.commit("moonshot2/moon/config.py", open(os.path.join(w.work, "moonshot2/moon/config.py")).read().replace('_f("RISK_PER_TRADE", "0.01"), 0.01)', '_f("RISK_PER_TRADE", "0.05"), 0.05)'))
+    s = D.cycle(w.ctx); assert s["refuse"] and "ne doit pas partir" not in w.ctx.sent       # commit refuse : rien n'est relaye
+
 def test_audit_couvre_les_variables_du_bot():
     w = World(); D = w.D; D.cycle(w.ctx, adopter=True); with_audit_flags(w); D.cycle(w.ctx)
     base = sh("git", "log", "-1", "--format=%H", "--", "moonshot2", cwd=w.work)

@@ -422,8 +422,9 @@ def cycle(ctx, adopter=False):
                 if r: log(r[1]); ctx.send(r[1])
             elif a is False:
                 s["maj_vue"] = new; ctx.send(f"Nouvelle version du Deployeur {new[:8]} REFUSEE par l'Auditeur")
-        jobs(ctx, s, stage); messages(ctx, s, stage)
+        jobs(ctx, s, stage)
         controle_hebdo(ctx, s)
+    if os.path.isdir(stage) and new != s.get("refuse"): messages(ctx, s, stage)   # un bot en attente de l'Auditeur ne retient pas les messages
     save_state(s)
     try: publier(ctx, s)
     except Exception as ex: log(f"publication : {type(ex).__name__}")
