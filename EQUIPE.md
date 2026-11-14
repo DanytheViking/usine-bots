@@ -29,6 +29,10 @@ les bots plus precis. Chaque role a une source et une trace ecrite ; chacun nour
 3. Une mise a jour technique se deploie quand ses tests passent et que l'Auditeur l'a approuvee (bots et Deployeur), hors fenetre de cloture 4 h.
 4. Chaque decision prise seul est annoncee a Richard en une ou deux phrases (`messages/`).
 
+## Nouveau membre (15/11/2026)
+Eratosthene, le Collecteur de sources : seances Asie, Europe et Etats-Unis, primes Coinbase et coreenne, funding, open interest et
+liquidations des grandes plateformes, indices, calendrier macro, memecoins des DEX. Il ne trade pas et n'utilise pas d'IA ; il nourrit Thales et Democrite.
+
 ## Modeles (demande de Richard du 15/11/2026)
 Pour les decisions et la strategie, le meilleur modele pour le raisonnement : Fable, toujours de preference ; Opus seulement si Fable n'est pas disponible.
 Thales et Democrite le font seuls dans le code (secours automatique) ; Socrate et Aristote tournent sur Fable.

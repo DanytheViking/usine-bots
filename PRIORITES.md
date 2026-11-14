@@ -104,6 +104,22 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   en parallele la strategie mecanique seule et un filtre deterministe simple avec les memes donnees. Bilan apres 30 signaux ;
   le veto de Thales sur Smart Peanut est garde seulement s'il ameliore le resultat net ou le drawdown.
 - P1c. Tableau de bord des couts : resultat brut, net de trading, funding, frais d'execution, et couts fixes (VPS, appels de Thales et Democrite au modele) separes.
+- P1d. Eratosthene, le Collecteur de sources (demande de Richard du 15/11/2026, 00 h 55 : « connecte-le sur l'ouverture asiatique et americaine,
+  sur toutes les sources possibles »). Nouveau conteneur sans cle ni IA, qui ne trade pas : il collecte et publie un fichier de contexte
+  (/opt/collecteur/data/contexte.json, mis a jour toutes les 5 minutes) et un historique quotidien pour la recherche. APIs publiques seulement,
+  dans le respect de leurs conditions d'usage, aucune donnee privee. Sources, dans cet ordre :
+  1. Horloge des seances : Asie (Tokyo 00 h UTC, Hong Kong et Singapour 01 h 30 UTC), Europe (08 h UTC), Etats-Unis (14 h 30 UTC en hiver,
+     13 h 30 en ete, jours feries de la bourse de New York), avec la seance en cours et le temps avant la prochaine ouverture.
+  2. Prime Coinbase (prix BTC et ETH sur Coinbase contre Binance) : demande americaine ; prime coreenne (Upbit contre Binance) : demande asiatique,
+     aussi par memecoin quand il est cote en Coree.
+  3. Funding, open interest et liquidations sur Binance, Bybit et OKX pour nos actifs (en plus d'Hyperliquid).
+  4. Indices actions et risque : contrats a terme S&P 500 et Nasdaq, Nikkei, Hang Seng, VIX, dollar (DXY), si une source gratuite et stable existe.
+  5. Calendrier macro (decisions de la Fed, inflation americaine, emploi) : heure et importance.
+  6. Memecoins sur les DEX (volume et liquidite des memecoins sur Solana et Base) comme indicateur de la mode du moment.
+  Regles : chaque source a un controle de fraicheur ; une source en panne ne bloque jamais un bot (le champ est marque absent).
+  Usage : d'abord comme contexte pour Thales (avis plus informe) et comme donnees pour Democrite ; une source devient un filtre ou un signal
+  de trading seulement apres un verdict pre-enregistre (pas plus de sources que de preuves). Constitution : ajouter /opt/collecteur aux
+  destinations dans un commit de deployeur/ AVANT le code (audit d'Aristote). Tableau de bord : onglet « Monde » (seance en cours, primes, funding, macro).
 - P2a. Trois challengers Smart Peanut, pre-enregistres AVANT les donnees, peu de parametres, testes separement, frais doubles :
   tendance avec reentree bornee, cassure apres consolidation (avec liquidite minimale), continuation de momentum (duree maximale).
   Chacun passe d'abord en observation parallele (sans capital), puis en reel limite seulement s'il remplit ses criteres.
