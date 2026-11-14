@@ -7,19 +7,21 @@ Socrate lit ce fichier a chaque passage et le met a jour quand une priorite est 
 avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
 - Enveloppe : le seul compte Labo (0x69Dc...7180, 74,41 USDC). Aucun versement automatique, aucun effet sur Moonshot (compte et cle separes).
   Perdre l'enveloppe est accepte. Moonshot garde toutes les regles prudentes.
-- Bornes Lab (constitution du 15/11) : 3 % par trade, jusqu'a 4,5 % quand l'ordre minimum l'impose, arret de ligne a -80 %, 30 R / 20 pertes inchanges.
-  Etape 2 : dans config.py, LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50) et
-  MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015) ;
-  deploy/env/peanut2.json : RISK_PER_TRADE 0.03, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.045. Tests et audit.
+- Bornes Lab (constitution du 15/11) : 20 % par trade (choix ecrit de Richard du 15/11, 00 h 32 : « rock'n'roll and all in », « 20 % par trade »),
+  20 % au plus aussi quand l'ordre minimum l'impose, arret de ligne a -80 % (environ 7 pertes de suite), 30 R / 20 pertes inchanges.
+  Etape 2 : dans config.py, RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02), LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50) et
+  MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015) ;
+  deploy/env/peanut2.json : RISK_PER_TRADE 0.20, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20. Cette etape remplace la ligne a 3 % de l'etape 2 ci-dessous.
+  Avec 20 %, la taille reste limitee par le levier 5 isole et la marge 90 % : si le stop est trop proche, la taille est reduite (jamais le stop deplace). Tests et audit.
 - Voie rapide du Lab : un challenger passe en reel sur le Lab des que (1) son pre-enregistrement est ecrit avant les donnees, (2) son esperance
   est >= 0 en frais doubles sur le holdout, (3) les tests d'execution P0b passent. Pas de PF 1,35 ni de deux semaines de papier exigees au Lab.
   Abandon automatique fixe a l'avance : -15 R cumules, ou esperance negative apres 30 trades reels.
-- Plusieurs strategies dans le meme Lab : un seul processus, une position par actif (le premier signal prend l'actif), risque ouvert total <= 9 %.
+- Plusieurs strategies dans le meme Lab : un seul processus, une position par actif (le premier signal prend l'actif), risque ouvert total <= 40 % (deux positions au plus).
 - Univers Lab : tous les memecoins Hyperliquid qui passent un controle de liquidite (spread et profondeur a notre taille), au lieu du seul volume de 2 M$.
   Bougies 1 h permises au Lab. Un actif sorti de l'univers reste suivi tant qu'une position ou un ordre existe.
 - Cycle hebdomadaire du Lab : Democrite propose deux hypotheses, Pyrrhon les juge, Socrate deploie la meilleure, Diogene publie le bilan
   (signaux, trades, R, couts) ; Thales propose des hypotheses et son veto reste mesure (P1b).
-- Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 3 % par trade choisi par le bot,
+- Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
 ## 0. Smart Peanut devient la « tete brulee » (demande ecrite de Richard du 14/11/2026, 23 h 43 : « Plus de trades et 3 % »)

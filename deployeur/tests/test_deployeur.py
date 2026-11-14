@@ -94,6 +94,10 @@ def test_constitution_depot_reel_et_violations():
     assert bornes.verifier(d) == []                                                            # Lab : -80 % et 4,5 % pour Smart Peanut seulement
     open(cfg, "w").write(src.replace('min(_f("LINE_STOP", "0.50"), 0.50)', 'min(_f("LINE_STOP", "0.50"), 0.80)'))
     assert any("LINE_STOP" in x for x in bornes.verifier(d))                                   # -80 % pour tous : refuse
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)'))
+    assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # Lab all in : 20 % pour Smart Peanut seulement
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.20)'))
+    assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 20 % pour Moonshot : refuse
     open(cfg, "w").write(src)
     open(os.path.join(d, "moonshot2/moon/vol.py"), "w").write("ex.withdraw_from_bridge(1)\n")
     open(os.path.join(d, "recolteur/x.yml"), "w").write("services:\n  a:\n    privileged: true\n    volumes: [/var/run/docker.sock:/s]\n")
@@ -106,7 +110,7 @@ def test_constitution_cibles_et_env():
     c = json.load(open(os.path.join(d, "deploy/cibles.json")))
     c[0]["dest"] = "/etc"; c[1]["fichiers"].append(".env"); c[2]["test_volumes"] = ["/root:/r:ro"]; c[3]["test_volumes"] = ["/root/usine:/u"]
     json.dump(c, open(os.path.join(d, "deploy/cibles.json"), "w"))
-    json.dump({"MODE": "reel", "RISK_PER_TRADE": "0.05", "HL_AGENT_KEY": "x", "MAX_LEVERAGE": 3}, open(os.path.join(d, "deploy/env/peanut2.json"), "w"))
+    json.dump({"MODE": "reel", "RISK_PER_TRADE": "0.25", "HL_AGENT_KEY": "x", "MAX_LEVERAGE": 3}, open(os.path.join(d, "deploy/env/peanut2.json"), "w"))
     v = bornes.verifier(d)
     for frag in ("destination interdite /etc", "fichier interdit .env", "volume de test interdit /root:/r:ro", "volume de test interdit /root/usine:/u",
                  "RISK_PER_TRADE hors bornes", "variable interdite HL_AGENT_KEY"): assert any(frag in x for x in v), frag

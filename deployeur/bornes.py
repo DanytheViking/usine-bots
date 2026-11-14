@@ -9,12 +9,15 @@ import os, re, json
 # ecrite de Richard du 15/11/2026 (« je te donne 100 % mon accord pour tester et monter le plafond »).
 # Smart Peanut est le Lab (demande ecrite de Richard du 15/11/2026, 00 h 31 : « si on perd le capital de 74 $ c'est pas grave ») :
 # arret de ligne a -80 % et risque au minimum d'ordre jusqu'a 4,5 %, pour lui seul. Moonshot ne change pas.
+# Lab « rock'n'roll, all in » (choix ecrit de Richard du 15/11/2026, 00 h 32 : « 20 % par trade ») : 20 % par trade au plus pour Smart Peanut.
 LIGNES_BORNES = (
     ('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
      'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)',
-     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)'),
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)',
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)'),
     ('MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
-     'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015)'),
+     'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015)',
+     'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)'),
     'MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)',
     'MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)',
     ('LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.50)',
@@ -36,7 +39,7 @@ INTERDITS_COMPOSE = ("docker.sock", "privileged", "network_mode: host", "network
 DESTINATIONS = {"/opt/moonshot2", "/opt/peanut2", "/opt/recolteur", "/opt/tableau", "/root/usine", "/opt/sentinelle"}
 SOURCES_TEST = ("/root/usine", "/root/sp-replay", "{stage}")
 
-ENV_PERMIS = {"MODE": ("observation", "reel"), "COINS": None, "MIN_DAY_VOLUME_USD": (0, 1e10), "RISK_PER_TRADE": (0, 0.03), "LINE_STOP": (0.1, 0.8), "MAX_RISK_MIN_ORDER": (0, 0.045),
+ENV_PERMIS = {"MODE": ("observation", "reel"), "COINS": None, "MIN_DAY_VOLUME_USD": (0, 1e10), "RISK_PER_TRADE": (0, 0.20), "LINE_STOP": (0.1, 0.8), "MAX_RISK_MIN_ORDER": (0, 0.20),
               "MAX_LEVERAGE": (1, 5), "BARS": (600, 1000), "SIGNAL_DELAY_S": (20, 600), "FETCH_PAUSE_S": (0, 5),
               "CAPITAL_PAPIER": (10, 100000), "BOT_PREFIX": None, "LOOP_S": (30, 600)}
 NOM_FICHIER = re.compile(r"^[A-Za-z0-9_.\-/]+$")
