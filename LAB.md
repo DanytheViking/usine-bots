@@ -15,7 +15,7 @@ qu'on la vive et qu'on la reussisse tous ensemble ».
 - Variation brutale de l'open interest avec le prix (nouvel argent qui entre ou qui fuit).
 - BTC qui mene les memecoins : un mouvement de BTC suivi avec retard par les memecoins.
 - Nouveaux listings Hyperliquid : comportement des premiers jours d'un memecoin.
-- Heures et jours : week-ends, ouverture des Etats-Unis, cloture du funding.
+- Les deux grands poles (idee de Richard) : plage de la seance asiatique, cassure a l'ouverture americaine ; week-ends ; heures du funding.
 - Cassures apres compression, continuation de momentum, reentree en tendance (P2a).
 - Thales en chercheur : il propose chaque semaine une hypothese que Democrite met en forme et que Pyrrhon juge.
 

@@ -31,7 +31,11 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
 - Premieres experiences du Lab (revues externes) : (1) cassure apres compression (plage passee, filtre de liquidite executable, invalidation
   claire, peu de parametres), testable tout de suite sur les bougies ; (2) en parallele, etendre la collecte de T6 aux memecoins du Lab
   pour preparer les cascades de liquidations (donnees fines, test des que l'echantillon suffit) ; (3) reentree en tendance.
-  Funding et open interest d'abord comme variables de contexte. Repousses : nouveaux listings, effets horaires, retard BTC vers memecoins.
+  (1 bis) idee de Richard du 15/11 : les deux grands poles, Asie et Etats-Unis. Pre-enregistrer, en variante de la cassure (1) et non en plus :
+  plage de la seance asiatique (00 h a 08 h UTC), cassure pendant la seance americaine (ouverture 14 h 30 UTC en hiver, 13 h 30 UTC en ete),
+  sortie avant la fin de seance ou au stop. En bougies 1 h ou 15 min, frais doubles, memes criteres de la voie rapide.
+  Et dans le rapport P1a et le carnet du Lab : resultat de M2 et du Lab par seance (Asie, Europe, Etats-Unis) et volume par seance des memecoins.
+  Funding et open interest d'abord comme variables de contexte. Repousses : nouveaux listings, retard BTC vers memecoins.
 - Univers Lab : tous les memecoins Hyperliquid qui passent un controle de liquidite (spread et profondeur a notre taille), au lieu du seul volume de 2 M$.
   Bougies 1 h permises au Lab. Un actif sorti de l'univers reste suivi tant qu'une position ou un ordre existe.
 - Cycle hebdomadaire du Lab : Democrite propose deux hypotheses, Pyrrhon les juge, Socrate deploie la meilleure, Diogene publie le bilan
