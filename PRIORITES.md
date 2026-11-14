@@ -11,6 +11,10 @@ passent le filtre de volume de 2 M$, et kPEPE est ecarte par l'ordre minimum. Ce
   - M2 4 h avec un filtre de volume abaisse a 1 M$ ;
   - criteres du lot : PF >= 1,35, esperance > 0 en frais doubles et en stress x 3, IC, leave-one-asset-out, et frequence attendue par mois publiee.
 - Un candidat qui passe va d'abord en papier deux semaines (suivi par Diogene), puis en reel s'il reste conforme.
+- Plusieurs frequences en meme temps (demande de Richard du 14/11) : Hyperliquid n'a qu'une position par actif et par compte, donc
+  chaque frequence validee tourne comme une instance separee du meme code (frequence et compte par variables), sur son propre
+  sous-compte. Le versement vers le sous-compte est fait par Richard (le code ne deplace jamais de fonds). Risque : 1 % par trade
+  et par sous-compte ; Epictete surveille l'exposition cumulee quand deux frequences prennent le meme actif dans le meme sens.
 
 ## 2. Thales (Fable decideur)
 Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Fable fonctionne en reel (aucun « reponse illisible »).
