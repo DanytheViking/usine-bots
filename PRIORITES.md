@@ -21,3 +21,9 @@ Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifi
 
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
+
+## 4. Optimisations demandees par Richard le 14/11 (dans cet ordre, apres la priorite 1)
+- Diversifier : chaque strategie independante validee (T6, frequences validees, exces de funding avec les donnees collectees par T6) s'ajoute comme instance separee.
+- Execution : pre-enregistrer et tester une entree maker (ordre limite post-only a l'ouverture, expiration courte, repli taker ou abandon) contre l'entree taker actuelle ; Diogene mesure l'economie de frais contre les signaux manques avant tout passage en reel.
+- Thales : enrichir le contexte donne a Fable (funding, open interest, volume, regime BTC) ; Democrite mesure l'apport des decisions apres au moins 20 signaux, puis on renforce, corrige ou retire son veto.
+- Jamais de retouche des parametres de M2 pour coller au passe.
