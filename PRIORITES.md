@@ -2,6 +2,26 @@
 
 Socrate lit ce fichier a chaque passage et le met a jour quand une priorite est traitee.
 
+## LAB : mandat de Smart Peanut (demande ecrite de Richard du 15/11/2026, 00 h 31)
+« Smart Peanut est un projet Lab ; si on perd le capital de 74 $ ce n'est pas grave ; je veux un bot ultra intelligent et producteur qui prend des risques,
+avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
+- Enveloppe : le seul compte Labo (0x69Dc...7180, 74,41 USDC). Aucun versement automatique, aucun effet sur Moonshot (compte et cle separes).
+  Perdre l'enveloppe est accepte. Moonshot garde toutes les regles prudentes.
+- Bornes Lab (constitution du 15/11) : 3 % par trade, jusqu'a 4,5 % quand l'ordre minimum l'impose, arret de ligne a -80 %, 30 R / 20 pertes inchanges.
+  Etape 2 : dans config.py, LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50) et
+  MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015) ;
+  deploy/env/peanut2.json : RISK_PER_TRADE 0.03, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.045. Tests et audit.
+- Voie rapide du Lab : un challenger passe en reel sur le Lab des que (1) son pre-enregistrement est ecrit avant les donnees, (2) son esperance
+  est >= 0 en frais doubles sur le holdout, (3) les tests d'execution P0b passent. Pas de PF 1,35 ni de deux semaines de papier exigees au Lab.
+  Abandon automatique fixe a l'avance : -15 R cumules, ou esperance negative apres 30 trades reels.
+- Plusieurs strategies dans le meme Lab : un seul processus, une position par actif (le premier signal prend l'actif), risque ouvert total <= 9 %.
+- Univers Lab : tous les memecoins Hyperliquid qui passent un controle de liquidite (spread et profondeur a notre taille), au lieu du seul volume de 2 M$.
+  Bougies 1 h permises au Lab. Un actif sorti de l'univers reste suivi tant qu'une position ou un ordre existe.
+- Cycle hebdomadaire du Lab : Democrite propose deux hypotheses, Pyrrhon les juge, Socrate deploie la meilleure, Diogene publie le bilan
+  (signaux, trades, R, couts) ; Thales propose des hypotheses et son veto reste mesure (P1b).
+- Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 3 % par trade choisi par le bot,
+  code qui deplace des fonds.
+
 ## 0. Smart Peanut devient la « tete brulee » (demande ecrite de Richard du 14/11/2026, 23 h 43 : « Plus de trades et 3 % »)
 - Etape 1 (commit du 14/11) : la constitution accepte 3 % de risque par trade pour Smart Peanut seulement (BOT_NAME smartpeanut2) ; Moonshot reste a 1 %.
 - Etape 1 bis (commit du 15/11) : la constitution accepte aussi 2 % pour Moonshot (demande ecrite de Richard du 15/11/2026, 00 h 12 :
