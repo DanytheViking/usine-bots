@@ -1,7 +1,7 @@
-"""Fable Chercheur : bilan hebdomadaire automatique (dimanche 17:00 UTC). Conteneur separe, sans cle de trading.
-  1. Lit le journal et l'etat du bot (lecture seule) : trades de la semaine, R, avis de Fable et resultat des trades.
-  2. Mesure l'apport de Fable : resultat moyen des trades qu'il voulait « prendre » contre ceux qu'il voulait « eviter ».
-  3. Demande a Fable une lecture du marche et 1 a 3 propositions de strategies, decrites en regles testables.
+"""Democrite, le Chercheur : bilan hebdomadaire automatique (dimanche 17:00 UTC). Conteneur separe, sans cle de trading.
+  1. Lit le journal et l'etat du bot (lecture seule) : trades de la semaine, R, avis de Thales et resultat des trades.
+  2. Mesure l'apport de Thales : resultat moyen des trades qu'il voulait « prendre » contre ceux qu'il voulait « eviter ».
+  3. Demande au modele Fable une lecture du marche et 1 a 3 propositions de strategies, decrites en regles testables.
   4. Ecrit le rapport dans data/chercheur/ et l'envoie sur Telegram.
 Les propositions ne sont JAMAIS appliquees automatiquement : elles passent par un pre-enregistrement et le Testeur.
     python3 -m moon.chercheur            boucle hebdomadaire
@@ -19,7 +19,7 @@ def read_journal():
     except Exception: return []
 
 def fable_score(rows, closed):
-    """Associe chaque avis de Fable au trade ferme du meme actif et de la meme bougie de signal."""
+    """Associe chaque avis de Thales au trade ferme du meme actif et de la meme bougie de signal."""
     ops = {(r["data"].get("coin"), r["data"].get("bar_ts")): r["data"] for r in rows if r.get("stage") == "fable" and r["data"].get("avis")}
     out = {"prendre": [], "eviter": []}
     for c in closed:
@@ -69,10 +69,10 @@ def report(now=None, post=None, send=N.send):
     stats = week_stats(G.load(), read_journal(), now)
     text = ask_fable(stats, post)
     fs = stats["fable_depuis_le_debut"]
-    head = (f"🔬 Fable Chercheur : bilan au {stats['semaine_jusqu_au']}\n"
+    head = (f"🔬 Democrite, le Chercheur : bilan au {stats['semaine_jusqu_au']}\n"
             f"Trades fermes : {stats['trades_fermes']} ; P&L {stats['pnl_usdc']:+.2f} USDC ; {stats['R_semaine']:+.2f} R "
             f"(cumule {stats['R_cumule']:+.2f} R, baisse {stats['baisse_R']:.1f} R)\n"
-            f"Avis Fable (depuis le debut) : prendre {fs['prendre']['trades']} trades, R moyen {fs['prendre']['R_moyen']} ; "
+            f"Avis de Thales (depuis le debut) : prendre {fs['prendre']['trades']} trades, R moyen {fs['prendre']['R_moyen']} ; "
             f"eviter {fs['eviter']['trades']} trades, R moyen {fs['eviter']['R_moyen']}\n"
             "Propositions : a pre-enregistrer et a tester avant tout usage.\n\n")
     os.makedirs(OUT, exist_ok=True)

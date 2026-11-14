@@ -9,8 +9,8 @@ les bots plus precis. Chaque role a une source et une trace ecrite ; chacun nour
 |---|---|---|---|
 | Socrate, l'architecte | agent quotidien (10 h 23, Europe/Madrid), rapporte a Richard | strategie, architecture, corrections, ameliorations, nouvelles versions, travaux, messages | commits sur `main` |
 | Aristote, l'Auditeur | agent independant (11 h 47 et 19 h 47) | approbation ou refus de chaque commit qui touche l'argent reel ou le Deployeur | `audits/<sha>.json` |
-| Thales, Fable le decideur | Fable sur chaque signal M2 | decision prendre ou ecarter, avec la raison ; signaux ecartes journalises | `journal-*.jsonl`, etapes `fable` et `signal` |
-| Democrite, le Chercheur | Fable Chercheur (dimanche 18 h) | bilan hebdomadaire : decisions de Fable comparees aux resultats | `rapports` : `chercheur/` |
+| Thales, le decideur | modele Fable de preference (secours si Fable ne repond pas), sur chaque signal M2 | decision prendre ou ecarter, avec la raison ; signaux ecartes journalises | `journal-*.jsonl`, etapes `fable` et `signal` |
+| Democrite, le Chercheur | bilan du dimanche 18 h (modele Fable) | bilan hebdomadaire : decisions de Thales comparees aux resultats | `rapports` : `chercheur/` |
 | Pyrrhon, le Testeur | usine de recherche | verdicts pre-enregistres, Testeur durci | `rapports` : `verdicts/`, `jobs/` |
 | Diogene, le Controleur | VPS, chaque lundi (et travail `controle`) | reel contre simule : ecart d'entree, frais, funding | tableau de bord, `/opt/usine-public/controle.json` |
 | Heraclite, la Sentinelle | VPS, toutes les 15 min | alertes plateforme : delisting, levier, funding extreme, stop absent, cle d'agent, API | Telegram, tableau de bord |
@@ -20,7 +20,7 @@ les bots plus precis. Chaque role a une source et une trace ecrite ; chacun nour
 
 ## Comment ils s'entraident
 - Heraclite et Diogene signalent ; Socrate corrige ; Aristote verifie ; Archimede installe ; Epictete borne le tout.
-- Thales (Fable) decide sur chaque signal ; Democrite mesure si ses decisions ameliorent les resultats (signaux pris contre signaux ecartes) ; Socrate en tire des hypotheses pour le Testeur.
+- Thales decide sur chaque signal ; Democrite mesure si ses decisions ameliorent les resultats (signaux pris contre signaux ecartes) ; Socrate en tire des hypotheses pour le Testeur.
 - Toute amelioration de strategie suit le meme chemin : idee -> pre-enregistrement ecrit -> verdict du Testeur -> papier ou reel selon le verdict -> suivi par le Controleur.
 
 ## Comment Socrate decide

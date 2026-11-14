@@ -1,6 +1,6 @@
 """Moonshot v2 : boucle principale. Strategie M2 (croisement EMA 50/200 en 4 h) sur 13 perps Hyperliquid.
 A chaque cloture 4 h : sorties sur croisement inverse (avec retournement), puis entrees. Entre deux clotures : suivi des
-positions et des stops. Fable donne un avis enregistre sur chaque signal, sans influence sur les ordres.
+positions et des stops. Thales donne un avis sur chaque signal (voir FABLE_DECIDE).
     python3 -m moon.bot              boucle
     python3 -m moon.bot --once       un passage
     python3 -m moon.bot --preflight  verifications en lecture seule (aucun ordre)"""
@@ -49,9 +49,9 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     op = F.opinion(F.context_text(coin, side, ev, ctx, df), s, day, post=fable_post)
     J.record("fable", op.get("avis", "absent"), f"{coin} {side} : {op}", coin=coin, side=side, bar_ts=ev["bar_ts"], **op)
     if C.FABLE_DECIDE and op.get("avis") == "eviter":
-        J.record("signal", "ecarte par Fable", f"{coin} {side} : Fable decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
+        J.record("signal", "ecarte par Thales", f"{coin} {side} : Thales decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
                  coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
-        N.send(f"🔮 Thales (Fable) ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
+        N.send(f"🔮 Thales ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
         return
     sz, lev, notional, risk, why = G.size(side, ev["ref"], ev["atr"], equity, ctx, s["positions"])
     if why:
@@ -64,7 +64,7 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     if r is None: N.send(f"⏭ {coin} {side} : entree non remplie (prix parti au-dela de 1 %)"); return
     s["positions"][coin] = {"side": side, "sz": r["sz"], "entry": r["entry"], "stop": r["stop"], "risk_usd": risk, "lev": lev,
                             "notional": r["sz"] * r["entry"], "opened_ms": int(time.time() * 1000), "bar_ts": ev["bar_ts"], "fee_in": r.get("fee_in", 0.0)}
-    fab = f"\nFable : {op['avis']} ({op['confiance']} %) : {op['raison']}" if "avis" in op else ""
+    fab = f"\nThales : {op['avis']} ({op['confiance']} %) : {op['raison']}" if "avis" in op else ""
     J.record("execution", "ouvert", f"{coin} {side} {r['sz']} a {r['entry']}, stop {r['stop']}, risque {risk:.2f} USDC, levier {lev}")
     N.send(f"🟢 {coin} {side.upper()} ouvert a {r['entry']:.6g}\nStop {r['stop']:.6g} ; risque {risk:.2f} USDC ({risk / equity:.2%}) ; levier {lev}x{fab}")
 
@@ -167,7 +167,7 @@ def preflight(m, s, b):
         sz, lev, notional, risk, why = G.size(ev["trend"], ev["ref"], ev["atr"], eq or OBS_START, ctx[coin], {})
         print(f"{coin:6s} tendance {ev['trend']:5s} stop {C.STOP_ATR * ev['atr'] / ev['ref']:.1%} -> " +
               (why if why else f"taille {sz:g} ({notional:.2f} $), levier {lev}x, risque {risk:.2f} USDC"))
-    print(f"Fable : {'cle presente, modele ' + C.FABLE_MODEL if C.ANTHROPIC_API_KEY else 'pas de cle (avis absents)'}")
+    print(f"Thales : {'cle presente, modele ' + C.FABLE_MODEL + ', secours ' + (C.THALES_SECOURS or 'aucun') if C.ANTHROPIC_API_KEY else 'pas de cle (avis absents)'}")
     print("PREVOL OK" if ok else "PREVOL EN ECHEC"); return ok
 
 def main(argv=None):

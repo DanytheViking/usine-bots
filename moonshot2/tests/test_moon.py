@@ -249,6 +249,28 @@ def test_fable_avis_enregistre_meme_si_eviter():
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
 
+def test_thales_fable_d_abord_puis_secours():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; importlib.reload(C)
+    try:
+        vus = []
+        def ok(url, **k): vus.append(k["json"]["model"]); return Resp(200, '{"avis": "prendre", "confiance": 70, "raison": "tendance"}')
+        op = F.opinion("p", {"fable_calls": {}}, "d", post=ok)
+        assert vus == [C.FABLE_MODEL] and op["modele"] == C.FABLE_MODEL and op["avis"] == "prendre"   # Fable de preference
+        vus.clear()
+        def surcharge(url, **k):
+            vus.append(k["json"]["model"])
+            return Resp(529, "") if k["json"]["model"] == C.FABLE_MODEL else Resp(200, '{"avis": "eviter", "confiance": 60, "raison": "x"}')
+        s = {"fable_calls": {}}
+        op = F.opinion("p", s, "d", post=surcharge)
+        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and op["modele"] == C.THALES_SECOURS and op["avis"] == "eviter"
+        assert s["fable_calls"]["d"] == 1                                   # un seul appel compte par signal
+        def panne(url, **k): return Resp(503, "")
+        assert F.opinion("p", {"fable_calls": {}}, "d", post=panne)["absent"] == "API 503 puis API 503"
+        os.environ["THALES_SECOURS"] = ""; importlib.reload(C); vus.clear()
+        assert "absent" in F.opinion("p", {"fable_calls": {}}, "d", post=surcharge) and vus == [C.FABLE_MODEL]   # sans secours
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("THALES_SECOURS", None); importlib.reload(C)
+
 def test_fable_reponses_tolerees():
     from moon import fable as F
     assert F.parse('{"avis": "\u00e9viter", "confiance": 70, "raison": "x"}')["avis"] == "eviter"           # accent
@@ -259,7 +281,7 @@ def test_fable_reponses_tolerees():
     old = F.C.ANTHROPIC_API_KEY; F.C.ANTHROPIC_API_KEY = "sk-test"
     try: r = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: Resp(200, "pas de json ici"))
     finally: F.C.ANTHROPIC_API_KEY = old
-    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici"} and len(F.apercu("x " * 500)) == 160
+    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.FABLE_MODEL} and len(F.apercu("x " * 500)) == 160
 
 def test_fable_decide():
     os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
@@ -269,7 +291,7 @@ def test_fable_decide():
         BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(200, '{"avis": "eviter", "confiance": 70, "raison": "essoufflement"}'))
         assert "ETH" not in s["positions"] and not ex.sent                         # Fable ecarte : aucun ordre
         rows = [json.loads(l) for l in open(os.path.join(C.DATA_DIR, "journal.jsonl"))]
-        r = [x for x in rows if x["stage"] == "signal" and x["decision"] == "ecarte par Fable"][0]
+        r = [x for x in rows if x["stage"] == "signal" and x["decision"] == "ecarte par Thales"][0]
         assert r["data"]["coin"] == "ETH" and r["data"]["bar_ts"] and r["data"]["ref"]   # mesurable plus tard
         m, s, b, info, ex, now = setup("reel")
         BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(200, '{"avis": "prendre", "confiance": 70, "raison": "ok"}'))

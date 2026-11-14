@@ -1,6 +1,6 @@
 """Tableau de bord de l'usine : LECTURE SEULE. Aucune cle, aucun bouton d'ordre, aucune ecriture.
 Rassemble en une page qui se met a jour seule :
-  - Moonshot v2 (fichiers du bot) : equity, positions, R, arrets, signaux, avis de Fable, chien de garde ;
+  - Moonshot v2 (fichiers du bot) : equity, positions, R, arrets, signaux, avis de Thales, chien de garde ;
   - Smart Peanut (fichiers du bot) : etat, KILL, derniers trades ;
   - Hyperliquid en direct (API publique, adresses publiques seulement) : valeur des comptes, positions, ordres, stops ;
   - le Testeur : verdicts des catalogues de l'usine.

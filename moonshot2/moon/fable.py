@@ -1,5 +1,5 @@
-"""Fable, le decideur : un avis sur chaque signal M2. Avec FABLE_DECIDE (par defaut, decision de Richard du 12/11/2026),
-un avis « eviter » annule l'entree ; les signaux ecartes sont journalises pour mesurer l'apport de Fable.
+"""Thales, le decideur : un avis sur chaque signal M2, donne par le modele Fable (secours si Fable ne repond pas). Avec FABLE_DECIDE (par defaut, decision de Richard du 12/11/2026),
+un avis « eviter » annule l'entree ; les signaux ecartes sont journalises pour mesurer l'apport de Thales.
 Sans cle API, ou en cas d'erreur, le bot applique la regle M2 : l'avis est simplement absent."""
 import json, re
 from . import config as C
@@ -46,14 +46,21 @@ def opinion(prompt: str, state: dict, day: str, post=None):
     used = state["fable_calls"].get(day, 0)
     if used >= C.FABLE_MAX_CALLS_DAY: return {"absent": "plafond d'appels du jour atteint"}
     state["fable_calls"] = {day: used + 1}
-    try:
-        if post is None:
-            import requests
-            post = requests.post
-        r = post(URL, timeout=60, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                 json={"model": C.FABLE_MODEL, "max_tokens": 1000, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
-        if getattr(r, "status_code", 0) != 200: return {"absent": f"API {getattr(r, 'status_code', '?')}"}
+    if post is None:
+        import requests
+        post = requests.post
+    modeles = [C.FABLE_MODEL] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.FABLE_MODEL else [])
+    echecs = []
+    for modele in modeles:                       # Fable d'abord ; le secours seulement si Fable ne repond pas
+        try:
+            r = post(URL, timeout=60, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                     json={"model": modele, "max_tokens": 1000, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
+        except Exception as ex:
+            echecs.append(f"erreur {type(ex).__name__}"); continue
+        if getattr(r, "status_code", 0) != 200:
+            echecs.append(f"API {getattr(r, 'status_code', '?')}"); continue
         text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text")
-        return parse(text) or {"absent": "reponse illisible", "apercu": apercu(text)}
-    except Exception as ex:
-        return {"absent": f"erreur {type(ex).__name__}"}
+        op = parse(text)
+        if op: return {**op, "modele": modele}
+        return {"absent": "reponse illisible", "apercu": apercu(text), "modele": modele}
+    return {"absent": " puis ".join(echecs)}

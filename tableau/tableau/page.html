@@ -77,7 +77,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:var(--panel2);border-r
     <section class="card"><h2>Héraclite · alertes Hyperliquid <span id="senpill"></span></h2><div class="scroll"><table id="alertes" class="wrap"></table></div></section>
   </div>
   <section class="card" data-s="agents"><h2>Activité de Socrate · commits</h2><div class="scroll"><table id="commits" class="wrap"></table></div></section>
-  <section class="card" data-s="agents"><h2>Thalès · dernières décisions de Fable</h2><div class="scroll"><table id="avis" class="wrap"></table></div></section>
+  <section class="card" data-s="agents"><h2>Thalès · dernières décisions</h2><div class="scroll"><table id="avis" class="wrap"></table></div></section>
   <section class="card" data-s="agents"><h2>Démocrite · dernier bilan <span class="mute" id="bilan-nom"></span></h2><pre id="bilan">Pas encore de bilan hebdomadaire.</pre></section>
 
   <section class="card" data-s="tout bots"><h2>Fil des décisions</h2><div class="feed scroll"><table id="fil" class="wrap"></table></div></section>
@@ -191,8 +191,8 @@ async function rafraichir() {
     $("agents").innerHTML =
       agent("🏛️", "Socrate · architecte", "Architecte stratégique et chef d'équipe, rapporte à Richard ; fait évoluer les bots chaque jour à 10 h 23", dernierCommit ? pill("actif", "ok") : pill("en attente", "neu"), dernierCommit ? `Dernier commit ${esc(hhmm(dernierCommit.date))} · ${esc(dernierCommit.message)}` : "") +
       agent("⚙️", "Archimède · Déployeur", "Teste, déploie et revient en arrière seul, toutes les 10 min", dep.absent ? pill("absent", "neu") : echecs.length ? pill(`${echecs.length} échec(s)`, "ko") : pill("à jour", "ok"), dep.ts ? `Dernier passage ${esc(hhmm(dep.ts))} · déployé ${esc((dep.deploye || "").slice(0, 8))}` : "") +
-      agent("🔬", "Démocrite · Chercheur", "Bilan hebdomadaire de Fable, le dimanche", ag.chercheur ? pill("bilan disponible", "ok") : pill("premier bilan dimanche", "neu"), ag.chercheur ? esc(ag.chercheur.fichier) : "") +
-      agent("🔮", "Thalès · Fable décide", "Valide ou écarte chaque signal M2 avant l'entrée", (ag.visionnaire || []).length ? pill(`${ag.visionnaire.length} avis récents`, "info") : pill("aucun signal", "neu"), "") +
+      agent("🔬", "Démocrite · Chercheur", "Bilan hebdomadaire, le dimanche", ag.chercheur ? pill("bilan disponible", "ok") : pill("premier bilan dimanche", "neu"), ag.chercheur ? esc(ag.chercheur.fichier) : "") +
+      agent("🔮", "Thalès · le décideur", "Valide ou écarte chaque signal M2 avant l'entrée", (ag.visionnaire || []).length ? pill(`${ag.visionnaire.length} avis récents`, "info") : pill("aucun signal", "neu"), "") +
       agent("🧪", "Pyrrhon · Testeur", "Juge chaque idée sur l'historique, sans complaisance", pill(`${(d.verdicts || []).length} verdicts`, "info"), "") +
       agent("📜", "Aristote · Auditeur", "Relit chaque changement du code en réel avant tout déploiement, avec droit de veto", Object.keys(dep.attente_audit || {}).length ? pill(`${Object.keys(dep.attente_audit).length} en attente`, "warn") : pill("rien en attente", "ok"), audits ? `Dernier audit : ${esc(audits.message)}` : "") +
       agent("🏮", "Diogène · Contrôleur", "Compare chaque lundi le réel au simulé : entrées, frais, funding", ctl ? pill(ctl.verdict, ctl.verdict === "ECART" ? "ko" : ctl.verdict === "CONFORME" ? "ok" : "neu") : pill("premier contrôle lundi", "neu"), ctl ? esc(ctl.resume) : "") +

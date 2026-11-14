@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.3.0"
+VERSION = "2.3.1"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -41,11 +41,12 @@ FLOOR_USDC = max(_f("FLOOR_USDC", "10"), 5)
 
 FEE_TAKER = 0.00045
 
-# ---- Fable (avis enregistres seulement : aucune influence sur les ordres)
+# ---- Thales, le decideur : il utilise le modele Fable de preference, le modele de secours seulement si Fable ne repond pas
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 FABLE_MODEL = os.getenv("FABLE_MODEL", "claude-fable-5-1")
+THALES_SECOURS = os.getenv("THALES_SECOURS", "claude-opus-5-5")   # vide : pas de secours
 FABLE_MAX_CALLS_DAY = min(_i("FABLE_MAX_CALLS_DAY", "40"), 100)
-# Fable decide (decision de Richard du 12/11/2026) : parmi les signaux M2, un avis « eviter » annule l'entree.
+# Thales decide (decision de Richard du 12/11/2026) : parmi les signaux M2, un avis « eviter » annule l'entree.
 # Avis absent (pas de cle, erreur, plafond) : la regle M2 s'applique. Les sorties restent mecaniques. FABLE_DECIDE=0 le desactive.
 FABLE_DECIDE = os.getenv("FABLE_DECIDE", "1").strip().lower() in ("1", "oui", "true")
 

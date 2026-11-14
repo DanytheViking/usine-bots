@@ -68,8 +68,8 @@ passent le filtre de volume de 2 M$, et kPEPE est ecarte par l'ordre minimum. Ce
   sous-compte. Le versement vers le sous-compte est fait par Richard (le code ne deplace jamais de fonds). Risque : 1 % par trade
   et par sous-compte ; Epictete surveille l'exposition cumulee quand deux frequences prennent le meme actif dans le meme sens.
 
-## 2. Thales (Fable decideur)
-Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Fable fonctionne en reel (aucun « reponse illisible »).
+## 2. Thales (le decideur)
+Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Thales fonctionne en reel (aucun « reponse illisible »).
 
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
@@ -99,7 +99,7 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
 - P1b. Mesure de Thales : archiver pour chaque signal modele, prompt, donnees, reponse, latence, score de confiance et decision ; suivre
   en parallele la strategie mecanique seule et un filtre deterministe simple avec les memes donnees. Bilan apres 30 signaux ;
   le veto de Thales sur Smart Peanut est garde seulement s'il ameliore le resultat net ou le drawdown.
-- P1c. Tableau de bord des couts : resultat brut, net de trading, funding, frais d'execution, et couts fixes (VPS, appels a Fable) separes.
+- P1c. Tableau de bord des couts : resultat brut, net de trading, funding, frais d'execution, et couts fixes (VPS, appels de Thales et Democrite au modele) separes.
 - P2a. Trois challengers Smart Peanut, pre-enregistres AVANT les donnees, peu de parametres, testes separement, frais doubles :
   tendance avec reentree bornee, cassure apres consolidation (avec liquidite minimale), continuation de momentum (duree maximale).
   Chacun passe d'abord en observation parallele (sans capital), puis en reel limite seulement s'il remplit ses criteres.
@@ -118,7 +118,7 @@ Chaque point : code propre, tests, audit d'Aristote, annonce a Richard. Jamais d
   Le signal ne doit jamais etre perdu. Variable ENTRY_MODE (maker ou taker, defaut taker) ajoutee a ENV_PERMIS par une modification de
   la constitution poussee AVANT le code. Valider d'abord par moon/essai.py sur Smart Peanut, puis activer maker sur les deux bots.
   Mesure : Diogene compare frais et glissement des entrees maker et taker dans son rapport du lundi.
-- 4b. Contexte de Thales : ajouter au message envoye a Fable la tendance de BTC (EMA 50/200 4 h), le funding et sa moyenne 7 jours,
+- 4b. Contexte de Thales : ajouter au message envoye a Thales la tendance de BTC (EMA 50/200 4 h), le funding et sa moyenne 7 jours,
   le volume 24 h contre sa moyenne 30 jours, et le resultat des 5 derniers trades du bot. Aucune autre decision ne lui est donnee
   (sorties, taille et stop restent mecaniques). Garder le plafond de 40 appels par jour.
 - 4c. Frequences en parallele : seulement apres le verdict de la priorite 1. Une frequence validee demande un sous-compte que Richard
