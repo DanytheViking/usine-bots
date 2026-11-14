@@ -1,5 +1,5 @@
 """Constitution de l'usine : regles que le code venu du depot ne peut pas changer.
-Ce fichier est installe sur le VPS a la main et n'est JAMAIS mis a jour par le Deployeur.
+Depuis le 12/11/2026, ce fichier se met a jour depuis le depot comme le reste du Deployeur (tests et audit obligatoires).
 verifier(arbre) renvoie la liste des violations ; une seule suffit pour refuser tout le commit."""
 import os, re, json
 
@@ -48,10 +48,10 @@ def verifier(arbre):
     for rel in CONFIG_BOTS:
         p = os.path.join(arbre, rel)
         if not os.path.exists(p): v.append(f"{rel} absent : bornes illisibles"); continue
-        src = open(p, encoding="utf-8").read()
+        lignes = {l.split("#")[0].strip() for l in open(p, encoding="utf-8").read().splitlines()}   # affectation reelle, hors commentaires
         for ligne in LIGNES_BORNES:
             formes = ligne if isinstance(ligne, tuple) else (ligne,)
-            if not any(f in src for f in formes): v.append(f"borne modifiee ou retiree dans {rel} : {formes[0].split(' =')[0]}")
+            if not any(f in lignes for f in formes): v.append(f"borne modifiee ou retiree dans {rel} : {formes[0].split(' =')[0]}")
     for p in _files(arbre, (".py", ".sh")):
         if "/tests/" in p or p.endswith("/deployeur/bornes.py"): continue      # tests sans reseau ; la constitution cite les mots interdits
         low = open(p, encoding="utf-8", errors="ignore").read().lower().replace(" ", "")

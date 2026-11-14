@@ -87,6 +87,8 @@ def test_constitution_depot_reel_et_violations():
     assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 3 % pour Moonshot : refuse
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03)'))
     assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 3 % pour tous : refuse
+    open(cfg, "w").write(src.replace('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'RISK_PER_TRADE = 0.05  # RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)'))
+    assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # forme permise cachee en commentaire : refuse
     open(cfg, "w").write(src)
     open(os.path.join(d, "moonshot2/moon/vol.py"), "w").write("ex.withdraw_from_bridge(1)\n")
     open(os.path.join(d, "recolteur/x.yml"), "w").write("services:\n  a:\n    privileged: true\n    volumes: [/var/run/docker.sock:/s]\n")
