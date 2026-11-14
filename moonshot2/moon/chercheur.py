@@ -43,26 +43,33 @@ def week_stats(state, rows, now):
             "trades": [{k: c.get(k) for k in ("ts", "coin", "side", "issue", "pnl", "R")} for c in week]}
 
 SYSTEM = ("Tu es le chercheur d'une petite usine de trading automatique sur Hyperliquid. La strategie en reel est M2 : "
-          "croisement EMA 50/200 en 4 h sur 13 perps, stop 3 ATR, 1 % de risque par trade. Ta mission chaque semaine : "
+          "croisement EMA 50/200 en 4 h, stop 3 ATR (Moonshot sur 13 perps, et Smart Peanut, le Lab offensif sur les memecoins). Ta mission chaque semaine : "
           "1) lire le marche et le regime actuel ; 2) analyser les trades et tes propres avis de la semaine, honnetement, y compris "
           "tes erreurs ; 3) proposer 1 a 3 strategies NOUVELLES, chacune decrite en regles completes et testables (actifs, "
           "unite de temps, entree, stop, sortie, parametres fixes) ; 4) signaler les risques. Pas de promesse de gain. "
           "Reponds en francais, en texte simple, 400 mots au plus.")
 
 def ask_fable(stats, post=None):
+    """Bilan demande au modele Fable de preference ; le modele de secours seulement si Fable ne repond pas."""
     if not C.ANTHROPIC_API_KEY: return "(Fable absent : pas de cle API)"
-    try:
-        if post is None:
-            import requests
-            post = requests.post
-        r = post("https://api.anthropic.com/v1/messages", timeout=120,
-                 headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                 json={"model": C.FABLE_MODEL, "max_tokens": 1500, "system": SYSTEM,
-                       "messages": [{"role": "user", "content": "Bilan de la semaine (JSON) :\n" + json.dumps(stats, ensure_ascii=False)}]})
-        if getattr(r, "status_code", 0) != 200: return f"(Fable indisponible : API {getattr(r, 'status_code', '?')})"
-        return "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip() or "(reponse vide)"
-    except Exception as ex:
-        return f"(Fable indisponible : {type(ex).__name__})"
+    if post is None:
+        import requests
+        post = requests.post
+    modeles = [C.FABLE_MODEL] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.FABLE_MODEL else [])
+    echecs = []
+    for modele in modeles:
+        try:
+            r = post("https://api.anthropic.com/v1/messages", timeout=120,
+                     headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                     json={"model": modele, "max_tokens": 1500, "system": SYSTEM,
+                           "messages": [{"role": "user", "content": "Bilan de la semaine (JSON) :\n" + json.dumps(stats, ensure_ascii=False)}]})
+        except Exception as ex:
+            echecs.append(type(ex).__name__); continue
+        if getattr(r, "status_code", 0) != 200:
+            echecs.append(f"API {getattr(r, 'status_code', '?')}"); continue
+        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip() or "(reponse vide)"
+        return text if modele == C.FABLE_MODEL else f"(modele de secours {modele}, Fable indisponible)\n{text}"
+    return f"(Fable indisponible : {' puis '.join(echecs)})"
 
 def report(now=None, post=None, send=N.send):
     now = now or dt.datetime.now(dt.timezone.utc)

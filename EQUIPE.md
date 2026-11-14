@@ -28,3 +28,7 @@ les bots plus precis. Chaque role a une source et une trace ecrite ; chacun nour
 2. Un avis seul ne change jamais une regle de trading : il devient une hypothese a tester.
 3. Une mise a jour technique se deploie quand ses tests passent et que l'Auditeur l'a approuvee (bots et Deployeur), hors fenetre de cloture 4 h.
 4. Chaque decision prise seul est annoncee a Richard en une ou deux phrases (`messages/`).
+
+## Modeles (demande de Richard du 15/11/2026)
+Pour les decisions et la strategie, le meilleur modele pour le raisonnement : Fable, toujours de preference ; Opus seulement si Fable n'est pas disponible.
+Thales et Democrite le font seuls dans le code (secours automatique) ; Socrate et Aristote tournent sur Fable.

@@ -95,6 +95,23 @@ def test_bilan_ecrit_envoye_et_non_repete():
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 
+def test_bilan_fable_d_abord_puis_secours():
+    os.environ["ANTHROPIC_API_KEY"] = "k"; importlib.reload(C)
+    class R:
+        def __init__(self, code, t): self.status_code, self._t = code, t
+        def json(self): return {"content": [{"type": "text", "text": self._t}]}
+    try:
+        vus = []
+        def post(url, **k):
+            vus.append(k["json"]["model"])
+            return R(529, "") if k["json"]["model"] == C.FABLE_MODEL else R(200, "lecture du marche")
+        txt = CH.ask_fable({}, post)
+        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and "secours" in txt and "lecture du marche" in txt
+        vus.clear()
+        assert CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "ok"))[1]) == "ok" and vus == [C.FABLE_MODEL]
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
+
 def test_bilan_sans_cle():
     seed([], []); sent = []
     path, _ = CH.report(dt.datetime(2026, 11, 22, 17, 5, tzinfo=dt.timezone.utc), send=sent.append)
