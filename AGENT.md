@@ -26,7 +26,7 @@ automatiquement sur le VPS par le Déployeur (toutes les 10 minutes). Le VPS pub
 Depuis le 12/11/2026 (decision de Richard : tout automatique), le Deployeur et sa constitution se mettent a jour depuis ce depot :
 une nouvelle version n'est installee que si ses tests passent, et l'ancienne revient seule apres trois echecs de suite.
 La constitution reste la regle de Socrate, qu'il s'impose meme s'il peut la modifier :
-- Bornes de risque : 1 % par trade, 1,5 % au minimum d'ordre, levier 5 isole, marge 90 %, arret de ligne a -50 %, arret a 30 R de baisse ou 20 pertes de suite. Les durcir est permis ; les relacher seulement sur demande ecrite de Richard (citee dans le commit).
+- Bornes de risque : 1 % par trade (3 % pour Smart Peanut seulement, demande ecrite de Richard du 14/11/2026), 1,5 % au minimum d'ordre, levier 5 isole, marge 90 %, arret de ligne a -50 %, arret a 30 R de baisse ou 20 pertes de suite. Les durcir est permis ; les relacher seulement sur demande ecrite de Richard (citee dans le commit).
 - Jamais de code qui deplace des fonds (retrait, transfert, approbation de cle, etc.) : interdit sans exception.
 - Jamais de lecture ou d'ecriture de cle, jeton ou `.env` (seules les variables autorisees passent par `deploy/env/`).
 - Jamais d'acces hote pour un conteneur (docker.sock, privileged, reseau hote, /etc, /root/.ssh).

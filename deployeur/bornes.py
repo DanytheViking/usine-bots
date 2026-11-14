@@ -4,8 +4,11 @@ verifier(arbre) renvoie la liste des violations ; une seule suffit pour refuser 
 import os, re, json
 
 # Bornes dures du risque : ces lignes doivent rester presentes, a l'identique, dans le code des bots.
+# Une borne peut avoir plusieurs formes acceptees (tuple). Risque par trade : 1 % partout, sauf Smart Peanut (compte Labo,
+# « tete brulee ») plafonne a 3 % sur demande ecrite de Richard du 14/11/2026.
 LIGNES_BORNES = (
-    'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
+    ('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)'),
     'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
     'MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)',
     'MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)',
@@ -27,7 +30,7 @@ INTERDITS_COMPOSE = ("docker.sock", "privileged", "network_mode: host", "network
 DESTINATIONS = {"/opt/moonshot2", "/opt/peanut2", "/opt/recolteur", "/opt/tableau", "/root/usine", "/opt/sentinelle"}
 SOURCES_TEST = ("/root/usine", "/root/sp-replay", "{stage}")
 
-ENV_PERMIS = {"MODE": ("observation", "reel"), "COINS": None, "MIN_DAY_VOLUME_USD": (0, 1e10), "RISK_PER_TRADE": (0, 0.01),
+ENV_PERMIS = {"MODE": ("observation", "reel"), "COINS": None, "MIN_DAY_VOLUME_USD": (0, 1e10), "RISK_PER_TRADE": (0, 0.03),
               "MAX_LEVERAGE": (1, 5), "BARS": (600, 1000), "SIGNAL_DELAY_S": (20, 600), "FETCH_PAUSE_S": (0, 5),
               "CAPITAL_PAPIER": (10, 100000), "BOT_PREFIX": None, "LOOP_S": (30, 600)}
 NOM_FICHIER = re.compile(r"^[A-Za-z0-9_.\-/]+$")
@@ -45,7 +48,8 @@ def verifier(arbre):
         if not os.path.exists(p): v.append(f"{rel} absent : bornes illisibles"); continue
         src = open(p, encoding="utf-8").read()
         for ligne in LIGNES_BORNES:
-            if ligne not in src: v.append(f"borne modifiee ou retiree dans {rel} : {ligne.split(' =')[0]}")
+            formes = ligne if isinstance(ligne, tuple) else (ligne,)
+            if not any(f in src for f in formes): v.append(f"borne modifiee ou retiree dans {rel} : {formes[0].split(' =')[0]}")
     for p in _files(arbre, (".py", ".sh")):
         if "/tests/" in p or p.endswith("/deployeur/bornes.py"): continue      # tests sans reseau ; la constitution cite les mots interdits
         low = open(p, encoding="utf-8", errors="ignore").read().lower().replace(" ", "")
