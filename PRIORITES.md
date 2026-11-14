@@ -11,12 +11,27 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   20 % au plus aussi quand l'ordre minimum l'impose, arret de ligne a -80 % (environ 7 pertes de suite), 30 R / 20 pertes inchanges.
   Etape 2 : dans config.py, RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02), LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50) et
   MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015) ;
-  deploy/env/peanut2.json : RISK_PER_TRADE 0.20, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20. Cette etape remplace la ligne a 3 % de l'etape 2 ci-dessous.
+  deploy/env/peanut2.json : RISK_PER_TRADE 0.10, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20 (palier 1, voir ci-dessous). Cette etape remplace la ligne a 3 % de l'etape 2 ci-dessous.
   Avec 20 %, la taille reste limitee par le levier 5 isole et la marge 90 % : si le stop est trop proche, la taille est reduite (jamais le stop deplace). Tests et audit.
-- Voie rapide du Lab : un challenger passe en reel sur le Lab des que (1) son pre-enregistrement est ecrit avant les donnees, (2) son esperance
-  est >= 0 en frais doubles sur le holdout, (3) les tests d'execution P0b passent. Pas de PF 1,35 ni de deux semaines de papier exigees au Lab.
-  Abandon automatique fixe a l'avance : -15 R cumules, ou esperance negative apres 30 trades reels.
+- Paliers (choix ecrit de Richard du 15/11/2026, 00 h 40, apres deux revues externes) : plafond 20 %, mais
+  palier 1 = 10 % par trade pour les 15 premiers trades reels du Lab ; palier 2 = 15 % ; palier 3 = 20 %. On monte d'un palier seulement si,
+  sur le palier en cours : chaque trade a eu son stop confirme, aucun ecart d'execution non explique (taille, prix, stop), glissement moyen
+  mesure et publie. Jamais de montee pour se refaire apres une perte. Socrate change la valeur dans deploy/env/peanut2.json, Aristote audite.
+- Risque reellement executable (revue externe) : avant chaque ordre du Lab, le bot calcule le notionnel = risque / distance au stop, la marge
+  au levier choisi, et refuse ou reduit si (a) la marge totale depasserait 90 % du capital, ou (b) le prix de liquidation est plus proche que
+  le stop avec une reserve (stop a moins de 70 % de la distance de liquidation). En cas de (b) : baisser le levier si la marge le permet,
+  sinon reduire la taille ; le stop ne bouge jamais. Journaliser risque vise, risque reel et distance stop / liquidation (code RISK_LIMIT ou LIQ_GUARD).
+  Deux positions a 20 % ne sont possibles que si les stops sont a plus d'environ 9 % : sinon une seule position a la fois. Tests chiffres.
+- Voie rapide du Lab (durcie apres revues externes) : un challenger passe en reel sur le Lab des que (1) son pre-enregistrement est ecrit avant
+  les donnees, (2) sur le holdout, en frais doubles, avec au moins 40 trades : esperance >= +0,10 R ET croissance composee positive au palier
+  en cours (moyenne de ln(1 + f x R) > 0, f = risque par trade), (3) resultat encore positif sans ses 3 meilleurs trades ou publie si non,
+  (4) les tests d'execution P0b passent. Pas de PF 1,35 ni de deux semaines de papier exigees au Lab.
+  Abandon fixe a l'avance : -6 R cumules sur la strategie, ou esperance negative apres 30 trades reels (signal de suivi, verdict ecrit par Pyrrhon).
 - Plusieurs strategies dans le meme Lab : un seul processus, une position par actif (le premier signal prend l'actif), risque ouvert total <= 40 % (deux positions au plus).
+- Premieres experiences du Lab (revues externes) : (1) cassure apres compression (plage passee, filtre de liquidite executable, invalidation
+  claire, peu de parametres), testable tout de suite sur les bougies ; (2) en parallele, etendre la collecte de T6 aux memecoins du Lab
+  pour preparer les cascades de liquidations (donnees fines, test des que l'echantillon suffit) ; (3) reentree en tendance.
+  Funding et open interest d'abord comme variables de contexte. Repousses : nouveaux listings, effets horaires, retard BTC vers memecoins.
 - Univers Lab : tous les memecoins Hyperliquid qui passent un controle de liquidite (spread et profondeur a notre taille), au lieu du seul volume de 2 M$.
   Bougies 1 h permises au Lab. Un actif sorti de l'univers reste suivi tant qu'une position ou un ordre existe.
 - Cycle hebdomadaire du Lab : Democrite propose deux hypotheses, Pyrrhon les juge, Socrate deploie la meilleure, Diogene publie le bilan
@@ -70,7 +85,10 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   et que les enfants ont la taille du parent. Un IOC partiel annule son reliquat : aujourd'hui le broker detecte l'absence de stop et ferme la position
   (sur, mais le trade est perdu). Corriger : apres le lot, lire la position reelle ; si un stop manque, poser un stop reduce-only seul a la taille reelle,
   verifier sa presence, et ne fermer qu'en cas d'echec. Tests des scenarios : entree complete, partielle, stop rejete, reponse perdue apres remplissage,
-  redemarrage avec position, retournement partiel, ancien stop present. Les stops se declenchent sur le mark price : le verifier dans le simulateur.
+  redemarrage avec position, retournement partiel, ancien stop present ; plus (revues externes) : Alo vers IOC apres 60 s en reconciliant les fills
+  survenus pendant l'annulation (n'envoyer que le reliquat reel), petits reliquats sous le minimum de 10 $, reponse inconnue sans doublon,
+  limites de l'API partagees par les deux bots et les agents sur l'IP du VPS (garder de la capacite pour les stops), effet du funding horaire
+  sur la marge isolee. Verifier chaque statut reel de l'API, sans generaliser. Les stops se declenchent sur le mark price : le verifier dans le simulateur.
 - P0c. Configuration effective : chaque decision d'ordre journalise le risque cible, le risque reel apres arrondi (frais d'entree et de sortie inclus) et les plafonds actifs.
 
 ## P1 et P2 (15/11/2026, retenus des deux revues externes ; ordre fixe)
