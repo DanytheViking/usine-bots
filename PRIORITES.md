@@ -51,6 +51,24 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   redemarrage avec position, retournement partiel, ancien stop present. Les stops se declenchent sur le mark price : le verifier dans le simulateur.
 - P0c. Configuration effective : chaque decision d'ordre journalise le risque cible, le risque reel apres arrondi (frais d'entree et de sortie inclus) et les plafonds actifs.
 
+## P1 et P2 (15/11/2026, retenus des deux revues externes ; ordre fixe)
+- P1a. Reference M2 figee : rapport recalculable depuis les donnees et le commit : nombre de trades et duree, esperance nette en R et en $,
+  PF avec definition des couts, drawdown et duree de recuperation, resultat par actif, par sens, par periode et par regime,
+  part des gains venant des 5 meilleurs trades, resultat sans le meilleur actif et sans les meilleurs gagnants. Dire si les 13 actifs
+  ont ete choisis avant les tests (lire l'historique des pre-enregistrements). Verifier que les stops du simulateur suivent le mark price.
+- P1b. Mesure de Thales : archiver pour chaque signal modele, prompt, donnees, reponse, latence, score de confiance et decision ; suivre
+  en parallele la strategie mecanique seule et un filtre deterministe simple avec les memes donnees. Bilan apres 30 signaux ;
+  le veto de Thales sur Smart Peanut est garde seulement s'il ameliore le resultat net ou le drawdown.
+- P1c. Tableau de bord des couts : resultat brut, net de trading, funding, frais d'execution, et couts fixes (VPS, appels a Fable) separes.
+- P2a. Trois challengers Smart Peanut, pre-enregistres AVANT les donnees, peu de parametres, testes separement, frais doubles :
+  tendance avec reentree bornee, cassure apres consolidation (avec liquidite minimale), continuation de momentum (duree maximale).
+  Chacun passe d'abord en observation parallele (sans capital), puis en reel limite seulement s'il remplit ses criteres.
+- P2b. Sorties : comparer sur la reference M2 croisement inverse, stop suiveur ATR, sortie temporelle, prise partielle. Aucune adoption sans verdict.
+- P2c. Enveloppe Smart Peanut : profils de risque (1, 2, 3 %) simules sur le portefeuille complet (pertes correlees, stops depasses, couts x 2),
+  probabilites presentees comme des estimations du modele.
+- Refuse : scale-in, martingale, assouplissement des arrets (pertes de suite, R de baisse), risque au-dela des plafonds actuels,
+  parametres de sortie choisis sans test.
+
 ## 4. Optimisations (ACTIVEES, demande ecrite de Richard du 15/11/2026, 00 h 12 : « Let's go je te donne mon accord »)
 Chaque point : code propre, tests, audit d'Aristote, annonce a Richard. Jamais de retouche des parametres de M2 pour coller au passe.
 - 4a. Entree maker (priorite 1 apres l'etape 2) : le parent du lot normalTpsl devient un ordre limite Alo (post only) au meilleur prix
