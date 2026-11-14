@@ -37,11 +37,26 @@ Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifi
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
 
+## P0 (15/11/2026, apres revue externe) : avant tout relevement de Moonshot a 2 % et avant l'entree maker
+Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 reste a 0.01 dans deploy/env/moonshot2.json tant que P0a et P0b ne sont pas termines et audites.
+- P0a. Parcours des signaux : chaque cloture et chaque actif suivi produit une ligne de journal avec un code stable
+  (NO_SIGNAL, STALE_DATA, VOLUME_FILTER, MIN_ORDER, RISK_LIMIT, AI_VETO, ORDER_REJECTED, NOT_FILLED, EXECUTED) et les valeurs utilisees
+  (EMA 50, EMA 200, ATR, volume 24 h, taille avant et apres arrondi, marge requise). Bilan hebdomadaire « X signaux, Y exclusions, Z ordres, N executions »
+  publie par Diogene. Reconstituer aussi le passe de Smart Peanut depuis le 12/11 a partir des bougies (memes regles), pour prouver ou refuter « le silence est normal ».
+  Un actif sorti du filtre de volume reste suivi tant qu'une position ou un ordre existe (verifier et tester).
+- P0b. Remplissage partiel : la documentation Hyperliquid dit que si un ordre parent partiellement rempli est annule, ses TP/SL enfants sont annules aussi,
+  et que les enfants ont la taille du parent. Un IOC partiel annule son reliquat : aujourd'hui le broker detecte l'absence de stop et ferme la position
+  (sur, mais le trade est perdu). Corriger : apres le lot, lire la position reelle ; si un stop manque, poser un stop reduce-only seul a la taille reelle,
+  verifier sa presence, et ne fermer qu'en cas d'echec. Tests des scenarios : entree complete, partielle, stop rejete, reponse perdue apres remplissage,
+  redemarrage avec position, retournement partiel, ancien stop present. Les stops se declenchent sur le mark price : le verifier dans le simulateur.
+- P0c. Configuration effective : chaque decision d'ordre journalise le risque cible, le risque reel apres arrondi (frais d'entree et de sortie inclus) et les plafonds actifs.
+
 ## 4. Optimisations (ACTIVEES, demande ecrite de Richard du 15/11/2026, 00 h 12 : « Let's go je te donne mon accord »)
 Chaque point : code propre, tests, audit d'Aristote, annonce a Richard. Jamais de retouche des parametres de M2 pour coller au passe.
 - 4a. Entree maker (priorite 1 apres l'etape 2) : le parent du lot normalTpsl devient un ordre limite Alo (post only) au meilleur prix
   de son cote (achat au bid, vente a l'ask), le stop reste dans le meme lot. Sans remplissage complet apres ENTRY_WAIT_S (defaut 60 s),
-  annuler le reste et envoyer l'ordre IOC actuel pour le reliquat (stop ajuste a la taille totale). Si l'Alo est rejete (croise), IOC direct.
+  annuler le reste (ce qui annule aussi les enfants TP/SL : poser alors un stop seul a la taille reelle, comme en P0b) et envoyer un IOC pour le reliquat.
+  Prerequis : P0b termine. Le gain de l'entree maker est mesure en reel (ordres non remplis compris), jamais suppose. Si l'Alo est rejete (croise), IOC direct.
   Le signal ne doit jamais etre perdu. Variable ENTRY_MODE (maker ou taker, defaut taker) ajoutee a ENV_PERMIS par une modification de
   la constitution poussee AVANT le code. Valider d'abord par moon/essai.py sur Smart Peanut, puis activer maker sur les deux bots.
   Mesure : Diogene compare frais et glissement des entrees maker et taker dans son rapport du lundi.
