@@ -1,0 +1,120 @@
+{
+ "ts": "2026-11-14T20:10:03Z",
+ "deploye": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+ "refuse": null,
+ "par_cible": {
+  "moonshot2": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+  "peanut2": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+  "recolteur": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+  "tableau": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+  "usine": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f",
+  "sentinelle": "d17c7c37c5850a418d53e5c9bda6bdd0b1729f9f"
+ },
+ "echecs": {},
+ "jobs": {
+  "rapport-t6-2026-11-12": {
+   "etat": "lance",
+   "debut": 1794514204,
+   "type": "recolteur_rapport"
+  }
+ },
+ "conteneurs": [
+  "robit-api | Up 10 minutes (healthy) | app-api",
+  "peanut2-garde | Up 33 hours | peanut2:2.3.0",
+  "peanut2 | Up 33 hours | peanut2:2.3.0",
+  "moonshot2-chercheur | Up 33 hours | moonshot2:2.3.0",
+  "moonshot2-garde | Up 33 hours | moonshot2:2.3.0",
+  "moonshot2 | Up 33 hours | moonshot2:2.3.0",
+  "usine-telecommande | Up 47 hours | usine-tableau:1.4.0",
+  "usine-tableau | Up 47 hours | usine-tableau:1.4.0",
+  "usine-sentinelle | Up 47 hours | sentinelle:1.0.0",
+  "job-rapport-t6-2026-11-12 | Exited (0) 2 days ago | recolteur:1.0.1",
+  "recolteur | Up 2 days | recolteur:1.0.1",
+  "ibizahora-jordi-n8n-1 | Up 2 days | n8nio/n8n:2.44.4"
+ ],
+ "moonshot2": {
+  "ts": "2026-11-14T20:09:34Z",
+  "bot": "moonshot2",
+  "version": "2.3.0",
+  "mode": "reel",
+  "equity_usdc": 210.210962,
+  "positions": {
+   "XMR": {
+    "side": "short",
+    "sz": 0.05,
+    "entry": 546.6,
+    "stop": 588.66,
+    "risk_usd": 2.059821428571432,
+    "lev": 3,
+    "notional": 27.330000000000002,
+    "opened_ms": 1794528078709,
+    "bar_ts": 1794513600000,
+    "fee_in": 0.0
+   }
+  },
+  "start_equity": 207.635921,
+  "r_cumule": 0,
+  "baisse_R": 0.0,
+  "pertes_affilee": 0,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": []
+ },
+ "peanut2": {
+  "ts": "2026-11-14T20:10:02Z",
+  "bot": "smartpeanut2",
+  "version": "2.3.0",
+  "mode": "reel",
+  "equity_usdc": 74.407649,
+  "positions": {},
+  "start_equity": 74.407649,
+  "r_cumule": 0,
+  "baisse_R": 0.0,
+  "pertes_affilee": 0,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": []
+ },
+ "recolteur": {
+  "bot": "recolteur",
+  "version": "1.0.1",
+  "mode": "papier",
+  "t_hl": 1794686968871,
+  "ts": 1794686969,
+  "phase": "mesure",
+  "univers": [],
+  "lignes": {},
+  "trades": 0,
+  "remplissages": 0,
+  "equite": 100.0,
+  "pf_net": null,
+  "pf_stress": null,
+  "pause_jusqu": 0,
+  "mode_reduit": false,
+  "prets": [
+   "BOME",
+   "BRETT",
+   "DOGE",
+   "FARTCOIN",
+   "GOAT",
+   "GRIFFAIN",
+   "MELANIA",
+   "MEME",
+   "MOODENG",
+   "PENGU",
+   "PNUT",
+   "POPCAT",
+   "PUMP",
+   "SPX",
+   "TRUMP",
+   "TURBO",
+   "USELESS",
+   "WIF",
+   "kBONK",
+   "kFLOKI",
+   "kNEIRO",
+   "kPEPE",
+   "kSHIB"
+  ]
+ }
+}

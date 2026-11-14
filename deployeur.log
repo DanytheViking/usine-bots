@@ -1,0 +1,18 @@
+2026-11-12T20:02:04Z adoption de 72aa1b6e sans deploiement
+2026-11-12T20:10:04Z job rapport-t6-2026-11-12 : lance
+2026-11-12T20:32:32Z tableau 6ae4f5dd : deploye (6ae4f5dd), en marche
+2026-11-12T20:32:47Z Deployeur mis a jour par le depot (d4dccca082c7), ancienne version gardee
+2026-11-12T20:42:31Z tableau 90b543f1 : deploye (90b543f1), en marche
+2026-11-12T20:50:11Z Deployeur mis a jour par le depot (0cf12f62622c), ancienne version gardee
+2026-11-12T21:00:04Z moonshot2 356d7632 : en attente de l'Auditeur
+2026-11-12T21:00:04Z peanut2 356d7632 : en attente de l'Auditeur
+2026-11-12T21:02:20Z sentinelle 356d7632 : deploye (356d7632), en marche
+2026-11-12T21:04:57Z tableau 356d7632 : deploye (356d7632), en marche
+2026-11-12T21:05:27Z usine 356d7632 : copie faite (356d7632)
+2026-11-13T06:50:03Z moonshot2 4147fabe : en attente de l'Auditeur
+2026-11-13T06:50:13Z peanut2 4147fabe : en attente de l'Auditeur
+2026-11-13T09:30:02Z moonshot2 da245268 : en attente de l'Auditeur
+2026-11-13T09:30:06Z peanut2 da245268 : en attente de l'Auditeur
+2026-11-13T11:03:39Z moonshot2 d17c7c37 : deploye (d17c7c37), en marche
+2026-11-13T11:06:36Z peanut2 d17c7c37 : deploye (d17c7c37), en marche
+2026-11-13T11:06:55Z Deployeur mis a jour par le depot (7bc715ad904a), ancienne version gardee
