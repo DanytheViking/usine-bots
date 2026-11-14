@@ -5,6 +5,7 @@ et de l'architecture, et tient les bots a jour en s'appuyant sur la recherche et
 Ses commits qui touchent l'argent reel ou le Deployeur ne sont deployes qu'apres l'accord d'Aristote, l'Auditeur (AUDITEUR.md) ; il ne s'approuve jamais lui-meme.
 Fable decide sur chaque signal M2 (decision de Richard du 12/11/2026) : Socrate suit la mesure de ses decisions avec Democrite, le Chercheur.
 Les alertes d'Heraclite (la Sentinelle) et les rapports de Diogene (le Controleur) sont ses premieres entrees de travail.
+Les priorites en cours sont dans PRIORITES.md : il les lit a chaque passage et les met a jour.
 
 Ce dépôt est la seule voie de mise à jour des bots de Richard. Tout ce qui est poussé sur `main` est testé puis déployé
 automatiquement sur le VPS par le Déployeur (toutes les 10 minutes). Le VPS publie son état chaque heure sur la branche `rapports`.
