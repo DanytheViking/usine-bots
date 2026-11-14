@@ -5,10 +5,12 @@ import os, re, json
 
 # Bornes dures du risque : ces lignes doivent rester presentes, a l'identique, dans le code des bots.
 # Une borne peut avoir plusieurs formes acceptees (tuple). Risque par trade : 1 % partout, sauf Smart Peanut (compte Labo,
-# « tete brulee ») plafonne a 3 % sur demande ecrite de Richard du 14/11/2026.
+# « tete brulee ») plafonne a 3 % sur demande ecrite de Richard du 14/11/2026, et Moonshot plafonne a 2 % sur demande
+# ecrite de Richard du 15/11/2026 (« je te donne 100 % mon accord pour tester et monter le plafond »).
 LIGNES_BORNES = (
     ('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
-     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)'),
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)',
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)'),
     'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
     'MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)',
     'MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)',

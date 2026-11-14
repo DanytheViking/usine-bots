@@ -81,6 +81,10 @@ def test_constitution_depot_reel_et_violations():
     v = bornes.verifier(d); assert any("RISK_PER_TRADE" in x for x in v)
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)'))
     assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # 3 % pour Smart Peanut seulement
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)'))
+    assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # 3 % Smart Peanut, 2 % Moonshot
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.03)'))
+    assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 3 % pour Moonshot : refuse
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03)'))
     assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 3 % pour tous : refuse
     open(cfg, "w").write(src)
