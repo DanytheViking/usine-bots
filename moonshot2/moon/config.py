@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.3.1"
+VERSION = "2.4.0"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -30,8 +30,10 @@ MAX_SIGNAL_AGE_S = 1800                                        # un croisement p
 # ---- bornes dures
 RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)       # 1 % de l'equity au stop (decision de Richard du 12/11)
 MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)   # si le minimum Hyperliquid impose plus : trade saute
+MAX_OPEN_RISK = min(_f("MAX_OPEN_RISK", "0.40"), 0.40)         # risque ouvert total (somme des risques au stop) <= 40 % de l'equity
 MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)                 # isole
 MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)               # marge totale engagee <= 90 % de l'equity
+LIQ_RESERVE = max(_f("LIQ_RESERVE", "2"), 2.0)                 # liquidation a au moins 2 fois la distance du stop (stop a moins de 50 % du chemin)
 MIN_NOTIONAL_USD = 10.5                                        # minimum Hyperliquid, environ 10 $
 ENTRY_SLIPPAGE = min(_f("ENTRY_SLIPPAGE", "0.01"), 0.02)       # prix limite IOC : 1 % au-dela du prix de reference
 LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.50)                 # equity <= 50 % du depart : arret de la ligne (decision du 09/11)

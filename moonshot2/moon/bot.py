@@ -43,59 +43,94 @@ def on_close(s, c, b):
     J.record("cloture", c["issue"], f"{c['coin']} {c['side']} : {c['issue']}, P&L {c['pnl']:+.4f} USDC ({c.get('R')} R)", **c)
     N.send(f"{'✅' if c['pnl'] > 0 else '❌'} {c['coin']} {c['side']} ferme : {c['issue']}\nP&L {c['pnl']:+.2f} USDC ({c.get('R')} R)")
 
+def _ev_trace(ev):
+    return {k: ev.get(k) for k in ("ema_rapide", "ema_lente", "atr", "ref", "cross", "trend")}
+
 def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
-    ctx = m.contexts().get(coin)
-    if not ctx: J.record("signal", "saute", f"{coin} : contexte Hyperliquid absent"); return
+    ctx = m.contexts().get(coin); base = {**_ev_trace(ev), "side": side}
+    if not ctx:
+        J.record("signal", "saute", f"{coin} : contexte Hyperliquid absent"); J.trace("META_ABSENT", coin, ev["bar_ts"], **base); return
+    base["vol_usd"] = ctx.get("vol_usd")
     op = F.opinion(F.context_text(coin, side, ev, ctx, df), s, day, post=fable_post)
     J.record("fable", op.get("avis", "absent"), f"{coin} {side} : {op}", coin=coin, side=side, bar_ts=ev["bar_ts"], **op)
     if C.FABLE_DECIDE and op.get("avis") == "eviter":
         J.record("signal", "ecarte par Thales", f"{coin} {side} : Thales decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
                  coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
         N.send(f"🔮 Thales ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
-        return
-    sz, lev, notional, risk, why = G.size(side, ev["ref"], ev["atr"], equity, ctx, s["positions"])
-    if why:
-        J.record("signal", "saute", f"{coin} {side} : {why}"); N.send(f"⏭ Signal {coin} {side} saute : {why}"); return
+        J.trace("AI_VETO", coin, ev["bar_ts"], confiance=op.get("confiance"), modele=op.get("modele"), **base); return
+    t = G.taille(side, ev["ref"], ev["atr"], equity, ctx, s["positions"])
     stop = ev["ref"] - C.STOP_ATR * ev["atr"] if side == "long" else ev["ref"] + C.STOP_ATR * ev["atr"]
+    mesure = {k: v for k, v in t.items() if k not in ("why", "code")}
+    mesure["sz_brut"] = round(t.get("risk_target", 0) / (C.STOP_ATR * ev["atr"]), 8) if ev["atr"] else None
+    mesure["equity"] = equity; mesure["plafonds"] = G.plafonds()
+    mesure["risk_frais"] = round(t["risk"] + t["sz"] * (ev["ref"] + stop) * C.FEE_TAKER, 4)      # risque reel au stop, frais d'entree et de sortie inclus
+    if t["why"]:
+        J.record("signal", "saute", f"{coin} {side} : {t['why']}", code=t["code"], **mesure); N.send(f"⏭ Signal {coin} {side} saute : {t['why']}")
+        J.trace(t["code"], coin, ev["bar_ts"], **base, **mesure); return
+    sz, lev, risk = t["sz"], t["lev"], t["risk"]
+    J.record("risque", t["code"] or "taille", f"{coin} {side} : risque vise {t['risk_target']:.2f}, reel {risk:.2f} USDC "
+             f"({mesure['risk_frais']:.2f} avec frais), stop {t['dist_stop']:.2%}, liquidation {t['dist_liq']:.2%}, marge {t['marge']:.2f}", **mesure)
     try:
         r = b.open(coin, side, sz, lev, ev["ref"], stop)
     except Exception as ex:
-        J.record("execution", "erreur", f"{coin} {side} : {type(ex).__name__} {str(ex)[:200]}"); N.send(f"⚠ Entree {coin} {side} echouee : {str(ex)[:200]}"); return
-    if r is None: N.send(f"⏭ {coin} {side} : entree non remplie (prix parti au-dela de 1 %)"); return
+        J.record("execution", "erreur", f"{coin} {side} : {type(ex).__name__} {str(ex)[:200]}"); N.send(f"⚠ Entree {coin} {side} echouee : {str(ex)[:200]}")
+        J.trace("ORDER_REJECTED", coin, ev["bar_ts"], erreur=type(ex).__name__, **base, **mesure); return
+    if r is None:
+        N.send(f"⏭ {coin} {side} : entree non remplie (prix parti au-dela de 1 %)"); J.trace("NOT_FILLED", coin, ev["bar_ts"], **base, **mesure); return
     s["positions"][coin] = {"side": side, "sz": r["sz"], "entry": r["entry"], "stop": r["stop"], "risk_usd": risk, "lev": lev,
                             "notional": r["sz"] * r["entry"], "opened_ms": int(time.time() * 1000), "bar_ts": ev["bar_ts"], "fee_in": r.get("fee_in", 0.0)}
     fab = f"\nThales : {op['avis']} ({op['confiance']} %) : {op['raison']}" if "avis" in op else ""
     J.record("execution", "ouvert", f"{coin} {side} {r['sz']} a {r['entry']}, stop {r['stop']}, risque {risk:.2f} USDC, levier {lev}")
+    J.trace("EXECUTED", coin, ev["bar_ts"], entry=r["entry"], stop=r["stop"], sz_rempli=r["sz"], **base, **mesure)
     N.send(f"🟢 {coin} {side.upper()} ouvert a {r['entry']:.6g}\nStop {r['stop']:.6g} ; risque {risk:.2f} USDC ({risk / equity:.2%}) ; levier {lev}x{fab}")
 
 def on_bar(m, s, b, now_ms, equity, reason, fable_post=None):
-    """Traitement d'une cloture 4 h pour les actifs suivis (absents du meta ou trop peu echanges : ignores)."""
+    """Traitement d'une cloture 4 h pour les actifs suivis. Chaque actif et chaque cloture laissent une ligne de parcours (code stable) ;
+    un actif absent du meta ou trop peu echange est ignore, sauf s'il porte une position."""
     day = utc(now_ms)[:10]; expected = now_ms // C.TF_MS * C.TF_MS - C.TF_MS; pending = []
     try: ctx = m.contexts()
     except Exception: ctx = {}
+    vu = s.setdefault("parcours", {})
+    def stale(coin, **d):                                                         # donnees en retard : une seule ligne par cloture
+        if vu.get(coin) != expected: vu[coin] = expected; J.trace("STALE_DATA", coin, expected, **d)
+    def hors_univers(coin, bar_ts):
+        """Actif absent du meta ou trop peu echange : aucune entree (une position en cours reste suivie jusqu'a sa sortie)."""
+        if not ctx or (coin in ctx and ctx[coin].get("vol_usd", 0) >= C.MIN_DAY_VOLUME_USD): return False
+        if coin not in ctx: J.trace("META_ABSENT", coin, bar_ts)
+        else: J.trace("VOLUME_FILTER", coin, bar_ts, vol_usd=ctx[coin].get("vol_usd", 0), vol_min=C.MIN_DAY_VOLUME_USD)
+        return True
     for coin in C.COINS:
-        if ctx and coin not in s["positions"] and (coin not in ctx or ctx[coin].get("vol_usd", 0) < C.MIN_DAY_VOLUME_USD): continue
         if s["last_bar"].get(coin) == expected: continue
+        if coin not in s["positions"] and hors_univers(coin, expected): s["last_bar"][coin] = expected; continue
+        vol = (ctx.get(coin) or {}).get("vol_usd")
         if C.FETCH_PAUSE_S: time.sleep(C.FETCH_PAUSE_S)
         try: df = SG.closed(m.candles(coin), now_ms)
         except Exception as ex:
-            J.record("signal", "erreur", f"{coin} : bougies illisibles ({type(ex).__name__})"); pending.append(coin); continue
-        if df.empty or int(df.ts.iloc[-1]) < expected: pending.append(coin); continue
+            J.record("signal", "erreur", f"{coin} : bougies illisibles ({type(ex).__name__})"); stale(coin, erreur=type(ex).__name__); pending.append(coin); continue
+        if df.empty or int(df.ts.iloc[-1]) < expected:
+            if now_ms - (expected + C.TF_MS) > 300_000: stale(coin, derniere=int(df.ts.iloc[-1]) if not df.empty else None)
+            pending.append(coin); continue
         ev = SG.evaluate(df)
-        if ev["bar_ts"] is None: s["last_bar"][coin] = expected; continue          # historique trop court : rien a jouer
+        if ev["bar_ts"] is None: s["last_bar"][coin] = expected; J.trace("SHORT_HISTORY", coin, expected, bougies=len(df)); continue
         if s["last_bar"].get(coin) == ev["bar_ts"]: continue
         s["last_bar"][coin] = ev["bar_ts"]
-        if not ev["cross"]: continue
+        if not ev["cross"]:
+            J.trace("NO_SIGNAL", coin, ev["bar_ts"], vol_usd=vol, en_position=coin in s["positions"], **_ev_trace(ev)); continue
         if now_ms - (ev["bar_ts"] + C.TF_MS) > C.MAX_SIGNAL_AGE_S * 1000:
-            J.record("signal", "trop ancien", f"{coin} : croisement {ev['cross']} de la cloture {utc(ev['bar_ts'] + C.TF_MS)}, non joue (redemarrage)"); continue
+            J.record("signal", "trop ancien", f"{coin} : croisement {ev['cross']} de la cloture {utc(ev['bar_ts'] + C.TF_MS)}, non joue (redemarrage)")
+            J.trace("STALE_SIGNAL", coin, ev["bar_ts"], vol_usd=vol, **_ev_trace(ev)); continue
         J.record("signal", ev["cross"], f"{coin} : croisement {ev['cross']} a la cloture {utc(ev['bar_ts'] + C.TF_MS)}", coin=coin, **{k: v for k, v in ev.items() if k != 'raison'})
         p = s["positions"].get(coin)
         if p and p["side"] != ev["cross"]:
             try: on_close(s, b.close(coin, "sortie signal (croisement inverse)"), b)
             except Exception as ex:
-                J.record("execution", "erreur", f"sortie {coin} : {type(ex).__name__}"); continue
-        elif p: continue
-        if reason: J.record("signal", "bloque", f"{coin} {ev['cross']} : {reason}"); N.send(f"⏸ Signal {coin} {ev['cross']} non joue : {reason}"); continue
+                J.record("execution", "erreur", f"sortie {coin} : {type(ex).__name__}"); J.trace("ORDER_REJECTED", coin, ev["bar_ts"], sortie=True, erreur=type(ex).__name__); continue
+            J.trace("EXIT", coin, ev["bar_ts"], vol_usd=vol, **_ev_trace(ev))
+            if hors_univers(coin, ev["bar_ts"]): continue                        # sorti de l'univers : pas de retournement
+        elif p: J.trace("IN_POSITION", coin, ev["bar_ts"], vol_usd=vol, **_ev_trace(ev)); continue
+        if reason:
+            J.record("signal", "bloque", f"{coin} {ev['cross']} : {reason}"); N.send(f"⏸ Signal {coin} {ev['cross']} non joue : {reason}")
+            J.trace("BLOCKED", coin, ev["bar_ts"], raison=reason, vol_usd=vol, **_ev_trace(ev)); continue
         enter(m, s, b, coin, ev["cross"], ev, df, b.equity() or equity, day, fable_post)
     return pending
 

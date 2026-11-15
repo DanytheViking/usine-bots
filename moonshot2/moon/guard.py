@@ -52,24 +52,57 @@ def gate(s: dict, equity) -> str:
 def is_fatal(reason: str) -> bool:
     return reason.startswith("STOP LIGNE") or reason.startswith("STOP CONFORMITE") or "plancher" in reason
 
-def size(side: str, ref: float, atr: float, equity: float, ctx: dict, positions: dict):
-    """(taille, levier, notionnel, risque USD, raison du refus ou "")."""
+def plafonds() -> dict:
+    """Bornes actives, journalisees avec chaque decision d'ordre."""
+    return {"risque_par_trade": C.RISK_PER_TRADE, "risque_min_ordre": C.MAX_RISK_MIN_ORDER, "risque_ouvert_max": C.MAX_OPEN_RISK,
+            "levier_max": C.MAX_LEVERAGE, "marge_max": C.MARGIN_USE, "reserve_liquidation": C.LIQ_RESERVE}
+
+def _refus(code, why, **k):
+    return {"sz": 0, "lev": 0, "notional": 0.0, "risk": 0.0, "code": code, "why": why, **k}
+
+def taille(side: str, ref: float, atr: float, equity: float, ctx: dict, positions: dict) -> dict:
+    """Taille d'une entree, en ne faisant que reduire ou refuser. Ordre des gardes :
+      1. risque vise = equity x RISK_PER_TRADE, borne par le risque ouvert restant (MAX_OPEN_RISK, code RISK_LIMIT) ;
+      2. minimum Hyperliquid : si l'ordre minimum impose plus que MAX_RISK_MIN_ORDER, refus (MIN_ORDER) ;
+      3. levier : le plus haut tel que la liquidation reste a au moins LIQ_RESERVE fois le stop ; aucun : refus (LIQ_GUARD) ;
+      4. marge : si la marge totale depasserait MARGIN_USE, la taille est reduite (MARGIN), refus si elle passe sous le minimum.
+    Le stop ne bouge jamais. Renvoie sz, lev, notional, risk (reel, au stop), code ("" si rien n'a borne), why (refus) et les mesures."""
     dist = C.STOP_ATR * float(atr or 0)
-    if not (dist > 0 and ref > 0 and equity and equity > 0): return 0, 0, 0, 0, "stop ou prix invalide"
+    if not (dist > 0 and ref > 0 and equity and equity > 0): return _refus("INVALID", "stop ou prix invalide")
     d = int(ctx.get("sz_dec", 0)); step = 10 ** -d
-    risk = equity * C.RISK_PER_TRADE
+    risk_target = equity * C.RISK_PER_TRADE
+    open_risk = sum(float(p.get("risk_usd", 0) or 0) for p in positions.values())
+    reste = equity * C.MAX_OPEN_RISK - open_risk
+    code = ""; mesures = {"risk_target": round(risk_target, 4), "risque_ouvert": round(open_risk, 4), "dist_stop": round(dist / ref, 5)}
+    risk = risk_target
+    if reste < risk_target:
+        if reste < C.MIN_NOTIONAL_USD * dist / ref:
+            return _refus("RISK_LIMIT", f"risque ouvert {open_risk / equity:.1%} : plafond {C.MAX_OPEN_RISK:.0%} atteint, trade saute", **mesures)
+        risk = reste; code = "RISK_LIMIT"
     sz = math.floor(risk / dist / step + 1e-9) * step
     if sz * ref < C.MIN_NOTIONAL_USD:
         sz = math.ceil(C.MIN_NOTIONAL_USD / ref / step - 1e-9) * step
-        if sz * dist > equity * C.MAX_RISK_MIN_ORDER:
-            return 0, 0, sz * ref, sz * dist, (f"minimum Hyperliquid ({C.MIN_NOTIONAL_USD} $) : risque {sz * dist / equity:.2%} "
-                                               f"> {C.MAX_RISK_MIN_ORDER:.1%} de l'equity, trade saute")
+        if sz * dist > equity * C.MAX_RISK_MIN_ORDER or sz * dist > reste + 1e-9:
+            return _refus("MIN_ORDER", f"minimum Hyperliquid ({C.MIN_NOTIONAL_USD} $) : risque {sz * dist / equity:.2%} "
+                          f"> {min(C.MAX_RISK_MIN_ORDER, reste / equity):.1%} de l'equity, trade saute", notional=sz * ref, **mesures)
     max_lev = int(ctx.get("max_lev", 1) or 1); lev = 0
     for L in range(min(C.MAX_LEVERAGE, max_lev), 0, -1):
-        if liq_distance(L, max_lev, side) >= 2 * dist / ref: lev = L; break
-    if not lev: return 0, 0, 0, 0, f"stop a {dist / ref:.1%} trop large : liquidation a moins de 2 fois le stop au levier 1"
-    notional = sz * ref
+        if liq_distance(L, max_lev, side) >= C.LIQ_RESERVE * dist / ref: lev = L; break
+    if not lev:
+        return _refus("LIQ_GUARD", f"stop a {dist / ref:.1%} trop large : liquidation a moins de {C.LIQ_RESERVE:g} fois le stop au levier 1", **mesures)
     used = sum(p["notional"] / p["lev"] for p in positions.values())
-    if used + notional / lev > equity * C.MARGIN_USE:
-        return 0, lev, notional, sz * dist, f"marge insuffisante ({used:.2f} deja engages, {notional / lev:.2f} demandes, plafond {equity * C.MARGIN_USE:.2f})"
-    return sz, lev, notional, sz * dist, ""
+    libre = equity * C.MARGIN_USE - used
+    if sz * ref / lev > libre:
+        sz2 = math.floor(libre * lev / ref / step + 1e-9) * step
+        if sz2 * ref < C.MIN_NOTIONAL_USD:
+            return _refus("MARGIN", f"marge insuffisante ({used:.2f} deja engages, {sz * ref / lev:.2f} demandes, plafond {equity * C.MARGIN_USE:.2f})",
+                          lev=lev, notional=sz * ref, **mesures)
+        sz = sz2; code = "MARGIN"
+    notional = sz * ref
+    return {"sz": sz, "lev": lev, "notional": notional, "risk": sz * dist, "code": code, "why": "", "marge": round(notional / lev, 4),
+            "marge_engagee": round(used, 4), "dist_liq": round(liq_distance(lev, max_lev, side), 5), **mesures}
+
+def size(side: str, ref: float, atr: float, equity: float, ctx: dict, positions: dict):
+    """(taille, levier, notionnel, risque USD, raison du refus ou "")."""
+    t = taille(side, ref, atr, equity, ctx, positions)
+    return t["sz"], t["lev"], t["notional"], t["risk"], t["why"]

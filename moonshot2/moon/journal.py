@@ -23,6 +23,32 @@ def record(stage: str, decision: str, reason: str, **data) -> dict:
         f.write(json.dumps(r, ensure_ascii=False) + "\n"); f.flush(); os.fsync(f.fileno())
     return r
 
+PARCOURS = os.path.join(C.DATA_DIR, "parcours.jsonl")
+CODES = ("NO_SIGNAL", "STALE_DATA", "VOLUME_FILTER", "META_ABSENT", "SHORT_HISTORY", "STALE_SIGNAL", "IN_POSITION", "EXIT", "BLOCKED",
+         "AI_VETO", "MIN_ORDER", "RISK_LIMIT", "LIQ_GUARD", "MARGIN", "INVALID", "ORDER_REJECTED", "NOT_FILLED", "EXECUTED")
+
+def trace(code: str, coin: str, bar_ts, **data) -> dict:
+    """Parcours des signaux : une ligne par actif suivi et par cloture, avec un code stable et les valeurs utilisees
+    (EMA, ATR, volume, taille avant et apres arrondi, marge). Fichier simple, non chaine ; le journal garde les decisions."""
+    assert code in CODES, code
+    os.makedirs(C.DATA_DIR, exist_ok=True)
+    r = {"ts": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "bot": C.NAME, "coin": coin, "bar_ts": bar_ts, "code": code,
+         **json.loads(json.dumps(data, default=str))}
+    with open(PARCOURS, "a", encoding="utf-8") as f: f.write(C.redact(json.dumps(r, ensure_ascii=False)) + "\n")
+    return r
+
+def bilan_parcours(path: str = PARCOURS, depuis: str = "") -> dict:
+    """Comptes par code depuis une date (ISO) : « X signaux, Y exclusions, Z ordres, N executions »."""
+    n = {}
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8"):
+            try: r = json.loads(line)
+            except ValueError: continue
+            if r.get("ts", "") >= depuis: n[r["code"]] = n.get(r["code"], 0) + 1
+    signaux = sum(v for k, v in n.items() if k not in ("NO_SIGNAL", "STALE_DATA", "VOLUME_FILTER", "META_ABSENT", "SHORT_HISTORY", "IN_POSITION"))
+    ordres = sum(n.get(k, 0) for k in ("ORDER_REJECTED", "NOT_FILLED", "EXECUTED"))
+    return {"codes": n, "signaux": signaux, "exclusions": signaux - ordres, "ordres": ordres, "executions": n.get("EXECUTED", 0)}
+
 def verify(path: str = PATH):
     if not os.path.exists(path): return True, 0, "journal vide"
     prev, n = "0" * 64, 0

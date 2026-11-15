@@ -364,8 +364,99 @@ def test_actifs_configurables_absents_et_peu_echanges_ignores():
         assert s.get("bar_done") == NOW0                                                # historique court : pas de boucle de nouvel essai
         n = len(info.calls); BOT.step(m, s, b, now + dt.timedelta(minutes=1))
         assert len([c for c in info.calls[n:] if c[0] == "candles"]) == 0
+        codes = {r["coin"]: r["code"] for r in parcours()}
+        assert codes == {"ETH": "EXECUTED", "FANTOME": "META_ABSENT", "MINCE": "VOLUME_FILTER", "JEUNE": "SHORT_HISTORY"}
+        assert len(parcours()) == 4                                                       # une ligne par actif et par cloture, pas de doublon
+        vol["ETH"] = "1e5"; m._ctx_t = 0; info.closes["ETH"] = cross_series("short"); info.end_ms = NOW0 + TF   # ETH sort du filtre mais porte une position
+        BOT.step(m, s, b, now + dt.timedelta(hours=4))
+        assert "ETH" not in s["positions"] and s["closed"][-1]["issue"].startswith("sortie signal")   # suivi jusqu'a la sortie, sans retournement
+        assert [r["code"] for r in parcours() if r["coin"] == "ETH"][1:] == ["EXIT", "VOLUME_FILTER"]
     finally:
         os.environ.pop("COINS"); os.environ.pop("MIN_DAY_VOLUME_USD"); importlib.reload(C); importlib.reload(BOT)
+
+def parcours():
+    return [json.loads(l) for l in open(J.PARCOURS, encoding="utf-8")] if os.path.exists(J.PARCOURS) else []
+
+def lab(risque=0.20):
+    """Bornes du Lab Smart Peanut (20 % par trade, 20 % au minimum d'ordre), posees sur le module charge : config.py reste a 1 %."""
+    fresh(); C.RISK_PER_TRADE = risque; C.MAX_RISK_MIN_ORDER = 0.20
+    return {"sz_dec": 0, "max_lev": 5}
+
+def test_lab_garde_de_marge_reduit_sans_bouger_le_stop():
+    ctx = lab(); eq = 74.41
+    t = G.taille("long", 1.0, 0.05 / 3, eq, ctx, {})                       # stop 5 % : 297 $ au levier 5, marge 59,4 $ < 66,97 $
+    assert t["code"] == "" and t["sz"] == 297 and t["lev"] == 5 and abs(t["risk"] - 14.85) < 1e-6 and abs(t["marge"] - 59.4) < 1e-6
+    assert abs(t["risk_target"] - 14.882) < 1e-3 and abs(t["dist_stop"] - 0.05) < 1e-6 and t["dist_liq"] >= 2 * 0.05
+    t = G.taille("long", 1.0, 0.03 / 3, eq, ctx, {})                       # stop 3 % : 496 $ demandes, la marge plafonne a 334 $
+    assert t["code"] == "MARGIN" and t["sz"] == 334 and t["lev"] == 5 and abs(t["risk"] - 10.02) < 1e-6 and t["marge"] <= eq * 0.90
+    assert t["why"] == "" and abs(t["dist_stop"] - 0.03) < 1e-6                    # le stop reste a 3 %, seule la taille baisse
+    sz, lev, notional, risk, why = G.size("long", 1.0, 0.03 / 3, eq, ctx, {})
+    assert (sz, lev, risk, why) == (334, 5, t["risk"], "")
+
+def test_lab_deux_positions_et_risque_ouvert_40_pourcent():
+    ctx = lab(); eq = 74.41
+    p1 = {"A": {"notional": 297.0, "lev": 5, "risk_usd": 14.85}}             # premiere position a 20 %, stop 5 %
+    t = G.taille("long", 1.0, 0.05 / 3, eq, ctx, p1)                        # seconde : 7,57 $ de marge libre -> 37 $ seulement
+    assert t["code"] == "MARGIN" and t["sz"] == 37 and abs(t["risk"] - 1.85) < 1e-6
+    ouvert = {c: {"notional": 20.0, "lev": 5, "risk_usd": 7.441} for c in "ABC"}   # 30 % deja ouverts a 10 %, peu de marge
+    t = G.taille("long", 1.0, 0.05 / 3, eq, ctx, ouvert)
+    assert t["code"] == "RISK_LIMIT" and abs(t["risk"] - (eq * 0.40 - 3 * 7.441)) < 0.06 and t["why"] == ""
+    ouvert["D"] = {"notional": 20.0, "lev": 5, "risk_usd": 7.441}
+    t = G.taille("long", 1.0, 0.05 / 3, eq, ctx, ouvert)                    # 40 % atteints : refus
+    assert t["code"] == "RISK_LIMIT" and t["sz"] == 0 and "plafond 40%" in t["why"]
+    t = G.taille("long", 1.0, 0.09 / 3, eq, ctx, {})                       # stop 9 % : levier 3 (liquidation a 25,9 %), 165 $, marge 55 $
+    assert t["code"] == "" and t["lev"] == 3 and t["sz"] == 165 and abs(t["marge"] - 55.0) < 1e-6
+    t = G.taille("long", 1.0, 0.09 / 3, eq, ctx, {"A": {"notional": 165.0, "lev": 3, "risk_usd": 14.85}})
+    assert t["code"] == "MARGIN" and t["sz"] == 35                           # deux pleines positions a 20 % ne tiennent pas dans 90 % de marge
+    t = G.taille("short", 1.0, 0.45 / 3, eq, ctx, {})                      # stop 45 % en short : liquidation a 81,8 % au levier 1, moins de 2 fois
+    assert t["code"] == "LIQ_GUARD" and t["sz"] == 0 and "liquidation" in t["why"]
+    assert G.plafonds()["risque_ouvert_max"] == 0.40 and G.plafonds()["reserve_liquidation"] == 2.0
+
+def test_lab_minimum_d_ordre_20_pourcent():
+    ctx = lab(); eq = 74.41
+    t = G.taille("long", 100.0, 1.0, eq, ctx, {})                          # stop 3 % sur un actif a 100 $ : 496 $ -> 4 coins, marge ok
+    assert t["code"] in ("", "MARGIN") and t["sz"] >= 1
+    C.RISK_PER_TRADE = 0.01
+    t = G.taille("long", 11.0, 1.0, 20.0, ctx, {})                         # equity 20 $, 1 % vise, stop 27 % : le minimum (1 coin) impose 15 %, accepte au Lab
+    assert t["code"] == "" and t["sz"] == 1 and abs(t["risk"] / 20.0 - 0.15) < 1e-9
+    C.MAX_RISK_MIN_ORDER = 0.015
+    t = G.taille("long", 11.0, 1.0, 20.0, ctx, {})                         # a 1,5 % le meme minimum est refuse
+    assert t["code"] == "MIN_ORDER" and t["sz"] == 0 and "minimum" in t["why"]
+
+def test_parcours_codes_et_bilan():
+    m, s, b, info, ex, now = setup("reel")
+    BOT.step(m, s, b, now)
+    codes = {r["coin"]: r["code"] for r in parcours()}
+    assert codes["ETH"] == "EXECUTED" and set(codes.values()) == {"EXECUTED", "NO_SIGNAL"} and len(codes) == len(C.COINS)
+    e = next(r for r in parcours() if r["code"] == "EXECUTED")
+    assert e["risk_target"] == 1.0 and e["risk"] <= 1.0 and e["risk_frais"] > e["risk"] and e["plafonds"]["risque_par_trade"] == 0.01
+    assert e["sz_brut"] >= e["sz"] and e["marge"] > 0 and e["ema_rapide"] and e["ema_lente"] and e["sz_rempli"] == e["sz"]
+    bilan = J.bilan_parcours()
+    assert bilan["signaux"] == 1 and bilan["ordres"] == 1 and bilan["executions"] == 1 and bilan["exclusions"] == 0
+    assert bilan["codes"]["NO_SIGNAL"] == len(C.COINS) - 1
+    assert any(r["stage"] == "risque" and r["data"].get("risk_target") == 1.0 for r in map(json.loads, open(J.PATH)))
+    m, s, b, info, ex, now = setup("reel", fill=False)
+    BOT.step(m, s, b, now)
+    assert {r["coin"]: r["code"] for r in parcours()}["ETH"] == "NOT_FILLED"
+    m, s, b, info, ex, now = setup("reel", lose=True)
+    BOT.step(m, s, b, now)
+    assert {r["coin"]: r["code"] for r in parcours()}["ETH"] == "ORDER_REJECTED"
+    m, s, b, info, ex, now = setup("observation")
+    open(C.KILL_SWITCH, "w").write("test"); BOT.step(m, s, b, now)
+    assert {r["coin"]: r["code"] for r in parcours()}["ETH"] == "BLOCKED"
+    m, s, b, info, ex, now = setup("observation")
+    BOT.step(m, s, b, now + dt.timedelta(hours=1))
+    assert {r["coin"]: r["code"] for r in parcours()}["ETH"] == "STALE_SIGNAL"
+    m, s, b, info, ex, now = setup("observation")
+    info.end_ms = NOW0 - TF
+    BOT.step(m, s, b, now); BOT.step(m, s, b, now + dt.timedelta(minutes=2))
+    assert parcours() == []                                                 # bougie en retard de 2 min : on attend sans rien ecrire
+    BOT.step(m, s, b, now + dt.timedelta(minutes=6)); BOT.step(m, s, b, now + dt.timedelta(minutes=7))
+    assert [r["code"] for r in parcours()].count("STALE_DATA") == len(C.COINS)   # 6 min de retard : une ligne par actif, une seule
+    info.end_ms = NOW0; BOT.step(m, s, b, now + dt.timedelta(minutes=8))
+    assert {r["coin"]: r["code"] for r in parcours() if r["code"] != "STALE_DATA"}["ETH"] == "EXECUTED"
+    try: J.trace("INCONNU", "ETH", 0); assert False
+    except AssertionError: pass
 
 if __name__ == "__main__":
     only = sys.argv[1:]; tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and (not only or n in only)]
