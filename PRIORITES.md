@@ -21,7 +21,12 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   au levier choisi, et refuse ou reduit si (a) la marge totale depasserait 90 % du capital, ou (b) le prix de liquidation est plus proche que
   le stop avec une reserve (stop a moins de 70 % de la distance de liquidation). En cas de (b) : baisser le levier si la marge le permet,
   sinon reduire la taille ; le stop ne bouge jamais. Journaliser risque vise, risque reel et distance stop / liquidation (code RISK_LIMIT ou LIQ_GUARD).
-  Deux positions a 20 % ne sont possibles que si les stops sont a plus d'environ 9 % : sinon une seule position a la fois. Tests chiffres.
+  FAIT dans le code (Gardien 2.4.0, commit 2dd6214, attend Aristote) : marge depassee -> taille reduite (code MARGIN), stop inchange ;
+  reserve de liquidation gardee a 2 fois le stop (plus stricte que les 70 %) ; risque ouvert total <= 40 % (MAX_OPEN_RISK, code RISK_LIMIT :
+  reduction puis refus) ; risque vise, risque reel avec frais, distances stop et liquidation, marge et plafonds journalises a chaque ordre.
+  Mesure (tests, 74,41 USDC, 20 %, levier 5 au plus) : stop 5 % -> 297 $ et 59 $ de marge ; stop 3 % -> 334 $ au lieu de 496 (marge) ;
+  avec une position pleine deja ouverte, la seconde est reduite a environ 37 $ : deux pleines positions a 20 % ne tiennent jamais dans 90 % de marge
+  (l'estimation « stops a plus de 9 % » des revues externes etait fausse a ce levier). Une seule pleine position a la fois, en pratique.
 - Voie rapide du Lab (durcie apres revues externes) : un challenger passe en reel sur le Lab des que (1) son pre-enregistrement est ecrit avant
   les donnees, (2) sur le holdout, en frais doubles, avec au moins 40 trades : esperance >= +0,10 R ET croissance composee positive au palier
   en cours (moyenne de ln(1 + f x R) > 0, f = risque par trade), (3) resultat encore positif sans ses 3 meilleurs trades ou publie si non,
@@ -47,7 +52,12 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
 - Etape 1 (commit du 14/11) : la constitution accepte 3 % de risque par trade pour Smart Peanut seulement (BOT_NAME smartpeanut2) ; Moonshot reste a 1 %.
 - Etape 1 bis (commit du 15/11) : la constitution accepte aussi 2 % pour Moonshot (demande ecrite de Richard du 15/11/2026, 00 h 12 :
   « je te donne 100 % mon accord pour tester et monter le plafond si il le faut, je prends les responsabilites »).
-- Etape 2 (Socrate, seulement APRES que deployeur.log montre « Deployeur mis a jour par le depot » pour le commit de l'etape 1 bis, sinon le commit serait refuse) :
+- Etape 2 : Socrate la fait seulement quand la constitution qui tourne sur le VPS accepte les formes du Lab, sinon le commit serait refuse et
+  bloquerait tout le depot jusqu'au commit suivant. Preuve attendue (depuis le commit b7be22b) : dans etat.json de la branche rapports, le champ
+  « deployeur » cite l'empreinte de bornes.py ; elle doit valoir celle de deployeur/bornes.py sur main (sha256, 12 premiers caracteres :
+  d2d5fcc4bd01 pour la version du 15/11 ; recalculer avec sha256sum apres tout nouveau commit de deployeur/). Avant b7be22b, le journal
+  ne citait que l'empreinte de deployeur.py (7bc715ad904a, inchangee depuis le 13/11), donc les lignes du 14/11 23 h 30 et 23 h 40 ne prouvent rien.
+  Ancienne formulation (seulement APRES que deployeur.log montre « Deployeur mis a jour par le depot » pour le commit de l'etape 1 bis) :
   dans moonshot2/moon/config.py remplacer exactement la ligne RISK_PER_TRADE par
   RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)
   et ajouter deploy/env/peanut2.json avec {"RISK_PER_TRADE": "0.03"} et deploy/env/moonshot2.json avec {"RISK_PER_TRADE": "0.02"}
@@ -74,6 +84,8 @@ passent le filtre de volume de 2 M$, et kPEPE est ecarte par l'ordre minimum. Ce
 
 ## 2. Thales (le decideur)
 Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Thales fonctionne en reel (aucun « reponse illisible »).
+Remarques d'Aristote (audit 9253975) a traiter : Democrite mesure separement les avis de Fable et ceux du secours (champ modele) ;
+un signal peut couter deux appels payants alors que le plafond journalier n'en compte qu'un (compter les deux).
 
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
@@ -85,6 +97,11 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   (EMA 50, EMA 200, ATR, volume 24 h, taille avant et apres arrondi, marge requise). Bilan hebdomadaire « X signaux, Y exclusions, Z ordres, N executions »
   publie par Diogene. Reconstituer aussi le passe de Smart Peanut depuis le 12/11 a partir des bougies (memes regles), pour prouver ou refuter « le silence est normal ».
   Un actif sorti du filtre de volume reste suivi tant qu'une position ou un ordre existe (verifier et tester).
+  FAIT dans le code (2.4.0, commit 2dd6214) : codes stables dans data/parcours.jsonl (fichier simple, le journal chaine garde les decisions),
+  valeurs EMA 50 / 200, ATR, volume 24 h, taille brute et arrondie, marge ; moon.journal.bilan_parcours() donne les comptes ; le Deployeur publie
+  les 400 dernieres lignes (rapports : parcours-<bot>.jsonl). Un actif sorti du filtre est suivi jusqu'a sa sortie, sans retournement (teste).
+  RESTE : bilan hebdomadaire publie par Diogene (lire parcours.jsonl dans le travail controle) ; reconstitution du passe de Smart Peanut depuis le 12/11
+  (travail usine a ecrire : memes regles sur les bougies, resultat par actif et par cloture).
 - P0b. Remplissage partiel : la documentation Hyperliquid dit que si un ordre parent partiellement rempli est annule, ses TP/SL enfants sont annules aussi,
   et que les enfants ont la taille du parent. Un IOC partiel annule son reliquat : aujourd'hui le broker detecte l'absence de stop et ferme la position
   (sur, mais le trade est perdu). Corriger : apres le lot, lire la position reelle ; si un stop manque, poser un stop reduce-only seul a la taille reelle,
@@ -94,6 +111,7 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   limites de l'API partagees par les deux bots et les agents sur l'IP du VPS (garder de la capacite pour les stops), effet du funding horaire
   sur la marge isolee. Verifier chaque statut reel de l'API, sans generaliser. Les stops se declenchent sur le mark price : le verifier dans le simulateur.
 - P0c. Configuration effective : chaque decision d'ordre journalise le risque cible, le risque reel apres arrondi (frais d'entree et de sortie inclus) et les plafonds actifs.
+  FAIT (2.4.0, commit 2dd6214) : etape « risque » du journal avant chaque ordre, avec risk_target, risk, risk_frais, dist_stop, dist_liq, marge et plafonds.
 
 ## P1 et P2 (15/11/2026, retenus des deux revues externes ; ordre fixe)
 - P1a. Reference M2 figee : rapport recalculable depuis les donnees et le commit : nombre de trades et duree, esperance nette en R et en $,

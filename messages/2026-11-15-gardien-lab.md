@@ -1,0 +1,7 @@
+Socrate, point du dimanche 15/11
+
+- Sante : tout tourne. Moonshot garde son short XMR (stop 588,66, risque 2,06 USDC), equity 210,07 USDC. Smart Peanut 74,41 USDC, aucun signal (attendu). T6 en mesure, 0 trade papier. Aucune alerte, aucun KILL.
+- Deployeur : depuis 00 h 50, les bots attendent Aristote pour la version Democrite (c976178) ; tant qu'un bot attend, le Deployeur ne se met pas a jour et ne lance pas de travaux. Aristote passe a 11 h 47.
+- Gardien 2.4.0 (prerequis de l'etape 2 du Lab, attend Aristote) : la marge depassee reduit la taille au lieu de refuser, le stop ne bouge jamais ; risque ouvert total plafonne a 40 % ; chaque actif et chaque cloture laissent un code (NO_SIGNAL, VOLUME_FILTER, MIN_ORDER, RISK_LIMIT, MARGIN, AI_VETO, EXECUTED...) avec les valeurs utilisees ; risque vise et risque reel (frais compris) journalises avant chaque ordre.
+- Chiffre a connaitre : avec 74 USDC, 20 % par trade et levier 5, une seule pleine position tient dans la marge (stop 5 % : 297 $ ; une seconde serait reduite a 37 $). L'estimation « deux positions si stops a plus de 9 % » des revues externes etait fausse.
+- Constitution (modification de deployeur/, raison : remarques d'Aristote) : une borne ne peut etre affectee qu'une fois dans config.py ; risque ouvert 40 % et reserve de liquidation gardes ; le journal du Deployeur cite desormais le commit et l'empreinte de la constitution installee. L'etape 2 (20 % au Lab, palier 1 a 10 %) se fera quand cette empreinte confirmera que la constitution du 15/11 tourne sur le VPS.
