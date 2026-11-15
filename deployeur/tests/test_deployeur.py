@@ -98,6 +98,16 @@ def test_constitution_depot_reel_et_violations():
     assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # Lab all in : 20 % pour Smart Peanut seulement
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.20)'))
     assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 20 % pour Moonshot : refuse
+    open(cfg, "w").write(src.replace('min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)', 'min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)'))
+    assert bornes.verifier(d) == []                                                            # 20 % au minimum d'ordre pour Smart Peanut seulement
+    open(cfg, "w").write(src.replace('min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)', 'min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20)'))
+    assert any("MAX_RISK_MIN_ORDER" in x for x in bornes.verifier(d))                          # 20 % pour tous : refuse
+    open(cfg, "w").write(src + 'RISK_PER_TRADE = 0.5\n')
+    assert any("RISK_PER_TRADE affectee 2 fois" in x for x in bornes.verifier(d))              # seconde affectation plus loin : refuse
+    open(cfg, "w").write(src.replace('MAX_OPEN_RISK = min(_f("MAX_OPEN_RISK", "0.40"), 0.40)', 'MAX_OPEN_RISK = 0.9'))
+    assert any("MAX_OPEN_RISK" in x for x in bornes.verifier(d))                               # risque ouvert total relache : refuse
+    open(cfg, "w").write(src.replace('LIQ_RESERVE = max(_f("LIQ_RESERVE", "2"), 2.0)', 'LIQ_RESERVE = max(_f("LIQ_RESERVE", "2"), 1.0)'))
+    assert any("LIQ_RESERVE" in x for x in bornes.verifier(d))                                 # reserve de liquidation relachee : refuse
     open(cfg, "w").write(src)
     open(os.path.join(d, "moonshot2/moon/vol.py"), "w").write("ex.withdraw_from_bridge(1)\n")
     open(os.path.join(d, "recolteur/x.yml"), "w").write("services:\n  a:\n    privileged: true\n    volumes: [/var/run/docker.sock:/s]\n")
@@ -110,11 +120,15 @@ def test_constitution_cibles_et_env():
     c = json.load(open(os.path.join(d, "deploy/cibles.json")))
     c[0]["dest"] = "/etc"; c[1]["fichiers"].append(".env"); c[2]["test_volumes"] = ["/root:/r:ro"]; c[3]["test_volumes"] = ["/root/usine:/u"]
     json.dump(c, open(os.path.join(d, "deploy/cibles.json"), "w"))
-    json.dump({"MODE": "reel", "RISK_PER_TRADE": "0.25", "HL_AGENT_KEY": "x", "MAX_LEVERAGE": 3}, open(os.path.join(d, "deploy/env/peanut2.json"), "w"))
+    json.dump({"MODE": "reel", "RISK_PER_TRADE": "0.25", "HL_AGENT_KEY": "x", "MAX_LEVERAGE": 3, "MAX_RISK_MIN_ORDER": "0.20", "LINE_STOP": "0.80"},
+              open(os.path.join(d, "deploy/env/peanut2.json"), "w"))
     v = bornes.verifier(d)
     for frag in ("destination interdite /etc", "fichier interdit .env", "volume de test interdit /root:/r:ro", "volume de test interdit /root/usine:/u",
                  "RISK_PER_TRADE hors bornes", "variable interdite HL_AGENT_KEY"): assert any(frag in x for x in v), frag
     assert not any("MAX_LEVERAGE" in x for x in v) and not any("MODE" in x for x in v)
+    assert not any("MAX_RISK_MIN_ORDER" in x or "LINE_STOP" in x for x in v)                   # env du Lab : 20 % et -80 % acceptes (le code plafonne)
+    json.dump({"RISK_PER_TRADE": "0.10", "MAX_RISK_MIN_ORDER": "0.21"}, open(os.path.join(d, "deploy/env/peanut2.json"), "w"))
+    v = bornes.verifier(d); assert any("MAX_RISK_MIN_ORDER hors bornes" in x for x in v) and not any("RISK_PER_TRADE" in x for x in v)
 
 # ================================================================ cycle
 def test_adoption_puis_deploiement_cible():
@@ -228,6 +242,7 @@ def test_rapport_pousse_sans_secret():
     w = World(); D = w.D
     open(D.R("/opt/moonshot2/data/status.json"), "w").write(json.dumps({"mode": "reel", "fuite": "0x" + "ab" * 32}))
     open(D.R("/opt/moonshot2/data/journal.jsonl"), "w").write('{"a": "jeton 123456789:' + "A" * 35 + '"}\n')
+    open(D.R("/opt/moonshot2/data/parcours.jsonl"), "w").write("".join(f'{{"coin": "X{k}", "code": "NO_SIGNAL"}}\n' for k in range(500)))
     os.makedirs(D.R("/opt/moonshot2/data/chercheur"), exist_ok=True)
     for k in range(6): open(D.R(f"/opt/moonshot2/data/chercheur/bilan-2026-11-{10 + k}.md"), "w").write(f"bilan {k}")
     D.cycle(w.ctx, adopter=True)
@@ -236,6 +251,9 @@ def test_rapport_pousse_sans_secret():
     out = sh("git", "--git-dir", w.origin, "show", "rapports:etat.json")
     assert '"mode": "reel"' in out and "ab" * 32 not in out and "[cle]" in out
     j = sh("git", "--git-dir", w.origin, "show", "rapports:journal-moonshot2.jsonl"); assert "A" * 35 not in j and "[jeton]" in j
+    pc = sh("git", "--git-dir", w.origin, "show", "rapports:parcours-moonshot2.jsonl").splitlines()
+    assert len(pc) == 400 and '"X499"' in pc[-1] and "parcours-peanut2.jsonl" not in files     # 400 dernieres lignes ; absent si le bot n'en a pas
+    assert "bornes.py" in json.loads(out)["deployeur"] and "deployeur.py" in json.loads(out)["deployeur"]
     t0 = D.load_state()["dernier_rapport"]
     w.ctx.t += 600; D.cycle(w.ctx); assert D.load_state()["dernier_rapport"] == t0                         # rapport horaire
     w.ctx.t += 3600; D.cycle(w.ctx); assert D.load_state()["dernier_rapport"] > t0
@@ -248,11 +266,11 @@ def test_auto_mise_a_jour_du_deployeur():
     sha = w.commit("deployeur/deployeur.py", "VERSION = 2\n")
     D.cycle(w.ctx)
     assert open(os.path.join(w.install, "deployeur.py")).read() == old                     # pas d'audit : rien ne change
-    w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve", "auditeur": "Auditeur"}))
+    head = w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve", "auditeur": "Auditeur"}))
     s = D.cycle(w.ctx)
     assert open(os.path.join(w.install, "deployeur.py")).read() == "VERSION = 2\n"
     assert open(os.path.join(D.BASE, "precedent", "deployeur.py")).read() == old
-    assert any("Deployeur mis a jour par le depot" in m for m in w.ctx.sent)
+    assert any("Deployeur mis a jour par le depot" in m and f"commit {head[:8]}" in m and "bornes.py" in m for m in w.ctx.sent)   # commit et empreintes
     w.commit("deployeur/tests/test_deployeur.py", "import sys\nprint('1/2 tests ok')\nsys.exit(1)\n")
     sha = w.commit("deployeur/deployeur.py", "VERSION = 3\n")
     w.commit(f"audits/{sha}.json", json.dumps({"commit": sha, "verdict": "approuve"}))

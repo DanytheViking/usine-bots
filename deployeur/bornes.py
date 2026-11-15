@@ -10,6 +10,7 @@ import os, re, json
 # Smart Peanut est le Lab (demande ecrite de Richard du 15/11/2026, 00 h 31 : « si on perd le capital de 74 $ c'est pas grave ») :
 # arret de ligne a -80 % et risque au minimum d'ordre jusqu'a 4,5 %, pour lui seul. Moonshot ne change pas.
 # Lab « rock'n'roll, all in » (choix ecrit de Richard du 15/11/2026, 00 h 32 : « 20 % par trade ») : 20 % par trade au plus pour Smart Peanut.
+# Risque ouvert total 40 % au plus et liquidation a 2 fois le stop au moins (Gardien 2.4.0). Chaque borne est affectee une seule fois.
 LIGNES_BORNES = (
     ('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
      'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)',
@@ -18,8 +19,10 @@ LIGNES_BORNES = (
     ('MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
      'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015)',
      'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)'),
+    'MAX_OPEN_RISK = min(_f("MAX_OPEN_RISK", "0.40"), 0.40)',
     'MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)',
     'MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)',
+    'LIQ_RESERVE = max(_f("LIQ_RESERVE", "2"), 2.0)',
     ('LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.50)',
      'LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50)'),
     'STOP_DD_R = min(_f("STOP_DD_R", "30"), 30)',
@@ -55,10 +58,12 @@ def verifier(arbre):
     for rel in CONFIG_BOTS:
         p = os.path.join(arbre, rel)
         if not os.path.exists(p): v.append(f"{rel} absent : bornes illisibles"); continue
-        lignes = {l.split("#")[0].strip() for l in open(p, encoding="utf-8").read().splitlines()}   # affectation reelle, hors commentaires
+        lignes = [l.split("#")[0].strip() for l in open(p, encoding="utf-8").read().splitlines()]   # affectation reelle, hors commentaires
         for ligne in LIGNES_BORNES:
-            formes = ligne if isinstance(ligne, tuple) else (ligne,)
-            if not any(f in lignes for f in formes): v.append(f"borne modifiee ou retiree dans {rel} : {formes[0].split(' =')[0]}")
+            formes = ligne if isinstance(ligne, tuple) else (ligne,); nom = formes[0].split(" =")[0]
+            if not any(f in lignes for f in formes): v.append(f"borne modifiee ou retiree dans {rel} : {nom}")
+            n = sum(1 for l in lignes if re.match(rf"^{nom}\s*=", l))
+            if n != 1: v.append(f"borne {nom} affectee {n} fois dans {rel} : une seule affectation permise")
     for p in _files(arbre, (".py", ".sh")):
         if "/tests/" in p or p.endswith("/deployeur/bornes.py"): continue      # tests sans reseau ; la constitution cite les mots interdits
         low = open(p, encoding="utf-8", errors="ignore").read().lower().replace(" ", "")

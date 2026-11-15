@@ -308,7 +308,8 @@ def rapport(ctx, s):
     d = os.path.join(BASE, "rapport"); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
     rc, ps = ctx.run(["docker", "ps", "-a", "--format", "{{.Names}} | {{.Status}} | {{.Image}}"])
     etat = {"ts": dt.datetime.now(dt.timezone.utc).isoformat()[:19] + "Z", "deploye": s.get("deploye"), "refuse": s.get("refuse"),
-            "par_cible": s.get("par_cible"), "echecs": s.get("echecs"), "jobs": s.get("jobs"), "conteneurs": ps.strip().splitlines()}
+            "par_cible": s.get("par_cible"), "echecs": s.get("echecs"), "jobs": s.get("jobs"), "conteneurs": ps.strip().splitlines(),
+            "deployeur": empreintes(INSTALL)}
     for bot, p in (("moonshot2", "/opt/moonshot2/data/status.json"), ("peanut2", "/opt/peanut2/data/status.json"), ("recolteur", "/opt/recolteur/data/status.json")):
         try: etat[bot] = json.load(open(R(p)))
         except Exception as ex: etat[bot] = f"illisible ({type(ex).__name__})"
@@ -317,6 +318,11 @@ def rapport(ctx, s):
         try:
             lines = open(R(p), encoding="utf-8").read().splitlines()[-60:]
             open(os.path.join(d, f"journal-{bot}.jsonl"), "w").write(redact("\n".join(lines)) + "\n")
+        except OSError: pass
+    for bot in ("moonshot2", "peanut2"):                                        # parcours des signaux : un code par actif et par cloture
+        try:
+            lines = open(R(f"/opt/{bot}/data/parcours.jsonl"), encoding="utf-8").read().splitlines()[-400:]
+            open(os.path.join(d, f"parcours-{bot}.jsonl"), "w").write(redact("\n".join(lines)) + "\n")
         except OSError: pass
     for jid in list(s.get("jobs", {}))[-30:]:
         rc, out = ctx.run(["docker", "logs", "--tail", "60", f"job-{jid}"])
@@ -355,7 +361,11 @@ def sha(p):
     import hashlib
     return hashlib.sha256(open(p, "rb").read()).hexdigest() if os.path.exists(p) else None
 
-def auto_maj(ctx, stage):
+def empreintes(dossier):
+    """Empreinte courte de chaque fichier du Deployeur : permet de verifier depuis le depot quelle constitution est installee."""
+    return ", ".join(f"{f} {(sha(os.path.join(dossier, f)) or 'absent')[:12]}" for f in FICHIERS_DEPLOYEUR if f.endswith(".py"))
+
+def auto_maj(ctx, stage, commit=""):
     """Le depot contient deployeur/ : si une version differente passe ses propres tests, elle remplace celle-ci.
     L'ancienne est gardee dans precedent/ ; lanceur.sh la restaure apres trois echecs de suite."""
     src = os.path.join(stage, "deployeur")
@@ -373,7 +383,7 @@ def auto_maj(ctx, stage):
         if os.path.exists(os.path.join(src, f)): shutil.copy2(os.path.join(src, f), os.path.join(INSTALL, f))
     if os.path.isdir(os.path.join(src, "tests")):
         shutil.rmtree(os.path.join(INSTALL, "tests"), ignore_errors=True); shutil.copytree(os.path.join(src, "tests"), os.path.join(INSTALL, "tests"))
-    return True, f"Deployeur mis a jour par le depot ({sha(os.path.join(INSTALL, 'deployeur.py'))[:12]}), ancienne version gardee"
+    return True, f"Deployeur mis a jour par le depot (commit {commit[:8] or '?'} ; {empreintes(INSTALL)}), ancienne version gardee"
 
 # ================================================================ cycle
 def cycle(ctx, adopter=False):
@@ -418,7 +428,7 @@ def cycle(ctx, adopter=False):
         if s.get("maj_vue") != new:
             a = audit(ctx, None, new, stage, ["deployeur"])
             if a:
-                s["maj_vue"] = new; r = auto_maj(ctx, stage)
+                s["maj_vue"] = new; r = auto_maj(ctx, stage, new)
                 if r: log(r[1]); ctx.send(r[1])
             elif a is False:
                 s["maj_vue"] = new; ctx.send(f"Nouvelle version du Deployeur {new[:8]} REFUSEE par l'Auditeur")
