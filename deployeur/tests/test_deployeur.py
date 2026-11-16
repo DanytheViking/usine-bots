@@ -354,6 +354,81 @@ def test_controle_hebdomadaire():
     n = len([x for x in w.ctx.docker if "usine.controle" in x]); w.ctx.t += 600; D.cycle(w.ctx)
     assert len([x for x in w.ctx.docker if "usine.controle" in x]) == n                         # une fois par semaine
 
+def monde_controle(image_presente=True, construction_ok=True):
+    """Lundi 7 h UTC, adresses publiques connues ; faux Docker ou l'image de l'usine peut manquer et sa construction echouer."""
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
+    open(D.R("/opt/tableau/.env"), "w").write("MOON_ACCOUNT=0x" + "a" * 40 + "\nLABO_ACCOUNT=0x" + "c" * 40 + "\n")
+    open(D.R("/root/usine/Dockerfile"), "w").write("FROM python:3.12-slim\n")
+    etat = {"image": image_presente, "construction_ok": construction_ok, "controles": 0}
+    orig = w.ctx.run
+    def run(cmd, timeout=1800, cwd=None, env=None):
+        if cmd[:3] == ["docker", "image", "inspect"]: return (0, "") if etat["image"] else (1, "Error: No such image: usine-py:1\n")
+        if cmd[:2] == ["docker", "build"] and "usine-py:1" in cmd:
+            w.ctx.docker.append(cmd)
+            if not etat["construction_ok"]: return 1, "ERROR: failed to solve: pip install\n"
+            etat["image"] = True; return 0, "sha256:abc\n"
+        if cmd[:2] == ["docker", "run"] and "usine.controle" in cmd:
+            assert etat["image"], "controle lance sans image"
+            out = cmd[cmd.index("-v", cmd.index("/opt/peanut2/data:/b/peanut2:ro")) + 1].split(":")[0]
+            json.dump({"verdict": "CONFORME", "resume": "0 trade"}, open(os.path.join(out, "controle.json"), "w"))
+            w.ctx.docker.append(cmd); etat["controles"] += 1; return 0, ""
+        return orig(cmd, timeout, cwd, env)
+    w.ctx.run = run
+    import datetime as dt
+    w.ctx.t = int(dt.datetime(2026, 11, 16, 7, 0, tzinfo=dt.timezone.utc).timestamp())
+    return w, etat
+
+def test_image_usine_construite_quand_elle_manque():
+    w, etat = monde_controle(image_presente=False); D = w.D
+    s = D.cycle(w.ctx)
+    builds = [i for i, c in enumerate(w.ctx.docker) if c[:2] == ["docker", "build"] and "usine-py:1" in c]
+    runs = [i for i, c in enumerate(w.ctx.docker) if "usine.controle" in c]
+    assert len(builds) == 1 and len(runs) == 1 and builds[0] < runs[0]                     # construite depuis /root/usine, puis le controle part
+    assert w.ctx.docker[builds[0]][-1] == D.R("/root/usine")
+    assert s["jobs"]["controle-2026-s47"]["etat"] == "fait : CONFORME" and s["jobs"]["controle-2026-s47"]["essais"] == 1
+    w.ctx.t += 600; D.cycle(w.ctx); assert etat["controles"] == 1                           # fait : pas rejoue
+
+def test_controle_rejoue_apres_un_echec_trois_essais_au_plus():
+    w, etat = monde_controle(image_presente=False, construction_ok=False); D = w.D
+    s = D.cycle(w.ctx)
+    j = s["jobs"]["controle-2026-s47"]
+    assert j["etat"].startswith("echec : construction de l'image usine-py:1 impossible") and j["essais"] == 1 and etat["controles"] == 0
+    assert any("controle-2026-s47" in l and "essai 1/3" in l for l in open(D.LOG).read().splitlines())
+    w.ctx.t += 600; s = D.cycle(w.ctx); assert s["jobs"]["controle-2026-s47"]["essais"] == 2 and etat["controles"] == 0
+    w.ctx.t += 600; s = D.cycle(w.ctx); assert s["jobs"]["controle-2026-s47"]["essais"] == 3
+    w.ctx.t += 600; s = D.cycle(w.ctx); assert s["jobs"]["controle-2026-s47"]["essais"] == 3   # troisieme echec : on n'insiste plus
+    assert len([c for c in w.ctx.docker if c[:2] == ["docker", "build"] and "usine-py:1" in c]) == 3
+    import datetime as dt
+    w.ctx.t = int(dt.datetime(2026, 11, 23, 7, 0, tzinfo=dt.timezone.utc).timestamp()); etat["construction_ok"] = True
+    s = D.cycle(w.ctx)
+    assert s["jobs"]["controle-2026-s48"]["etat"] == "fait : CONFORME" and etat["controles"] == 1   # la semaine suivante repart a neuf
+
+def test_controle_echoue_puis_reussit_au_passage_suivant():
+    w, etat = monde_controle(image_presente=False, construction_ok=False); D = w.D
+    s = D.cycle(w.ctx); assert s["jobs"]["controle-2026-s47"]["etat"].startswith("echec")
+    etat["construction_ok"] = True; w.ctx.t += 600; s = D.cycle(w.ctx)
+    assert s["jobs"]["controle-2026-s47"]["etat"] == "fait : CONFORME" and s["jobs"]["controle-2026-s47"]["essais"] == 2
+    assert any("Controleur" in m for m in w.ctx.sent)
+
+def test_travail_usine_sans_image_ne_part_pas():
+    w, etat = monde_controle(image_presente=False, construction_ok=False); D = w.D
+    w.ctx.t += 86400                                                                        # mardi : pas de controle hebdomadaire
+    w.commit("jobs/verdicts-v5.json", json.dumps({"id": "verdicts-v5", "type": "usine", "module": "usine.verdicts_v3", "args": []}))
+    s = D.cycle(w.ctx)
+    assert s["jobs"]["verdicts-v5"]["etat"].startswith("echec : construction de l'image usine-py:1 impossible")
+    assert not any(c[1] == "run" and "job-verdicts-v5" in c for c in w.ctx.docker)
+    os.remove(D.R("/root/usine/Dockerfile"))
+    w.commit("jobs/verdicts-v6.json", json.dumps({"id": "verdicts-v6", "type": "usine", "module": "usine.verdicts_v3", "args": []}))
+    s = D.cycle(w.ctx); assert "Dockerfile absent" in s["jobs"]["verdicts-v6"]["etat"]
+
+def test_copie_de_l_usine_reconstruit_l_image_et_journalise_l_echec():
+    w, etat = monde_controle(image_presente=True, construction_ok=False); D = w.D
+    w.ctx.t += 86400
+    w.commit("usine/usine/sim.py", "x = 2\n")
+    D.cycle(w.ctx)
+    assert any(c[:2] == ["docker", "build"] and "usine-py:1" in c for c in w.ctx.docker)   # reconstruite meme si une ancienne image existe
+    assert any("usine : construction de l'image usine-py:1 impossible" in l for l in open(D.LOG).read().splitlines())
+
 def test_sources_propres():
     for f in ("deployeur.py", "bornes.py"):
         src = open(os.path.join(HERE, f), encoding="utf-8").read()

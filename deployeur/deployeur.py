@@ -211,7 +211,9 @@ def deployer_cible(ctx, s, cible, commit, stage):
     envp = os.path.join(stage, "deploy", "env", f"{nom}.json")
     if os.path.exists(envp): appliquer_env(cible, json.load(open(envp)))
     for cmd in cible.get("apres_copie", []):
-        if cmd == "image_usine": ctx.run(["docker", "build", "-q", "-t", "usine-py:1", R(cible["dest"])], timeout=1800)
+        if cmd == "image_usine":
+            ok_img, why_img = image_usine(ctx, reconstruire=True)
+            if not ok_img: log(f"{nom} : {why_img}")
         if cmd == "donnees_10001":
             dd = os.path.join(R(cible["dest"]), "data"); os.makedirs(dd, exist_ok=True)
             try: os.chown(dd, 10001, 10001)
@@ -224,6 +226,18 @@ def deployer_cible(ctx, s, cible, commit, stage):
     return False, f"echec apres deploiement ({why}) : version precedente restauree"
 
 # ================================================================ travaux et messages
+IMAGE_USINE, DOSSIER_USINE = "usine-py:1", "/root/usine"
+ESSAIS_CONTROLE = 3
+
+def image_usine(ctx, reconstruire=False):
+    """L'image des travaux de l'usine (verdicts, controle) est construite depuis /root/usine quand elle manque,
+    ou reconstruite apres une copie de la cible usine. Renvoie (ok, raison) : un travail sans image ne part pas."""
+    if not reconstruire and ctx.run(["docker", "image", "inspect", IMAGE_USINE])[0] == 0: return True, "image presente"
+    if not os.path.isfile(os.path.join(R(DOSSIER_USINE), "Dockerfile")): return False, f"image {IMAGE_USINE} introuvable et {DOSSIER_USINE}/Dockerfile absent"
+    rc, out = ctx.run(["docker", "build", "-q", "-t", IMAGE_USINE, R(DOSSIER_USINE)], timeout=1800)
+    if rc: return False, f"construction de l'image {IMAGE_USINE} impossible : " + out.strip()[-200:]
+    return True, f"image {IMAGE_USINE} construite"
+
 def lancer_job(ctx, job, deploye_ok):
     jid, typ = job.get("id", ""), job.get("type")
     if not ID.match(jid) or typ not in TYPES_JOBS: return "refuse : id ou type invalide"
@@ -232,6 +246,8 @@ def lancer_job(ctx, job, deploye_ok):
     if typ == "usine":
         mod, args = job.get("module", ""), [str(a) for a in job.get("args", [])]
         if not MODULE.match(mod) or not all(ARG.match(a) for a in args): return "refuse : module ou arguments invalides"
+        ok, why = image_usine(ctx)
+        if not ok: return "echec : " + why
         cmd = ["docker", "run", "-d", "--name", name] + ([] if job.get("reseau") else ["--network", "none"]) + [
                "-v", "/root/usine:/app:ro", "-v", "/root/sp-replay:/sp:ro", "-v", "/root/donnees-usine:/d", "-v", f"{out}:/out",
                "-w", "/app", "-e", "PYTHONPATH=/sp:/app", "-e", "PYTHONDONTWRITEBYTECODE=1", "-e", "PYTHONUNBUFFERED=1",
@@ -266,9 +282,11 @@ def controle(ctx, jid):
     if ad.get("MOON_ACCOUNT"): bots.append(f"moonshot2:{ad['MOON_ACCOUNT']}:/b/moonshot2/journal.jsonl")
     if ad.get("LABO_ACCOUNT"): bots.append(f"peanut2:{ad['LABO_ACCOUNT']}:/b/peanut2/journal.jsonl")
     if not bots: return "refuse : adresses publiques des comptes introuvables"
+    ok, why = image_usine(ctx)
+    if not ok: return "echec : " + why
     cmd = ["docker", "run", "--rm", "--name", f"job-{jid}", "-v", "/root/usine:/app:ro", "-v", "/root/sp-replay:/sp:ro",
            "-v", "/opt/moonshot2/data:/b/moonshot2:ro", "-v", "/opt/peanut2/data:/b/peanut2:ro", "-v", f"{out}:/out",
-           "-w", "/app", "-e", "PYTHONPATH=/sp:/app", "-e", "PYTHONDONTWRITEBYTECODE=1", "usine-py:1", "python", "-B", "-m", "usine.controle", "--out", "/out"]
+           "-w", "/app", "-e", "PYTHONPATH=/sp:/app", "-e", "PYTHONDONTWRITEBYTECODE=1", IMAGE_USINE, "python", "-B", "-m", "usine.controle", "--out", "/out"]
     for b in bots: cmd += ["--bot", b]
     rc, o = ctx.run(cmd, timeout=600)
     p = os.path.join(out, "controle.json")
@@ -279,10 +297,15 @@ def controle(ctx, jid):
     return "fait : " + rep.get("verdict", "?")
 
 def controle_hebdo(ctx, s):
+    """Controle du lundi (des 6 h UTC), une fois par semaine ; un echec est rejoue au passage suivant, trois essais au plus."""
     t = dt.datetime.fromtimestamp(ctx.now(), dt.timezone.utc)
     sem = f"controle-{t.isocalendar()[0]}-s{t.isocalendar()[1]:02d}"
-    if t.weekday() == 0 and t.hour >= 6 and sem not in s["jobs"]:
-        st = controle(ctx, sem); s["jobs"][sem] = {"etat": st, "debut": int(ctx.now()), "type": "controle"}; log(f"job {sem} : {st}")
+    if t.weekday() != 0 or t.hour < 6: return
+    prec = s["jobs"].get(sem)
+    if prec and not (str(prec.get("etat", "")).startswith("echec") and prec.get("essais", 1) < ESSAIS_CONTROLE): return
+    essais = (prec or {}).get("essais", 0) + 1
+    st = controle(ctx, sem); s["jobs"][sem] = {"etat": st, "debut": int(ctx.now()), "type": "controle", "essais": essais}
+    log(f"job {sem} : {st}" + (f" (essai {essais}/{ESSAIS_CONTROLE})" if essais > 1 or st.startswith("echec") else ""))
 
 def jobs(ctx, s, stage):
     d = os.path.join(stage, "jobs")
