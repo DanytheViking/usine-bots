@@ -1,0 +1,1 @@
+{"id": "lab4-verdicts-2026-11-16", "type": "usine", "module": "usine.verdicts_lab4", "args": ["--spec", "specs/USINE-SPEC-LAB4.json", "--data", "/d/lab4", "--out", "/out", "--attendre", "14400"], "reseau": false}

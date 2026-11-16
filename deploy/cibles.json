@@ -171,7 +171,8 @@
    "tests/test_v2.py",
    "tests/test_v3.py",
    "tests/test_m2memes.py",
-   "tests/test_controle.py"
+   "tests/test_controle.py",
+   "tests/test_lab4.py"
   ],
   "test_volumes": [
    "{stage}:/app:ro",

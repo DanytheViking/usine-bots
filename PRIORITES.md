@@ -45,6 +45,14 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   Bougies 1 h permises au Lab. Un actif sorti de l'univers reste suivi tant qu'une position ou un ordre existe.
 - Cycle hebdomadaire du Lab : Democrite propose deux hypotheses, Pyrrhon les juge, Socrate deploie la meilleure, Diogene publie le bilan
   (signaux, trades, R, couts) ; Thales propose des hypotheses et son veto reste mesure (P1b).
+- Lab v4 « furie » (demande ecrite de Richard du 16/11/2026, 16 h 55 UTC : « je veux que ce soit des tetes brulees du trading et qu'il trade sans peur,
+  trouver une autre verticale si necessaire, Smart Peanut doit trader en fury » ; choix du 16/11, 16 h 57 : cassure + top movers) :
+  pre-enregistrement usine/docs/PREREG-lab4-furie.md, spec USINE-SPEC-LAB4 ; quatre candidats (compression 1 h et 15 min, plage Asie / seance US 15 min,
+  top movers 1 h), BTC, ETH, SOL, HYPE ajoutes aux memecoins. Travaux jobs/lab4-collecte-2026-11-16 (reseau) et lab4-verdicts-2026-11-16
+  (attend le manifeste). Le candidat qui passe la voie rapide avec la meilleure croissance a 10 % est branche dans le bot (strategie par variable,
+  avec tests), audite par Aristote, puis mis en reel au Lab. Si aucun ne passe : publier a Richard, rien en reel sans sa decision.
+- Etape 2 du Lab confirmee par Richard le 16/11/2026, 17 h 02 UTC, dans le fil du projet, mot pour mot :
+  « Je confirme l'étape 2 du Lab : RISK_PER_TRADE 0.10, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20 pour smartpeanut2 ». Commit dedie, attend Aristote.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 

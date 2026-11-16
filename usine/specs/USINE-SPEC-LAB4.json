@@ -1,0 +1,14 @@
+{
+ "id": "USINE-SPEC-LAB4",
+ "gel_utc": "2026-11-16T17:05Z",
+ "annonce": "Lab v4 furie : cassure apres compression (1 h, 15 min), plage Asie / seance US (15 min), top movers (1 h). Parametres figes avant la collecte.",
+ "prereg_sha256": "890d45f820f321bc7431625ad18cd5f7880ff8bc23a94589fc7213cc223d5184",
+ "candidats": ["L1_compression_1h", "L1_compression_15m", "L1b_asie_us_15m", "L2_top_movers_1h"],
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "max_positions": 2,
+ "palier": 0.10,
+ "paliers_publies": [0.10, 0.15, 0.20],
+ "voie_rapide": {"trades_min": 40, "esperance_min_R": 0.10},
+ "bootstrap": {"tirages": 2000, "graine": 20261116, "bloc": "jour UTC du signal"}
+}
