@@ -147,10 +147,35 @@ def test_arrets_de_ligne():
 def test_bornes_plafonnees():
     os.environ["RISK_PER_TRADE"] = "0.05"; os.environ["LINE_STOP"] = "0.9"; os.environ["MAX_LEVERAGE"] = "20"
     try:
-        importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_LEVERAGE) == (0.01, 0.5, 5)
+        importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_LEVERAGE) == (0.02, 0.5, 5)   # Moonshot : 2 % au plus (15/11)
     finally:
         for k in ("RISK_PER_TRADE", "LINE_STOP", "MAX_LEVERAGE"): os.environ.pop(k)
         importlib.reload(C)
+
+def test_plafonds_du_lab_palier_1():
+    """Etape 2 du Lab (confirmation ecrite de Richard du 16/11/2026) : 10 % pour smartpeanut2, plafonds 20 % et -80 % ; Moonshot reste a 1 %."""
+    env = {"RISK_PER_TRADE": "0.10", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20"}
+    old = os.environ.get("BOT_NAME")
+    try:
+        os.environ.update(env); os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C)
+        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.10, 0.80, 0.20)
+        os.environ.update({"RISK_PER_TRADE": "0.50", "LINE_STOP": "0.95", "MAX_RISK_MIN_ORDER": "0.60"}); importlib.reload(C)
+        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.20, 0.80, 0.20)
+        os.environ.update(env); os.environ["BOT_NAME"] = "moonshot2"; importlib.reload(C)
+        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.02, 0.50, 0.015)
+        for k in env: os.environ.pop(k)
+        importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.01, 0.50, 0.015)
+    finally:
+        for k in env: os.environ.pop(k, None)
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C)
+
+def test_env_peanut2_palier_1():
+    racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    p = os.path.join(racine, "deploy", "env", "peanut2.json")
+    if os.path.exists(p):
+        assert json.load(open(p)) == {"RISK_PER_TRADE": "0.10", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20"}
 
 # ================================================================ boucle
 def test_observation_ouvre_sans_ordre_puis_stop():

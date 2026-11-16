@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -28,15 +28,15 @@ FETCH_PAUSE_S = min(max(_f("FETCH_PAUSE_S", "0"), 0.0), 5.0)    # pause entre de
 MAX_SIGNAL_AGE_S = 1800                                        # un croisement plus vieux que 30 min (bot arrete) n'est pas joue
 
 # ---- bornes dures
-RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)       # 1 % de l'equity au stop (decision de Richard du 12/11)
-MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)   # si le minimum Hyperliquid impose plus : trade saute
+RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)   # Lab : 20 % au plus (Richard, 15/11) ; Moonshot 2 % au plus, 1 % par defaut
+MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)   # si le minimum Hyperliquid impose plus : trade saute
 MAX_OPEN_RISK = min(_f("MAX_OPEN_RISK", "0.40"), 0.40)         # risque ouvert total (somme des risques au stop) <= 40 % de l'equity
 MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)                 # isole
 MARGIN_USE = min(_f("MARGIN_USE", "0.90"), 0.90)               # marge totale engagee <= 90 % de l'equity
 LIQ_RESERVE = max(_f("LIQ_RESERVE", "2"), 2.0)                 # liquidation a au moins 2 fois la distance du stop (stop a moins de 50 % du chemin)
 MIN_NOTIONAL_USD = 10.5                                        # minimum Hyperliquid, environ 10 $
 ENTRY_SLIPPAGE = min(_f("ENTRY_SLIPPAGE", "0.01"), 0.02)       # prix limite IOC : 1 % au-dela du prix de reference
-LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.50)                 # equity <= 50 % du depart : arret de la ligne (decision du 09/11)
+LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50)   # arret de ligne : -50 % (09/11), -80 % au Lab (Richard, 15/11)
 STOP_DD_R = min(_f("STOP_DD_R", "30"), 30)                     # baisse depuis le sommet >= 30 R en reel : arret (test : 26 R max)
 STOP_LOSS_STREAK = min(_i("STOP_LOSS_STREAK", "20"), 20)       # 20 pertes d'affilee en reel : arret (test : 15 max)
 FLOOR_USDC = max(_f("FLOOR_USDC", "10"), 5)
