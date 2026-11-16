@@ -57,6 +57,10 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   « deployeur » cite l'empreinte de bornes.py ; elle doit valoir celle de deployeur/bornes.py sur main (sha256, 12 premiers caracteres :
   d2d5fcc4bd01 pour la version du 15/11 ; recalculer avec sha256sum apres tout nouveau commit de deployeur/). Avant b7be22b, le journal
   ne citait que l'empreinte de deployeur.py (7bc715ad904a, inchangee depuis le 13/11), donc les lignes du 14/11 23 h 30 et 23 h 40 ne prouvent rien.
+  16/11 : preuve obtenue (etat.json du 16/11 09 h 10 : « deployeur.py 7bef2881a727, bornes.py d2d5fcc4bd01 »). Le passage automatique de Socrate n'a
+  pas pu ecrire le relevement du risque (controle de securite de la session : relever un plafond de risque sur de l'argent reel demande une main humaine).
+  Richard tranche : soit il confirme l'etape 2 dans une session en direct avec Socrate, soit il la commet lui-meme (trois lignes de config.py ci-dessus,
+  deploy/env/peanut2.json avec RISK_PER_TRADE 0.10, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20, VERSION et images 2.5.0, test des trois plafonds), puis Aristote audite.
   Ancienne formulation (seulement APRES que deployeur.log montre « Deployeur mis a jour par le depot » pour le commit de l'etape 1 bis) :
   dans moonshot2/moon/config.py remplacer exactement la ligne RISK_PER_TRADE par
   RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)
@@ -84,11 +88,21 @@ passent le filtre de volume de 2 M$, et kPEPE est ecarte par l'ordre minimum. Ce
 
 ## 2. Thales (le decideur)
 Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Thales fonctionne en reel (aucun « reponse illisible »).
+16/11 : lecture verifiee en reel (kPEPE short du 15/11 12 h, Fable, « eviter » a 62 et 63 %, les deux bots ; aucun « illisible » depuis la 2.4.0).
+Manque : les signaux ecartes ne sont pas suivis (Democrite n'apparie que les trades fermes). A ecrire : suivi papier des signaux ecartes
+(entree au prix de reference, stop 3 ATR, sortie au croisement inverse ou au stop, sur les bougies) pour comparer pris et ecartes a nombre egal.
 Remarques d'Aristote (audit 9253975) a traiter : Democrite mesure separement les avis de Fable et ceux du secours (champ modele) ;
 un signal peut couter deux appels payants alors que le plafond journalier n'en compte qu'un (compter les deux).
 
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
+16/11 : phase mesure, 5 cascades vues (toutes refusees « phase mesure »), 23 actifs prets, 0 trade papier.
+
+## Incidents traites
+- 16/11 : controle du lundi de Diogene (controle-2026-s47) en echec : l'image Docker usine-py:1 manquait sur le VPS (jamais construite par le
+  Deployeur, ou effacee). Deployeur : l'image est construite depuis /root/usine quand elle manque, avant chaque travail usine et chaque controle ;
+  un controle en echec est rejoue au passage suivant (trois essais) ; un echec de construction est journalise. Attend Aristote.
+- 16/11 : bilan de Democrite du 15/11 coupe au milieu de la troisieme proposition (1500 jetons) : 2500 jetons, 600 mots, deux hypotheses Lab exigees.
 
 ## P0 (15/11/2026, apres revue externe) : avant tout relevement de Moonshot a 2 % et avant l'entree maker
 Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 reste a 0.01 dans deploy/env/moonshot2.json tant que P0a et P0b ne sont pas termines et audites.
