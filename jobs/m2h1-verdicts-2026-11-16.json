@@ -1,0 +1,1 @@
+{"id": "m2h1-verdicts-2026-11-16", "type": "usine", "module": "usine.verif_m2_1h", "args": ["--spec", "specs/USINE-SPEC-M2H1.json", "--data", "/d/m2h1", "--out", "/out", "--attendre", "14400"], "reseau": false}

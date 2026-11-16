@@ -1,0 +1,13 @@
+{
+ "id": "USINE-SPEC-M2H1",
+ "gel_utc": "2026-11-16T17:30Z",
+ "annonce": "M2 en 1 h sur les 13 actifs de Moonshot (catalogue v4, ligne Moonshot). Parametres de M2 inchanges depuis le catalogue v1 ; seule l'unite de temps change.",
+ "prereg_sha256": "71f79e246f68cf2ba192766193d2682187f8d86d847191ce2f042b255d256d95",
+ "candidats": ["M2_1h_moonshot", "M2_4h_reconstruit"],
+ "decisif": "M2_1h_moonshot",
+ "fraction_evaluation": 0.5,
+ "scenarios_frais": [1, 2],
+ "stress_frais": 3,
+ "criteres": {"trades_min": 30, "pf_min": 1.35, "jours_min_ic": 7},
+ "bootstrap": {"tirages": 2000, "graine": 20261116, "bloc": "jour UTC du signal"}
+}
