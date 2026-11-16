@@ -71,12 +71,27 @@ class FakeCtx:
 
 def deployed_file(w, dest, rel): return os.path.join(w.D.R(dest), rel)
 
+def borne(src, nom, valeur):
+    """Remplace l'affectation de la borne nom (ligne entiere, commentaire compris) par nom = valeur."""
+    import re
+    out, n = re.subn(rf"^{nom} = .*$", f"{nom} = {valeur}", src, flags=re.M); assert n == 1, nom
+    return out
+
+BASE = {"RISK_PER_TRADE": 'min(_f("RISK_PER_TRADE", "0.01"), 0.01)', "MAX_RISK_MIN_ORDER": 'min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
+        "LINE_STOP": 'min(_f("LINE_STOP", "0.50"), 0.50)'}
+
+def base(src):
+    """Config du depot ramenee aux formes de base (1 %, 1,5 %, -50 %), pour que les tests ne dependent pas des plafonds en vigueur."""
+    for k, v in BASE.items(): src = borne(src, k, v)
+    return src
+
 # ================================================================ constitution
 def test_constitution_depot_reel_et_violations():
     import bornes
     assert bornes.verifier(DEPOT_SRC) == []
     d = tempfile.mkdtemp(); shutil.copytree(DEPOT_SRC, d, dirs_exist_ok=True)
-    cfg = os.path.join(d, "moonshot2/moon/config.py"); src = open(cfg).read()
+    cfg = os.path.join(d, "moonshot2/moon/config.py"); src = base(open(cfg).read())
+    open(cfg, "w").write(src); assert bornes.verifier(d) == []                                   # formes de base acceptees
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.05"), 0.05)'))
     v = bornes.verifier(d); assert any("RISK_PER_TRADE" in x for x in v)
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)'))
@@ -98,6 +113,10 @@ def test_constitution_depot_reel_et_violations():
     assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # Lab all in : 20 % pour Smart Peanut seulement
     open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.20)'))
     assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 20 % pour Moonshot : refuse
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.05)'))
+    assert not any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                          # Moonshot 5 % (Richard, 16/11, 23 h 08)
+    open(cfg, "w").write(src.replace('min(_f("RISK_PER_TRADE", "0.01"), 0.01)', 'min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.06)'))
+    assert any("RISK_PER_TRADE" in x for x in bornes.verifier(d))                              # 6 % pour Moonshot : refuse
     open(cfg, "w").write(src.replace('min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)', 'min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)'))
     assert bornes.verifier(d) == []                                                            # 20 % au minimum d'ordre pour Smart Peanut seulement
     open(cfg, "w").write(src.replace('min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)', 'min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20)'))
@@ -217,7 +236,7 @@ def test_env_applique_sans_toucher_aux_cles():
 def test_commit_refuse_par_la_constitution():
     w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
     src = open(os.path.join(w.work, "moonshot2/moon/config.py")).read()
-    new = w.commit("moonshot2/moon/config.py", src.replace('"0.50"), 0.50)', '"0.90"), 0.90)'))
+    new = w.commit("moonshot2/moon/config.py", borne(src, "LINE_STOP", 'min(_f("LINE_STOP", "0.90"), 0.90)'))
     s = D.cycle(w.ctx)
     assert s["refuse"] == new and s["deploye"] != new and not any(c[1] == "build" for c in w.ctx.docker)
     assert any("REFUSE" in m and "LINE_STOP" in m for m in w.ctx.sent)
@@ -322,7 +341,7 @@ def test_messages_relayes_pendant_l_attente_de_l_auditeur():
     assert s["par_cible"]["moonshot2"] != sha and "Trade XMR ouvert" in w.ctx.sent and "attente" not in s["jobs"]
     n = len(w.ctx.sent); D.cycle(w.ctx); assert len(w.ctx.sent) == n                           # message relaye une seule fois
     w.commit("messages/2026-11-13-refus.md", "ne doit pas partir")
-    w.commit("moonshot2/moon/config.py", open(os.path.join(w.work, "moonshot2/moon/config.py")).read().replace('_f("RISK_PER_TRADE", "0.01"), 0.01)', '_f("RISK_PER_TRADE", "0.05"), 0.05)'))
+    w.commit("moonshot2/moon/config.py", borne(open(os.path.join(w.work, "moonshot2/moon/config.py")).read(), "RISK_PER_TRADE", 'min(_f("RISK_PER_TRADE", "0.05"), 0.05)'))
     s = D.cycle(w.ctx); assert s["refuse"] and "ne doit pas partir" not in w.ctx.sent       # commit refuse : rien n'est relaye
 
 def test_audit_couvre_les_variables_du_bot():

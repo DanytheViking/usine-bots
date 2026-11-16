@@ -10,12 +10,16 @@ import os, re, json
 # Smart Peanut est le Lab (demande ecrite de Richard du 15/11/2026, 00 h 31 : « si on perd le capital de 74 $ c'est pas grave ») :
 # arret de ligne a -80 % et risque au minimum d'ordre jusqu'a 4,5 %, pour lui seul. Moonshot ne change pas.
 # Lab « rock'n'roll, all in » (choix ecrit de Richard du 15/11/2026, 00 h 32 : « 20 % par trade ») : 20 % par trade au plus pour Smart Peanut.
+# Moonshot plafonne a 5 % (confirmation ecrite de Richard du 16/11/2026, 23 h 08 UTC : « Je confirme le plafond de la constitution
+# de Moonshot a 5 % et RISK_PER_TRADE 0.05 pour moonshot2 ; arret a -50 % et garde-fou de 10 R inchanges ; j'accepte qu'environ
+# 14 pertes de suite arretent le compte »). Arret de ligne -50 %, 30 R et 20 pertes inchanges.
 # Risque ouvert total 40 % au plus et liquidation a 2 fois le stop au moins (Gardien 2.4.0). Chaque borne est affectee une seule fois.
 LIGNES_BORNES = (
     ('RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.01)',
      'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.01)',
      'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.03 if NAME == "smartpeanut2" else 0.02)',
-     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)'),
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)',
+     'RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.05)'),
     ('MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.015)',
      'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.045 if NAME == "smartpeanut2" else 0.015)',
      'MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)'),
