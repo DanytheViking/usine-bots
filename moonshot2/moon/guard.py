@@ -8,7 +8,7 @@ def load() -> dict:
     try: s = json.load(open(STATE))
     except Exception: s = {}
     for k, v in (("positions", {}), ("closed", []), ("r_ledger", []), ("start_equity", None), ("last_bar", {}),
-                 ("dead", False), ("fable_calls", {}), ("orphans", [])):
+                 ("dead", False), ("fable_calls", {}), ("orphans", []), ("garde_risque", False)):
         s.setdefault(k, v)
     return s
 
@@ -52,6 +52,13 @@ def gate(s: dict, equity) -> str:
 def is_fatal(reason: str) -> bool:
     return reason.startswith("STOP LIGNE") or reason.startswith("STOP CONFORMITE") or "plancher" in reason
 
+def risque_par_trade(s: dict) -> float:
+    """Risque par trade en vigueur. Garde-fou : des que la baisse depuis le sommet atteint GARDE_DD_R en reel, le risque est ramene
+    a GARDE_RISK et le reste (drapeau garde_risque dans l'etat) meme apres une remontee ; seule une decision ecrite de Richard le leve."""
+    if not s.get("garde_risque") and C.RISK_PER_TRADE > C.GARDE_RISK and drawdown_r(s.get("r_ledger", [])) >= C.GARDE_DD_R:
+        s["garde_risque"] = True
+    return min(C.RISK_PER_TRADE, C.GARDE_RISK) if s.get("garde_risque") else C.RISK_PER_TRADE
+
 def plafonds() -> dict:
     """Bornes actives, journalisees avec chaque decision d'ordre."""
     return {"risque_par_trade": C.RISK_PER_TRADE, "risque_min_ordre": C.MAX_RISK_MIN_ORDER, "risque_ouvert_max": C.MAX_OPEN_RISK,
@@ -60,7 +67,7 @@ def plafonds() -> dict:
 def _refus(code, why, **k):
     return {"sz": 0, "lev": 0, "notional": 0.0, "risk": 0.0, "code": code, "why": why, **k}
 
-def taille(side: str, ref: float, atr: float, equity: float, ctx: dict, positions: dict) -> dict:
+def taille(side: str, ref: float, atr: float, equity: float, ctx: dict, positions: dict, risque: float = None) -> dict:
     """Taille d'une entree, en ne faisant que reduire ou refuser. Ordre des gardes :
       1. risque vise = equity x RISK_PER_TRADE, borne par le risque ouvert restant (MAX_OPEN_RISK, code RISK_LIMIT) ;
       2. minimum Hyperliquid : si l'ordre minimum impose plus que MAX_RISK_MIN_ORDER, refus (MIN_ORDER) ;
@@ -70,7 +77,7 @@ def taille(side: str, ref: float, atr: float, equity: float, ctx: dict, position
     dist = C.STOP_ATR * float(atr or 0)
     if not (dist > 0 and ref > 0 and equity and equity > 0): return _refus("INVALID", "stop ou prix invalide")
     d = int(ctx.get("sz_dec", 0)); step = 10 ** -d
-    risk_target = equity * C.RISK_PER_TRADE
+    risk_target = equity * (C.RISK_PER_TRADE if risque is None else min(float(risque), C.RISK_PER_TRADE))
     open_risk = sum(float(p.get("risk_usd", 0) or 0) for p in positions.values())
     reste = equity * C.MAX_OPEN_RISK - open_risk
     code = ""; mesures = {"risk_target": round(risk_target, 4), "risque_ouvert": round(open_risk, 4), "dist_stop": round(dist / ref, 5)}

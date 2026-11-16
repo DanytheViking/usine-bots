@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -28,7 +28,7 @@ FETCH_PAUSE_S = min(max(_f("FETCH_PAUSE_S", "0"), 0.0), 5.0)    # pause entre de
 MAX_SIGNAL_AGE_S = 1800                                        # un croisement plus vieux que 30 min (bot arrete) n'est pas joue
 
 # ---- bornes dures
-RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.02)   # Lab : 20 % au plus (Richard, 15/11) ; Moonshot 2 % au plus, 1 % par defaut
+RISK_PER_TRADE = min(_f("RISK_PER_TRADE", "0.01"), 0.20 if NAME == "smartpeanut2" else 0.05)   # Lab : 20 % au plus (Richard, 15/11) ; Moonshot 5 % au plus (Richard, 16/11), 1 % par defaut
 MAX_RISK_MIN_ORDER = min(_f("MAX_RISK_MIN_ORDER", "0.015"), 0.20 if NAME == "smartpeanut2" else 0.015)   # si le minimum Hyperliquid impose plus : trade saute
 MAX_OPEN_RISK = min(_f("MAX_OPEN_RISK", "0.40"), 0.40)         # risque ouvert total (somme des risques au stop) <= 40 % de l'equity
 MAX_LEVERAGE = min(_i("MAX_LEVERAGE", "5"), 5)                 # isole
@@ -39,6 +39,8 @@ ENTRY_SLIPPAGE = min(_f("ENTRY_SLIPPAGE", "0.01"), 0.02)       # prix limite IOC
 LINE_STOP = min(_f("LINE_STOP", "0.50"), 0.80 if NAME == "smartpeanut2" else 0.50)   # arret de ligne : -50 % (09/11), -80 % au Lab (Richard, 15/11)
 STOP_DD_R = min(_f("STOP_DD_R", "30"), 30)                     # baisse depuis le sommet >= 30 R en reel : arret (test : 26 R max)
 STOP_LOSS_STREAK = min(_i("STOP_LOSS_STREAK", "20"), 20)       # 20 pertes d'affilee en reel : arret (test : 15 max)
+GARDE_DD_R = float("inf") if NAME == "smartpeanut2" else 10.0  # garde-fou de Moonshot (le Lab a ses propres regles) : baisse de 10 R depuis le sommet en reel -> risque ramene a GARDE_RISK
+GARDE_RISK = 0.01                                              # jusqu'a decision ecrite de Richard (remise a zero de garde_risque dans l'etat)
 FLOOR_USDC = max(_f("FLOOR_USDC", "10"), 5)
 
 FEE_TAKER = 0.00045

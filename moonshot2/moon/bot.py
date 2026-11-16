@@ -58,11 +58,15 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
                  coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
         N.send(f"🔮 Thales ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
         J.trace("AI_VETO", coin, ev["bar_ts"], confiance=op.get("confiance"), modele=op.get("modele"), **base); return
-    t = G.taille(side, ev["ref"], ev["atr"], equity, ctx, s["positions"])
+    deja = s.get("garde_risque"); risque = G.risque_par_trade(s)
+    if s.get("garde_risque") and not deja:
+        J.record("garde", "risque", f"baisse de {G.drawdown_r(s['r_ledger']):.1f} R depuis le sommet : risque ramene a {risque:.0%}", risque=risque)
+        N.send(f"🛡 Garde-fou Moonshot : baisse de {G.drawdown_r(s['r_ledger']):.1f} R, risque ramene a {risque:.0%} par trade jusqu'a decision de Richard")
+    t = G.taille(side, ev["ref"], ev["atr"], equity, ctx, s["positions"], risque=risque)
     stop = ev["ref"] - C.STOP_ATR * ev["atr"] if side == "long" else ev["ref"] + C.STOP_ATR * ev["atr"]
     mesure = {k: v for k, v in t.items() if k not in ("why", "code")}
     mesure["sz_brut"] = round(t.get("risk_target", 0) / (C.STOP_ATR * ev["atr"]), 8) if ev["atr"] else None
-    mesure["equity"] = equity; mesure["plafonds"] = G.plafonds()
+    mesure["equity"] = equity; mesure["plafonds"] = {**G.plafonds(), "risque_en_vigueur": risque}
     mesure["risk_frais"] = round(t["risk"] + t["sz"] * (ev["ref"] + stop) * C.FEE_TAKER, 4)      # risque reel au stop, frais d'entree et de sortie inclus
     if t["why"]:
         J.record("signal", "saute", f"{coin} {side} : {t['why']}", code=t["code"], **mesure); N.send(f"⏭ Signal {coin} {side} saute : {t['why']}")

@@ -145,9 +145,9 @@ def test_arrets_de_ligne():
     assert (C.RISK_PER_TRADE, C.LINE_STOP, C.STOP_DD_R, C.STOP_LOSS_STREAK, C.MAX_LEVERAGE) == (0.01, 0.5, 30, 20, 5)
 
 def test_bornes_plafonnees():
-    os.environ["RISK_PER_TRADE"] = "0.05"; os.environ["LINE_STOP"] = "0.9"; os.environ["MAX_LEVERAGE"] = "20"
+    os.environ["RISK_PER_TRADE"] = "0.08"; os.environ["LINE_STOP"] = "0.9"; os.environ["MAX_LEVERAGE"] = "20"
     try:
-        importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_LEVERAGE) == (0.02, 0.5, 5)   # Moonshot : 2 % au plus (15/11)
+        importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_LEVERAGE) == (0.05, 0.5, 5)   # Moonshot : 5 % au plus (16/11)
     finally:
         for k in ("RISK_PER_TRADE", "LINE_STOP", "MAX_LEVERAGE"): os.environ.pop(k)
         importlib.reload(C)
@@ -162,7 +162,7 @@ def test_plafonds_du_lab_palier_1():
         os.environ.update({"RISK_PER_TRADE": "0.50", "LINE_STOP": "0.95", "MAX_RISK_MIN_ORDER": "0.60"}); importlib.reload(C)
         assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.20, 0.80, 0.20)
         os.environ.update(env); os.environ["BOT_NAME"] = "moonshot2"; importlib.reload(C)
-        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.02, 0.50, 0.015)
+        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.05, 0.50, 0.015)
         for k in env: os.environ.pop(k)
         importlib.reload(C); assert (C.RISK_PER_TRADE, C.LINE_STOP, C.MAX_RISK_MIN_ORDER) == (0.01, 0.50, 0.015)
     finally:
@@ -170,6 +170,35 @@ def test_plafonds_du_lab_palier_1():
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
         importlib.reload(C)
+
+def test_moonshot_5_pourcent_et_garde_fou_10R():
+    """Confirmation ecrite de Richard du 16/11/2026 (23 h 08 UTC) : 5 % pour moonshot2, -50 % et garde-fou de 10 R inchanges."""
+    old = os.environ.get("BOT_NAME")
+    try:
+        os.environ["BOT_NAME"] = "moonshot2"; os.environ["RISK_PER_TRADE"] = "0.05"; importlib.reload(C); importlib.reload(G)
+        assert (C.RISK_PER_TRADE, C.LINE_STOP, C.STOP_DD_R, C.STOP_LOSS_STREAK, C.GARDE_DD_R, C.GARDE_RISK) == (0.05, 0.50, 30, 20, 10.0, 0.01)
+        s = {"r_ledger": [3.0] + [-1.0] * 9}
+        assert G.risque_par_trade(s) == 0.05 and not s.get("garde_risque")                  # 9 R de baisse : 5 %
+        s["r_ledger"].append(-1.0)
+        assert G.risque_par_trade(s) == 0.01 and s["garde_risque"]                          # 10 R : retour a 1 %
+        s["r_ledger"] += [4.0] * 5
+        s["r_ledger"] = [5.0]; assert G.risque_par_trade(s) == 0.01                            # le drapeau reste leve, meme sans baisse
+        ctx = {"sz_dec": 3, "max_lev": 20}
+        a = G.taille("long", 100.0, 1.0, 1000.0, ctx, {}); b = G.taille("long", 100.0, 1.0, 1000.0, ctx, {}, risque=0.01)
+        assert abs(a["risk_target"] - 50.0) < 1e-9 and abs(b["risk_target"] - 10.0) < 1e-9
+        assert abs(G.taille("long", 100.0, 1.0, 1000.0, ctx, {}, risque=0.30)["risk_target"] - 50.0) < 1e-9   # jamais au-dela du plafond
+        os.environ["BOT_NAME"] = "smartpeanut2"; os.environ["RISK_PER_TRADE"] = "0.10"; importlib.reload(C)
+        s = {"r_ledger": [-1.0] * 12}; assert G.risque_par_trade(s) == 0.10                 # le Lab garde ses propres regles
+    finally:
+        os.environ.pop("RISK_PER_TRADE", None)
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C); importlib.reload(G)
+
+def test_env_moonshot2_5_pourcent():
+    racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    p = os.path.join(racine, "deploy", "env", "moonshot2.json")
+    if os.path.exists(p): assert json.load(open(p)) == {"RISK_PER_TRADE": "0.05"}
 
 def test_env_peanut2_palier_1():
     racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
