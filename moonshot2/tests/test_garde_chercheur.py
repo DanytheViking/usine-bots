@@ -91,6 +91,7 @@ def test_bilan_ecrit_envoye_et_non_repete():
         path, _ = CH.report(now, post=lambda url, **k: (calls.append(k), Resp())[1], send=sent.append)
         assert os.path.exists(path) and "Proposition 1" in open(path).read() and sent and "a pre-enregistrer" in sent[0]
         assert calls[0]["json"]["model"] == C.FABLE_MODEL
+        assert calls[0]["json"]["max_tokens"] >= 2500 and "Thales" in calls[0]["json"]["system"] and "Lab Smart Peanut" in calls[0]["json"]["system"]
         assert not CH.due(now + dt.timedelta(hours=1))                                 # redemarrage : pas de second envoi
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)

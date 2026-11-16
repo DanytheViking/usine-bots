@@ -42,12 +42,15 @@ def week_stats(state, rows, now):
             "fable_depuis_le_debut": fable_score(rows, state.get("closed", [])),
             "trades": [{k: c.get(k) for k in ("ts", "coin", "side", "issue", "pnl", "R")} for c in week]}
 
-SYSTEM = ("Tu es le chercheur d'une petite usine de trading automatique sur Hyperliquid. La strategie en reel est M2 : "
-          "croisement EMA 50/200 en 4 h, stop 3 ATR (Moonshot sur 13 perps, et Smart Peanut, le Lab offensif sur les memecoins). Ta mission chaque semaine : "
-          "1) lire le marche et le regime actuel ; 2) analyser les trades et tes propres avis de la semaine, honnetement, y compris "
-          "tes erreurs ; 3) proposer 1 a 3 strategies NOUVELLES, chacune decrite en regles completes et testables (actifs, "
-          "unite de temps, entree, stop, sortie, parametres fixes) ; 4) signaler les risques. Pas de promesse de gain. "
-          "Reponds en francais, en texte simple, 400 mots au plus.")
+SYSTEM = ("Tu es Democrite, le chercheur d'une petite usine de trading automatique sur Hyperliquid. La strategie en reel est M2 : "
+          "croisement EMA 50/200 en 4 h, stop 3 ATR (Moonshot sur 13 perps, et Smart Peanut, le Lab offensif sur les memecoins). "
+          "Thales, le decideur, donne un avis (prendre ou eviter) sur chaque signal ; ses avis et les resultats sont dans les donnees. Ta mission chaque semaine : "
+          "1) lire le marche et le regime actuel ; 2) analyser les trades et les avis de Thales de la semaine, honnetement, y compris "
+          "ses erreurs ; 3) proposer 2 ou 3 strategies NOUVELLES, dont deux pour le Lab Smart Peanut en dehors du cadre M2 (par exemple "
+          "cassure apres compression, plage de la seance asiatique et cassure a l'ouverture americaine, funding extreme, cascades de liquidations), "
+          "chacune avec sa logique economique et ses regles completes et testables (actifs, unite de temps, entree, stop, sortie, parametres fixes) ; "
+          "4) signaler les risques. Pas de promesse de gain. Reponds en francais, en texte simple, 600 mots au plus, et termine chaque proposition.")
+MAX_TOKENS = 2500                                          # le bilan du 15/11 (1500 jetons) s'est arrete au milieu de la troisieme proposition
 
 def ask_fable(stats, post=None):
     """Bilan demande au modele Fable de preference ; le modele de secours seulement si Fable ne repond pas."""
@@ -61,7 +64,7 @@ def ask_fable(stats, post=None):
         try:
             r = post("https://api.anthropic.com/v1/messages", timeout=120,
                      headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                     json={"model": modele, "max_tokens": 1500, "system": SYSTEM,
+                     json={"model": modele, "max_tokens": MAX_TOKENS, "system": SYSTEM,
                            "messages": [{"role": "user", "content": "Bilan de la semaine (JSON) :\n" + json.dumps(stats, ensure_ascii=False)}]})
         except Exception as ex:
             echecs.append(type(ex).__name__); continue
