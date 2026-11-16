@@ -51,6 +51,10 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   top movers 1 h), BTC, ETH, SOL, HYPE ajoutes aux memecoins. Travaux jobs/lab4-collecte-2026-11-16 (reseau) et lab4-verdicts-2026-11-16
   (attend le manifeste). Le candidat qui passe la voie rapide avec la meilleure croissance a 10 % est branche dans le bot (strategie par variable,
   avec tests), audite par Aristote, puis mis en reel au Lab. Si aucun ne passe : publier a Richard, rien en reel sans sa decision.
+  16/11 18 h 10 UTC, verdict (manifeste 1c74e19ae816, rapport jobs/lab4-verdicts-2026-11-16) : AUCUN CANDIDAT NE PASSE. Evaluation, frais doubles,
+  deux positions : compression 1 h -0,22 R (186 trades, 1,8 / jour), compression 15 min -0,19 R (180, 6,9 / jour), Asie / US -0,21 R (61, 2,3 / jour),
+  top movers 1 h -0,14 R (354, 3,4 / jour) ; IC 95 % sous zero pour les deux compressions ; meme en frais de base, tous negatifs. Aucun parametre
+  retouche. Rien en reel ; publie a Richard. Lecon : plus de frequence sur ces actifs = plus de pertes (confirme v1 P1 et les essais du 26/10).
 - Etape 2 du Lab confirmee par Richard le 16/11/2026, 17 h 02 UTC, dans le fil du projet, mot pour mot :
   « Je confirme l'étape 2 du Lab : RISK_PER_TRADE 0.10, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20 pour smartpeanut2 ». Commit dedie, attend Aristote.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
