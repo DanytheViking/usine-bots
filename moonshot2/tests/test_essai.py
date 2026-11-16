@@ -69,7 +69,7 @@ def test_stop_absent_echec():
     orig = ex.bulk_orders
     def bulk(orders, grouping=None):
         r = orig(orders, grouping); info.orders_.pop(orders[0]["coin"], None); return r
-    ex.bulk_orders = bulk
+    ex.bulk_orders = bulk; ex.stop_seul_ko = True                                            # stop du lot absent ET stop seul refuse
     m, s, b = BOT.build(info, ex)
     with contextlib.redirect_stdout(io.StringIO()) as buf: rc = E.run(m, s, b, "BTC", 12.0, sleep=lambda x: None, now_ms=0)
     assert rc == 1 and not info.pos                                                           # sortie sure si le stop manque

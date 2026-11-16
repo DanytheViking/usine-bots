@@ -117,11 +117,30 @@ class LiveBroker:
             self._cancel_all(coin)
             J.record("execution", "non rempli", f"{coin} : entree IOC non remplie ({errs or 'aucun remplissage'}), ordres annules")
             return None
-        if errs or not any(is_stop(o) for o in self.orders(coin)):
+        reel = abs(pos)
+        if abs(reel - sz) > 1e-12:
+            J.record("execution", "partiel", f"{coin} : entree remplie a {reel} sur {sz} (le reliquat IOC est annule, et avec lui le stop du lot)")
+        if not any(is_stop(o) for o in self.orders(coin)) and not self.stop_seul(coin, buy, reel, sl, errs):
             self.safe_exit(coin, f"position ouverte sans stop confirme ({errs})"); raise RuntimeError(f"stop absent : {errs}")
         fill = (st[0] or {}).get("filled", {}) if st and isinstance(st[0], dict) else {}
         e = float(fill.get("avgPx") or ref)
-        return {"entry": e, "sz": abs(pos), "stop": sl, "fee_in": 0.0}
+        return {"entry": e, "sz": reel, "stop": sl, "fee_in": 0.0}
+
+    def stop_seul(self, coin, buy, sz, sl, errs=None):
+        """P0b : stop du lot absent (remplissage partiel, stop rejete) -> stop reduce-only seul a la taille REELLE, au meme prix,
+        puis verification au carnet. Deux essais ; False si le stop n'est pas confirme (l'appelant ferme alors la position)."""
+        ot = {"trigger": {"triggerPx": sl, "isMarket": True, "tpsl": "sl"}}
+        for essai in (1, 2):
+            try:
+                r = self.x.order(coin, not buy, sz, sl, ot, reduce_only=True)
+                st = (r or {}).get("response", {}).get("data", {}).get("statuses", []) if isinstance(r, dict) else []
+                bad = (r or {}).get("status") != "ok" or any(isinstance(x, dict) and "error" in x for x in st)
+            except Exception as ex: bad, r = True, f"{type(ex).__name__}"
+            if not bad and any(is_stop(o) for o in self.orders(coin)):
+                J.record("execution", "stop seul", f"{coin} : stop du lot absent ({errs or 'annule avec le reliquat'}) : stop seul pose a {sz} au prix {sl}, confirme au carnet (essai {essai})")
+                return True
+            J.record("execution", "stop seul refuse", f"{coin} : essai {essai} : {str(r)[:200]}"); self.sleep(1)
+        return False
 
     def _cancel_all(self, coin):
         for o in self.orders(coin):

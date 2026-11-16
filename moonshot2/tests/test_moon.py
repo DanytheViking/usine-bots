@@ -42,8 +42,14 @@ class FakeInfo:
     def user_fills_by_time(self, acct, since): return [f for f in self.fills if f["time"] >= since]
 
 class FakeExchange:
-    def __init__(self, info, fill=True, lose=False):
+    def __init__(self, info, fill=True, lose=False, partiel=None, stop_rejete=False, stop_seul_ko=False):
         self.i, self.fill, self.lose, self.sent = info, fill, lose, []
+        self.partiel, self.stop_rejete, self.stop_seul_ko, self.seuls = partiel, stop_rejete, stop_seul_ko, []
+    def order(self, coin, is_buy, sz, px, order_type, reduce_only=False):
+        self.seuls.append({"coin": coin, "is_buy": is_buy, "sz": sz, "px": px, "order_type": order_type, "reduce_only": reduce_only})
+        if self.stop_seul_ko: return {"status": "ok", "response": {"data": {"statuses": [{"error": "Order rejected"}]}}}
+        self.i.orders_[coin] = [{"coin": coin, "oid": 9, "reduceOnly": True, "isTrigger": True, "tpsl": "sl", "sz": str(sz)}]
+        return {"status": "ok", "response": {"data": {"statuses": ["waitingForTrigger"]}}}
     def update_leverage(self, lev, coin, is_cross=False):
         self.i.lev[coin] = lev; return {"status": "ok"}
     def bulk_orders(self, orders, grouping=None):
@@ -53,11 +59,14 @@ class FakeExchange:
         if not self.fill:
             self.i.orders_[e["coin"]] = [{"coin": e["coin"], "oid": 8, "reduceOnly": True, "isTrigger": True, "tpsl": "sl"}]
             return {"status": "ok", "response": {"data": {"statuses": [{"error": "Order could not immediately match"}, {"error": "x"}]}}}
-        self.i.pos[e["coin"]] = e["sz"] * (1 if e["is_buy"] else -1)
-        self.i.orders_[e["coin"]] = [{"coin": e["coin"], "oid": 7, "reduceOnly": True, "isTrigger": True, "tpsl": "sl"}]
+        rempli = round(e["sz"] * self.partiel, 2) if self.partiel else e["sz"]
+        self.i.pos[e["coin"]] = rempli * (1 if e["is_buy"] else -1)
+        if not (self.partiel or self.stop_rejete):                                            # partiel : le stop enfant part avec le reliquat
+            self.i.orders_[e["coin"]] = [{"coin": e["coin"], "oid": 7, "reduceOnly": True, "isTrigger": True, "tpsl": "sl"}]
         px = self.i.mid(e["coin"])
         self.i.fills.append({"coin": e["coin"], "time": 10**15, "px": str(px), "closedPnl": "0", "fee": "0.01", "dir": "Open"})
-        return {"status": "ok", "response": {"data": {"statuses": [{"filled": {"avgPx": str(px), "totalSz": str(e["sz"])}}, "waitingForTrigger"]}}}
+        sl_st = {"error": "Trigger order rejected"} if self.stop_rejete else "waitingForTrigger"
+        return {"status": "ok", "response": {"data": {"statuses": [{"filled": {"avgPx": str(px), "totalSz": str(rempli)}}, sl_st]}}}
     def market_close(self, coin):
         self.i.pos.pop(coin, None)
         self.i.fills.append({"coin": coin, "time": 10**15 + 1, "px": str(self.i.mid(coin)), "closedPnl": "1.5", "fee": "0.01", "dir": "Close Long"})
@@ -82,12 +91,12 @@ def cross_series(side="long"):
             pad = np.full(1000 - k, x[0]); return np.concatenate([pad, x])
     raise AssertionError("pas de croisement")
 
-def setup(mode, side="long", fill=True, lose=False, equity=100.0, coin="ETH"):
+def setup(mode, side="long", fill=True, lose=False, equity=100.0, coin="ETH", **ex_opts):
     fresh(mode)
     now_ms = NOW0 + 60_000
     closes = {c: np.full(1000, 100.0) for c in C.COINS}; closes[coin] = cross_series(side)
     info = FakeInfo(closes, NOW0, equity)
-    ex = FakeExchange(info, fill, lose) if mode == "reel" else None
+    ex = FakeExchange(info, fill, lose, **ex_opts) if mode == "reel" else None
     m, s, b = BOT.build(info, ex)
     return m, s, b, info, ex, dt.datetime.fromtimestamp(now_ms / 1000, dt.timezone.utc)
 
@@ -195,6 +204,19 @@ def test_moonshot_5_pourcent_et_garde_fou_10R():
         else: os.environ["BOT_NAME"] = old
         importlib.reload(C); importlib.reload(G)
 
+def test_reel_garde_fou_ramene_l_ordre_a_1_pourcent():
+    os.environ["RISK_PER_TRADE"] = "0.05"
+    try:
+        m, s, b, info, ex, now = setup("reel")
+        s["r_ledger"] = [2.0] + [-1.0] * 10                                                   # 10 R de baisse depuis le sommet
+        BOT.step(m, s, b, now)
+        assert C.RISK_PER_TRADE == 0.05 and s["garde_risque"] and abs(s["positions"]["ETH"]["risk_usd"] - 1.0) < 0.05
+        m, s, b, info, ex, now = setup("reel")
+        BOT.step(m, s, b, now)
+        assert not s.get("garde_risque") and abs(s["positions"]["ETH"]["risk_usd"] - 5.0) < 0.1  # sans baisse : 5 % de 100 USDC
+    finally:
+        os.environ.pop("RISK_PER_TRADE", None); fresh("observation")
+
 def test_env_moonshot2_5_pourcent():
     racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     p = os.path.join(racine, "deploy", "env", "moonshot2.json")
@@ -224,6 +246,27 @@ def test_reel_lot_ioc_et_stop_levier_relu():
     assert orders[1]["reduce_only"] and orders[1]["order_type"]["trigger"]["tpsl"] == "sl" and orders[1]["order_type"]["trigger"]["isMarket"]
     assert orders[1]["limit_px"] < orders[0]["limit_px"] and info.lev["ETH"] >= 1
     p = s["positions"]["ETH"]; assert abs(p["risk_usd"] - 1.0) < 0.05 and s["start_equity"] == 100.0
+
+def test_reel_remplissage_partiel_stop_seul_a_la_taille_reelle():
+    """P0b : IOC rempli a 40 %, stop du lot annule avec le reliquat -> stop seul reduce-only a la taille reelle, position gardee."""
+    m, s, b, info, ex, now = setup("reel", partiel=0.4)
+    BOT.step(m, s, b, now)
+    demande = ex.sent[0][0][0]["sz"]; p = s["positions"]["ETH"]
+    assert len(ex.seuls) == 1 and ex.seuls[0]["reduce_only"] and ex.seuls[0]["order_type"]["trigger"]["tpsl"] == "sl"
+    assert ex.seuls[0]["sz"] == p["sz"] == abs(info.pos["ETH"]) < demande and not ex.seuls[0]["is_buy"]
+    assert ex.seuls[0]["px"] == ex.sent[0][0][1]["limit_px"] == p["stop"]                       # meme prix de stop, jamais deplace
+    assert abs(p["risk_usd"] - 0.4 * 1.0) < 0.05 and not os.path.exists(C.KILL_SWITCH)           # risque reel au prorata
+
+def test_reel_stop_du_lot_rejete_stop_seul():
+    m, s, b, info, ex, now = setup("reel", stop_rejete=True)
+    BOT.step(m, s, b, now)
+    assert "ETH" in s["positions"] and len(ex.seuls) == 1 and ex.seuls[0]["sz"] == s["positions"]["ETH"]["sz"]
+    assert any(B.is_stop(o) for o in info.orders_["ETH"])
+
+def test_reel_stop_seul_refuse_sortie_sure():
+    m, s, b, info, ex, now = setup("reel", partiel=0.4, stop_seul_ko=True)
+    BOT.step(m, s, b, now)
+    assert len(ex.seuls) == 2 and "ETH" not in info.pos and "ETH" not in s["positions"]           # deux essais puis position fermee
 
 def test_reel_reponse_perdue_kill():
     m, s, b, info, ex, now = setup("reel", lose=True)

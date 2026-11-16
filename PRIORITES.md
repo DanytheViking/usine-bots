@@ -123,6 +123,9 @@ Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papi
 
 ## P0 (15/11/2026, apres revue externe) : avant tout relevement de Moonshot a 2 % et avant l'entree maker
 Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 reste a 0.01 dans deploy/env/moonshot2.json tant que P0a et P0b ne sont pas termines et audites.
+17/11/2026 : Moonshot a 5 % (confirmation ecrite de Richard du 16/11, 23 h 08 UTC ; constitution 4bd6da2 approuvee, etape 2 Moonshot 2.5.1).
+  P0b fait pour le coeur du risque (stop seul a la taille reelle apres remplissage partiel ou stop rejete, deux essais, sinon sortie sure) ;
+  garde-fou de 10 R automatique et verrouille (retour a 1 %, message, levee seulement sur decision ecrite de Richard).
 - P0a. Parcours des signaux : chaque cloture et chaque actif suivi produit une ligne de journal avec un code stable
   (NO_SIGNAL, STALE_DATA, VOLUME_FILTER, MIN_ORDER, RISK_LIMIT, AI_VETO, ORDER_REJECTED, NOT_FILLED, EXECUTED) et les valeurs utilisees
   (EMA 50, EMA 200, ATR, volume 24 h, taille avant et apres arrondi, marge requise). Bilan hebdomadaire « X signaux, Y exclusions, Z ordres, N executions »
@@ -133,6 +136,10 @@ Smart Peanut passe a 3 % comme prevu (etape 2) ; la ligne Moonshot de l'etape 2 
   les 400 dernieres lignes (rapports : parcours-<bot>.jsonl). Un actif sorti du filtre est suivi jusqu'a sa sortie, sans retournement (teste).
   RESTE : bilan hebdomadaire publie par Diogene (lire parcours.jsonl dans le travail controle) ; reconstitution du passe de Smart Peanut depuis le 12/11
   (travail usine a ecrire : memes regles sur les bougies, resultat par actif et par cloture).
+- P0b. FAIT pour le coeur (Moonshot 2.5.1) : apres le lot, si le stop manque (remplissage partiel, stop rejete), stop reduce-only seul a la taille
+  reelle au meme prix, confirme au carnet, deux essais, sinon sortie sure ; risque et taille enregistres au prorata du remplissage. Tests : entree
+  complete, partielle, stop rejete, stop seul refuse, reponse perdue (KILL). RESTE pour l'entree maker : Alo vers IOC apres 60 s avec fills
+  pendant l'annulation, reliquats sous 10 $, reponse inconnue sans doublon, limites d'API partagees, retournement partiel.
 - P0b. Remplissage partiel : la documentation Hyperliquid dit que si un ordre parent partiellement rempli est annule, ses TP/SL enfants sont annules aussi,
   et que les enfants ont la taille du parent. Un IOC partiel annule son reliquat : aujourd'hui le broker detecte l'absence de stop et ferme la position
   (sur, mais le trade est perdu). Corriger : apres le lot, lire la position reelle ; si un stop manque, poser un stop reduce-only seul a la taille reelle,

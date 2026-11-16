@@ -81,6 +81,7 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
         J.trace("ORDER_REJECTED", coin, ev["bar_ts"], erreur=type(ex).__name__, **base, **mesure); return
     if r is None:
         N.send(f"⏭ {coin} {side} : entree non remplie (prix parti au-dela de 1 %)"); J.trace("NOT_FILLED", coin, ev["bar_ts"], **base, **mesure); return
+    if r["sz"] < sz: risk = risk * r["sz"] / sz                                                  # remplissage partiel : risque reel
     s["positions"][coin] = {"side": side, "sz": r["sz"], "entry": r["entry"], "stop": r["stop"], "risk_usd": risk, "lev": lev,
                             "notional": r["sz"] * r["entry"], "opened_ms": int(time.time() * 1000), "bar_ts": ev["bar_ts"], "fee_in": r.get("fee_in", 0.0)}
     fab = f"\nThales : {op['avis']} ({op['confiance']} %) : {op['raison']}" if "avis" in op else ""
