@@ -16,6 +16,12 @@ def kill(reason: str):
 def is_stop(o) -> bool:
     return bool(o.get("reduceOnly") and ((o.get("isTrigger") and o.get("tpsl") == "sl") or "stop" in str(o.get("orderType", "")).lower()))
 
+def stop_du_trade(o, sl) -> bool:
+    """Stop du trade en cours : un stop reduce-only dont le declencheur vaut le prix de stop du trade (un ancien stop ne compte pas)."""
+    if not is_stop(o): return False
+    px = o.get("triggerPx")
+    return px is None or abs(float(px) - float(sl)) <= 1e-9 * max(1.0, abs(float(sl)))
+
 def _settle_r(p, pnl):
     return round(pnl / p["risk_usd"], 4) if p.get("risk_usd") else None
 
@@ -97,6 +103,10 @@ class LiveBroker:
         if sz <= 0: raise RuntimeError("taille nulle apres arrondi")
         lim = self.m.round_px(ref * (1 + C.ENTRY_SLIPPAGE if buy else 1 - C.ENTRY_SLIPPAGE), coin)
         sl = self.m.round_px(stop_px, coin)
+        if self.orders(coin):                                                        # pas de position ici : tout ordre restant est perime
+            self._cancel_all(coin)
+            if self.orders(coin): raise RuntimeError(f"{coin} : ordres anciens impossibles a annuler, entree refusee")
+            J.record("execution", "menage", f"{coin} : ordres anciens annules avant l'entree")
         self.confirm_leverage(coin, lev)
         orders = [{"coin": coin, "is_buy": buy, "sz": sz, "limit_px": lim, "order_type": {"limit": {"tif": "Ioc"}}, "reduce_only": False},
                   {"coin": coin, "is_buy": not buy, "sz": sz, "limit_px": sl, "order_type": {"trigger": {"triggerPx": sl, "isMarket": True, "tpsl": "sl"}}, "reduce_only": True}]
@@ -120,7 +130,7 @@ class LiveBroker:
         reel = abs(pos)
         if abs(reel - sz) > 1e-12:
             J.record("execution", "partiel", f"{coin} : entree remplie a {reel} sur {sz} (le reliquat IOC est annule, et avec lui le stop du lot)")
-        if not any(is_stop(o) for o in self.orders(coin)) and not self.stop_seul(coin, buy, reel, sl, errs):
+        if not any(stop_du_trade(o, sl) for o in self.orders(coin)) and not self.stop_seul(coin, buy, reel, sl, errs):
             self.safe_exit(coin, f"position ouverte sans stop confirme ({errs})"); raise RuntimeError(f"stop absent : {errs}")
         fill = (st[0] or {}).get("filled", {}) if st and isinstance(st[0], dict) else {}
         e = float(fill.get("avgPx") or ref)
@@ -136,7 +146,7 @@ class LiveBroker:
                 st = (r or {}).get("response", {}).get("data", {}).get("statuses", []) if isinstance(r, dict) else []
                 bad = (r or {}).get("status") != "ok" or any(isinstance(x, dict) and "error" in x for x in st)
             except Exception as ex: bad, r = True, f"{type(ex).__name__}"
-            if not bad and any(is_stop(o) for o in self.orders(coin)):
+            if not bad and any(stop_du_trade(o, sl) for o in self.orders(coin)):
                 J.record("execution", "stop seul", f"{coin} : stop du lot absent ({errs or 'annule avec le reliquat'}) : stop seul pose a {sz} au prix {sl}, confirme au carnet (essai {essai})")
                 return True
             J.record("execution", "stop seul refuse", f"{coin} : essai {essai} : {str(r)[:200]}"); self.sleep(1)

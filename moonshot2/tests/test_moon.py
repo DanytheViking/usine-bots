@@ -268,6 +268,18 @@ def test_reel_stop_seul_refuse_sortie_sure():
     BOT.step(m, s, b, now)
     assert len(ex.seuls) == 2 and "ETH" not in info.pos and "ETH" not in s["positions"]           # deux essais puis position fermee
 
+def test_reel_ancien_stop_annule_avant_l_entree():
+    """P0b, ancien stop present : il est annule avant le lot et ne peut pas passer pour le stop du nouveau trade."""
+    m, s, b, info, ex, now = setup("reel")
+    info.orders_["ETH"] = [{"coin": "ETH", "oid": 3, "reduceOnly": True, "isTrigger": True, "tpsl": "sl", "triggerPx": "1.0"}]
+    BOT.step(m, s, b, now)
+    assert "ETH" in s["positions"] and all(o["oid"] != 3 for o in info.orders_["ETH"])
+
+def test_reel_ancien_stop_ne_vaut_pas_stop_du_trade():
+    assert not B.stop_du_trade({"reduceOnly": True, "isTrigger": True, "tpsl": "sl", "triggerPx": "1.0"}, 90.0)
+    assert B.stop_du_trade({"reduceOnly": True, "isTrigger": True, "tpsl": "sl", "triggerPx": "90.0"}, 90.0)
+    assert not B.stop_du_trade({"reduceOnly": False, "isTrigger": True, "tpsl": "sl", "triggerPx": "90.0"}, 90.0)
+
 def test_reel_reponse_perdue_kill():
     m, s, b, info, ex, now = setup("reel", lose=True)
     BOT.step(m, s, b, now)

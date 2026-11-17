@@ -53,7 +53,7 @@ def test_stop_disparu_apres_entree():
     info = T.FakeInfo({c: np.full(1000, 100.0) for c in C.COINS}, T.NOW0); ex = T.FakeExchange(info)
     m, s, b = BOT.build(info, ex); real = b.orders; n = [0]
     def orders(coin):
-        n[0] += 1; return [] if n[0] == 3 else real(coin)                                   # 3e lecture : celle de l'essai apres l'entree
+        n[0] += 1; return [] if n[0] == 4 else real(coin)                                   # 4e lecture (menage, lot, stop) : celle de l essai apres l entree
     b.orders = orders
     with contextlib.redirect_stdout(io.StringIO()): rc = E.run(m, s, b, "BTC", 12.0, sleep=lambda x: None, now_ms=0)
     assert rc == 1 and not info.pos
