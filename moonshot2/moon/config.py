@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.5.2"
+VERSION = "2.6.0"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -20,10 +20,11 @@ COINS_DEFAUT = ("BTC", "ETH", "SOL", "ZEC", "HYPE", "NEAR", "kPEPE", "XRP", "PUM
 COINS = tuple(c.strip() for c in os.getenv("COINS", ",".join(COINS_DEFAUT)).split(",") if c.strip())
 MIN_DAY_VOLUME_USD = max(_f("MIN_DAY_VOLUME_USD", "0"), 0.0)   # actifs moins echanges : ignores (glissement trop fort)
 EMA_FAST, EMA_SLOW, ATR_N, STOP_ATR = 50, 200, 14, 3.0
-TF = "4h"
-TF_MS = 4 * 3_600_000
-BARS = min(max(_i("BARS", "1000"), 600), 1000)                                                    # historique lu a chaque cloture 4 h (EMA 200 stable : poids initial < 0,01 %)
-SIGNAL_DELAY_S = max(_i("SIGNAL_DELAY_S", "20"), 20)                                            # attente apres la cloture 4 h avant de lire la bougie
+TF = "1h" if NAME == "smartpeanut2" else "4h"                 # Lab : M2 en 1 h (USINE-SPEC-M2H1, exception ecrite de Richard) ; Moonshot reste en 4 h
+TF_MS = (1 if TF == "1h" else 4) * 3_600_000
+BARS_JOUR = 86_400_000 // TF_MS
+BARS = min(max(_i("BARS", "1000"), 600), 1000)                                                    # historique lu a chaque cloture (EMA 200 stable : poids initial < 0,01 %)
+SIGNAL_DELAY_S = max(_i("SIGNAL_DELAY_S", "20"), 20)                                            # attente apres la cloture avant de lire la bougie
 FETCH_PAUSE_S = min(max(_f("FETCH_PAUSE_S", "0"), 0.0), 5.0)    # pause entre deux actifs : menage la limite de poids de l'IP
 MAX_SIGNAL_AGE_S = 1800                                        # un croisement plus vieux que 30 min (bot arrete) n'est pas joue
 

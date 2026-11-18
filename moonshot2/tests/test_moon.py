@@ -161,6 +161,28 @@ def test_bornes_plafonnees():
         for k in ("RISK_PER_TRADE", "LINE_STOP", "MAX_LEVERAGE"): os.environ.pop(k)
         importlib.reload(C)
 
+def test_lab_en_1h_moonshot_en_4h():
+    """Lab : M2 en bougies 1 h (USINE-SPEC-M2H1) ; Moonshot reste en 4 h. Bougies cloturees et contexte de Thales suivent l'unite de temps."""
+    old = os.environ.get("BOT_NAME")
+    try:
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C)
+        assert (C.TF, C.TF_MS, C.BARS_JOUR) == ("1h", 3_600_000, 24)
+        h = 3_600_000; t0 = 1_793_404_800_000 // h * h
+        df = pd.DataFrame({"ts": [t0 - 2 * h, t0 - h, t0], "open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "vol": 1.0})
+        assert list(SG.closed(df, t0 + 60_000).ts) == [t0 - 2 * h, t0 - h]
+        c = pd.DataFrame({"close": np.linspace(100, 200, 800)})
+        ev = {"ref": 200.0, "ema_rapide": 190.0, "ema_lente": 180.0, "atr": 2.0}
+        txt = F.context_text("BTC", "long", ev, {}, c)
+        assert "en 1h" in txt and "ATR 1h" in txt
+        assert f"24 h {(200 / c.close.values[-25] - 1) * 100:+.1f} %" in txt
+        os.environ["BOT_NAME"] = "moonshot2"; importlib.reload(C)
+        assert (C.TF, C.TF_MS, C.BARS_JOUR) == ("4h", 14_400_000, 6)
+        assert "en 4h" in F.context_text("BTC", "long", ev, {}, c)
+    finally:
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C)
+
 def test_plafonds_du_lab_palier_1():
     """Etape 2 du Lab (confirmation ecrite de Richard du 16/11/2026) : 10 % pour smartpeanut2, plafonds 20 % et -80 % ; Moonshot reste a 1 %."""
     env = {"RISK_PER_TRADE": "0.10", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20"}
@@ -222,11 +244,13 @@ def test_env_moonshot2_5_pourcent():
     p = os.path.join(racine, "deploy", "env", "moonshot2.json")
     if os.path.exists(p): assert json.load(open(p)) == {"RISK_PER_TRADE": "0.05"}
 
-def test_env_peanut2_palier_1():
+def test_env_peanut2_m2_1h_2_pourcent():
+    """Choix de Richard du 18/11/2026 : M2 en 1 h a 2 % sur les 13 actifs de Moonshot, filtre de volume a 2 M$."""
     racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     p = os.path.join(racine, "deploy", "env", "peanut2.json")
     if os.path.exists(p):
-        assert json.load(open(p)) == {"RISK_PER_TRADE": "0.10", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20"}
+        assert json.load(open(p)) == {"RISK_PER_TRADE": "0.02", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20",
+                                      "COINS": ",".join(C.COINS_DEFAUT), "MIN_DAY_VOLUME_USD": "2000000"}
 
 # ================================================================ boucle
 def test_observation_ouvre_sans_ordre_puis_stop():

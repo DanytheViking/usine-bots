@@ -90,7 +90,7 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     N.send(f"🟢 {coin} {side.upper()} ouvert a {r['entry']:.6g}\nStop {r['stop']:.6g} ; risque {risk:.2f} USDC ({risk / equity:.2%}) ; levier {lev}x{fab}")
 
 def on_bar(m, s, b, now_ms, equity, reason, fable_post=None):
-    """Traitement d'une cloture 4 h pour les actifs suivis. Chaque actif et chaque cloture laissent une ligne de parcours (code stable) ;
+    """Traitement d'une cloture (4 h pour Moonshot, 1 h au Lab) pour les actifs suivis. Chaque actif et chaque cloture laissent une ligne de parcours (code stable) ;
     un actif absent du meta ou trop peu echange est ignore, sauf s'il porte une position."""
     day = utc(now_ms)[:10]; expected = now_ms // C.TF_MS * C.TF_MS - C.TF_MS; pending = []
     try: ctx = m.contexts()

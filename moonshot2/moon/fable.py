@@ -6,16 +6,16 @@ from . import config as C
 
 URL = "https://api.anthropic.com/v1/messages"
 SYSTEM = ("Tu es l'analyste d'anticipation d'une equipe de trading crypto. On te presente un signal de suivi de tendance "
-          "(croisement des moyennes mobiles 50 et 200 en 4 h) sur un perpetuel Hyperliquid. Donne ton avis sur ce trade, "
+          "(croisement des moyennes mobiles 50 et 200) sur un perpetuel Hyperliquid. Donne ton avis sur ce trade, "
           "en tenant compte du contexte fourni et de ce que tu sais du marche. Reponds UNIQUEMENT par un objet JSON : "
           '{"avis": "prendre" ou "eviter", "confiance": entier de 0 a 100, "raison": "une phrase en francais"}.')
 
 def context_text(coin, side, ev, ctx, df):
     c = df.close.values
     ret = lambda n: f"{(c[-1] / c[-1 - n] - 1) * 100:+.1f} %" if len(c) > n else "n/d"
-    return (f"Actif : {coin}. Signal : {side} (croisement EMA 50/200 en 4 h, bougie cloturee).\n"
-            f"Prix : {ev['ref']:.6g}. EMA 50 : {ev['ema_rapide']:.6g}. EMA 200 : {ev['ema_lente']:.6g}. ATR 4 h : {ev['atr']:.6g} "
-            f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(6)}, 7 jours {ret(42)}, 30 jours {ret(180)}.\n"
+    return (f"Actif : {coin}. Signal : {side} (croisement EMA 50/200 en {C.TF}, bougie cloturee).\n"
+            f"Prix : {ev['ref']:.6g}. EMA 50 : {ev['ema_rapide']:.6g}. EMA 200 : {ev['ema_lente']:.6g}. ATR {C.TF} : {ev['atr']:.6g} "
+            f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(C.BARS_JOUR)}, 7 jours {ret(7 * C.BARS_JOUR)}, 30 jours {ret(30 * C.BARS_JOUR)}.\n"
             f"Funding horaire : {ctx.get('funding_h', 0) * 100:.4f} %.")
 
 AVIS = {"prendre": "prendre", "pris": "prendre", "take": "prendre", "eviter": "eviter", "ecarter": "eviter", "avoid": "eviter", "skip": "eviter"}
