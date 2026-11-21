@@ -1,0 +1,156 @@
+{
+ "ts": "2026-11-21T12:10:03Z",
+ "deploye": "a542c892c94fe67376a92223cc7220ab155cfe55",
+ "refuse": null,
+ "par_cible": {
+  "moonshot2": "a542c892c94fe67376a92223cc7220ab155cfe55",
+  "peanut2": "a542c892c94fe67376a92223cc7220ab155cfe55",
+  "recolteur": "a542c892c94fe67376a92223cc7220ab155cfe55",
+  "tableau": "a542c892c94fe67376a92223cc7220ab155cfe55",
+  "usine": "a542c892c94fe67376a92223cc7220ab155cfe55",
+  "sentinelle": "a542c892c94fe67376a92223cc7220ab155cfe55"
+ },
+ "echecs": {},
+ "jobs": {
+  "rapport-t6-2026-11-12": {
+   "etat": "lance",
+   "debut": 1794514204,
+   "type": "recolteur_rapport"
+  },
+  "controle-2026-s47": {
+   "etat": "fait : CONFORME",
+   "debut": 1794827453,
+   "type": "controle",
+   "essais": 1
+  },
+  "lab4-collecte-2026-11-16": {
+   "etat": "lance",
+   "debut": 1794849048,
+   "type": "usine"
+  },
+  "lab4-verdicts-2026-11-16": {
+   "etat": "lance",
+   "debut": 1794849058,
+   "type": "usine"
+  },
+  "m2h1-collecte-2026-11-16": {
+   "etat": "lance",
+   "debut": 1794849650,
+   "type": "usine"
+  },
+  "m2h1-verdicts-2026-11-16": {
+   "etat": "lance",
+   "debut": 1794849654,
+   "type": "usine"
+  }
+ },
+ "conteneurs": [
+  "robit-api | Up 15 hours (healthy) | app-api",
+  "peanut2-garde | Up 2 days | peanut2:2.6.0",
+  "peanut2 | Up 2 days | peanut2:2.6.0",
+  "moonshot2-chercheur | Up 2 days | moonshot2:2.6.0",
+  "moonshot2-garde | Up 2 days | moonshot2:2.6.0",
+  "moonshot2 | Up 2 days | moonshot2:2.6.0",
+  "job-m2h1-verdicts-2026-11-16 | Exited (0) 4 days ago | usine-py:1",
+  "job-m2h1-collecte-2026-11-16 | Exited (0) 4 days ago | usine-py:1",
+  "job-lab4-verdicts-2026-11-16 | Exited (0) 4 days ago | 59124dfbfcbf",
+  "job-lab4-collecte-2026-11-16 | Exited (0) 4 days ago | 59124dfbfcbf",
+  "usine-telecommande | Up 6 days | usine-tableau:1.4.0",
+  "usine-tableau | Up 6 days | usine-tableau:1.4.0",
+  "usine-sentinelle | Up 8 days | sentinelle:1.0.0",
+  "job-rapport-t6-2026-11-12 | Exited (0) 8 days ago | recolteur:1.0.1",
+  "recolteur | Up 8 days | recolteur:1.0.1",
+  "ibizahora-jordi-n8n-1 | Up 8 days | n8nio/n8n:2.44.4"
+ ],
+ "deployeur": "deployeur.py 30c408d4d7d5, bornes.py 0be0eab168fa",
+ "moonshot2": {
+  "ts": "2026-11-21T12:09:33Z",
+  "bot": "moonshot2",
+  "version": "2.6.0",
+  "mode": "reel",
+  "equity_usdc": 211.230269,
+  "positions": {
+   "XMR": {
+    "side": "short",
+    "sz": 0.05,
+    "entry": 546.6,
+    "stop": 588.66,
+    "risk_usd": 2.059821428571432,
+    "lev": 3,
+    "notional": 27.330000000000002,
+    "opened_ms": 1794528078709,
+    "bar_ts": 1794513600000,
+    "fee_in": 0.0
+   }
+  },
+  "start_equity": 207.635921,
+  "r_cumule": 0,
+  "baisse_R": 0.0,
+  "pertes_affilee": 0,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": []
+ },
+ "peanut2": {
+  "ts": "2026-11-21T12:09:44Z",
+  "bot": "smartpeanut2",
+  "version": "2.6.0",
+  "mode": "reel",
+  "equity_usdc": 74.407649,
+  "positions": {},
+  "start_equity": 74.407649,
+  "r_cumule": 0,
+  "baisse_R": 0.0,
+  "pertes_affilee": 0,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": []
+ },
+ "recolteur": {
+  "bot": "recolteur",
+  "version": "1.0.1",
+  "mode": "papier",
+  "t_hl": 1795262951556,
+  "ts": 1795262951,
+  "phase": "papier",
+  "univers": [
+   "DOGE",
+   "kPEPE",
+   "PUMP",
+   "TRUMP",
+   "PENGU",
+   "FARTCOIN",
+   "kSHIB",
+   "kBONK"
+  ],
+  "lignes": {},
+  "trades": 11,
+  "remplissages": 11,
+  "equite": 99.6144,
+  "pf_net": 0.8545395682197169,
+  "pf_stress": 0.6252570626782837,
+  "pause_jusqu": 0,
+  "mode_reduit": false,
+  "prets": [
+   "BRETT",
+   "DOGE",
+   "FARTCOIN",
+   "GOAT",
+   "GRIFFAIN",
+   "MELANIA",
+   "MEME",
+   "MOODENG",
+   "PENGU",
+   "PNUT",
+   "PUMP",
+   "SPX",
+   "TRUMP",
+   "TURBO",
+   "USELESS",
+   "kBONK",
+   "kFLOKI",
+   "kPEPE",
+   "kSHIB"
+  ]
+ }
+}

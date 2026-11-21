@@ -1,0 +1,59 @@
+2026-11-12T20:02:04Z adoption de 72aa1b6e sans deploiement
+2026-11-12T20:10:04Z job rapport-t6-2026-11-12 : lance
+2026-11-12T20:32:32Z tableau 6ae4f5dd : deploye (6ae4f5dd), en marche
+2026-11-12T20:32:47Z Deployeur mis a jour par le depot (d4dccca082c7), ancienne version gardee
+2026-11-12T20:42:31Z tableau 90b543f1 : deploye (90b543f1), en marche
+2026-11-12T20:50:11Z Deployeur mis a jour par le depot (0cf12f62622c), ancienne version gardee
+2026-11-12T21:00:04Z moonshot2 356d7632 : en attente de l'Auditeur
+2026-11-12T21:00:04Z peanut2 356d7632 : en attente de l'Auditeur
+2026-11-12T21:02:20Z sentinelle 356d7632 : deploye (356d7632), en marche
+2026-11-12T21:04:57Z tableau 356d7632 : deploye (356d7632), en marche
+2026-11-12T21:05:27Z usine 356d7632 : copie faite (356d7632)
+2026-11-13T06:50:03Z moonshot2 4147fabe : en attente de l'Auditeur
+2026-11-13T06:50:13Z peanut2 4147fabe : en attente de l'Auditeur
+2026-11-13T09:30:02Z moonshot2 da245268 : en attente de l'Auditeur
+2026-11-13T09:30:06Z peanut2 da245268 : en attente de l'Auditeur
+2026-11-13T11:03:39Z moonshot2 d17c7c37 : deploye (d17c7c37), en marche
+2026-11-13T11:06:36Z peanut2 d17c7c37 : deploye (d17c7c37), en marche
+2026-11-13T11:06:55Z Deployeur mis a jour par le depot (7bc715ad904a), ancienne version gardee
+2026-11-14T23:30:13Z Deployeur mis a jour par le depot (7bc715ad904a), ancienne version gardee
+2026-11-14T23:40:13Z Deployeur mis a jour par le depot (7bc715ad904a), ancienne version gardee
+2026-11-14T23:50:03Z moonshot2 c976178b : en attente de l'Auditeur
+2026-11-14T23:50:13Z peanut2 c976178b : en attente de l'Auditeur
+2026-11-14T23:52:52Z tableau c976178b : deploye (c976178b), en marche
+2026-11-15T00:00:03Z moonshot2 4962d371 : en attente de l'Auditeur
+2026-11-15T00:00:13Z peanut2 4962d371 : en attente de l'Auditeur
+2026-11-15T09:50:03Z moonshot2 2bbd4523 : en attente de l'Auditeur
+2026-11-15T09:50:13Z peanut2 2bbd4523 : en attente de l'Auditeur
+2026-11-15T11:03:06Z moonshot2 98d7ad26 : deploye (98d7ad26), en marche
+2026-11-15T11:06:05Z peanut2 98d7ad26 : deploye (98d7ad26), en marche
+2026-11-15T11:06:24Z Deployeur mis a jour par le depot (7bef2881a727), ancienne version gardee
+2026-11-16T06:00:04Z job controle-2026-s47 : echec : nd image 'usine-py:1' locally
+docker: Error response from daemon: pull access denied for usine-py, repository does not exist or may require 'docker login'
+
+Run 'docker run --help' for more information
+2026-11-16T09:40:03Z moonshot2 da58c4b6 : en attente de l'Auditeur
+2026-11-16T09:40:13Z peanut2 da58c4b6 : en attente de l'Auditeur
+2026-11-16T11:03:13Z moonshot2 944c86c2 : deploye (944c86c2), en marche
+2026-11-16T11:06:11Z peanut2 944c86c2 : deploye (944c86c2), en marche
+2026-11-16T11:06:34Z Deployeur mis a jour par le depot (commit 944c86c2 ; deployeur.py 30c408d4d7d5, bornes.py d2d5fcc4bd01), ancienne version gardee
+2026-11-16T11:10:53Z job controle-2026-s47 : fait : CONFORME
+2026-11-16T17:10:37Z usine 4e6073f6 : copie faite (4e6073f6)
+2026-11-16T17:10:48Z job lab4-collecte-2026-11-16 : lance
+2026-11-16T17:10:58Z job lab4-verdicts-2026-11-16 : lance
+2026-11-16T17:20:39Z usine 86f459e9 : copie faite (86f459e9)
+2026-11-16T17:20:50Z job m2h1-collecte-2026-11-16 : lance
+2026-11-16T17:20:54Z job m2h1-verdicts-2026-11-16 : lance
+2026-11-16T19:00:04Z moonshot2 f196d6fa : en attente de l'Auditeur
+2026-11-16T19:00:14Z peanut2 f196d6fa : en attente de l'Auditeur
+2026-11-16T23:23:02Z moonshot2 53bf7289 : deploye (53bf7289), en marche
+2026-11-16T23:26:01Z peanut2 53bf7289 : deploye (53bf7289), en marche
+2026-11-16T23:26:14Z Deployeur mis a jour par le depot (commit 53bf7289 ; deployeur.py 30c408d4d7d5, bornes.py 0be0eab168fa), ancienne version gardee
+2026-11-17T00:33:12Z moonshot2 6d406536 : deploye (6d406536), en marche
+2026-11-17T00:36:12Z peanut2 6d406536 : deploye (6d406536), en marche
+2026-11-17T01:23:04Z moonshot2 ffb944c7 : deploye (ffb944c7), en marche
+2026-11-17T01:26:08Z peanut2 ffb944c7 : deploye (ffb944c7), en marche
+2026-11-18T13:30:03Z moonshot2 92f3b935 : en attente de l'Auditeur
+2026-11-18T13:30:13Z peanut2 92f3b935 : en attente de l'Auditeur
+2026-11-18T14:43:09Z moonshot2 a542c892 : deploye (a542c892), en marche
+2026-11-18T14:46:17Z peanut2 a542c892 : deploye (a542c892), en marche

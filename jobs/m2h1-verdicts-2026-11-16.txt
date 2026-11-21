@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : 5f748ebc6ab7e5205e0135e69ff45a7a3820a68069871e31bda1aa675b85b8d2
+ESPERANCE >= 0 SANS AVANTAGE DEMONTRE : rien en reel sur la foi de ce test (Richard reste libre d'une exception ecrite)
+rapport : /out/verdicts.md (sha256 e991b353f1f151e70f5b7ec88bd9eafb0c694025bda9313cfc4279349deb1b06)

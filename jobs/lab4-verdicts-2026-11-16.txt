@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : 599bb896349b1bcf6afa680f370adb8ad9269c2871c01a21a6f99c7badb7d100
+AUCUN CANDIDAT NE PASSE : rien ne va en reel sur la foi de ce test (Richard reste libre d'une exception)
+rapport : /out/verdicts.md (sha256 0c38b1ad95aa3a4842739441187e61fbaa5f47f362860a9082f35a93a2094d5c)
