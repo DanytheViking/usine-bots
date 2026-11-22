@@ -105,5 +105,5 @@ if __name__ == "__main__":
         try: f(); ok += 1; print("ok", n)
         except Exception as e:
             import traceback; traceback.print_exc(); print("ECHEC", n, repr(e))
-    print(f"{ok}/{len(tests)}")
+    print(f"{ok}/{len(tests)} tests ok")
     sys.exit(0 if ok == len(tests) else 1)

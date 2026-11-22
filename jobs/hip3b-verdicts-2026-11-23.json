@@ -1,0 +1,1 @@
+{"id": "hip3b-verdicts-2026-11-23", "type": "usine", "module": "usine.verif_m2_hip3", "args": ["--spec", "specs/USINE-SPEC-HIP3.json", "--data", "/d/hip3", "--out", "/out", "--attendre", "14400"], "reseau": false}

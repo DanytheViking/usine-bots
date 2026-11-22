@@ -71,7 +71,8 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
 - Nouvelle verticale HIP-3 (demande ecrite de Richard du 22/11/2026, 20 h 17 et 20 h 19 UTC : « Il y a t'il pas d'autre vertical a exploiter »,
   « trouve moi la meilleure solution ») : M2 inchange sur les 8 marches macro HIP-3 les plus liquides (or, indices, actions, hors crypto),
   frais de base HIP-3 = 2 x bareme validateur. Pre-enregistrement usine/docs/PREREG-hip3-m2.md, spec USINE-SPEC-HIP3, jeu neuf hip3
-  (travaux hip3-collecte-2026-11-22 et hip3-verdicts-2026-11-22). Recherche seulement : rien en reel sans accord ecrit de Richard sur le capital et les limites.
+  (travaux hip3-collecte-2026-11-22 et hip3-verdicts-2026-11-22, relances en hip3b-collecte-2026-11-23 et hip3b-verdicts-2026-11-23 :
+  la premiere copie de l'usine avait ete refusee pour une ligne de fin de test mal formee, les travaux avaient tourne sur l'ancien code). Recherche seulement : rien en reel sans accord ecrit de Richard sur le capital et les limites.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
