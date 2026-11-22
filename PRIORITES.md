@@ -57,6 +57,10 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   retouche. Rien en reel ; publie a Richard. Lecon : plus de frequence sur ces actifs = plus de pertes (confirme v1 P1 et les essais du 26/10).
 - Etape 2 du Lab confirmee par Richard le 16/11/2026, 17 h 02 UTC, dans le fil du projet, mot pour mot :
   « Je confirme l'étape 2 du Lab : RISK_PER_TRADE 0.10, LINE_STOP 0.80, MAX_RISK_MIN_ORDER 0.20 pour smartpeanut2 ». Commit dedie, attend Aristote.
+- Lab v5 (demande ecrite de Richard du 22/11/2026, 20 h 13 UTC : « passons sur strategie reel plus agressive » ; choix du 22/11, 20 h 16 :
+  « Entree en tendance, 2 % », reel si le test n'est pas negatif, 74,41 USDC, arret a -80 %, apres audit) : constat, 2.6.0 sans trade depuis le 18/11
+  (13 actifs en tendance baissiere, aucun croisement). Pre-enregistrement usine/docs/PREREG-lab5-tendance.md, spec USINE-SPEC-LAB5, jeu neuf m2t
+  (travaux lab5-collecte-2026-11-22 et lab5-verdicts-2026-11-22).
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 

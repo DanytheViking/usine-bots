@@ -1,0 +1,15 @@
+{
+ "id": "USINE-SPEC-LAB5",
+ "gel_utc": "2026-11-22T20:45Z",
+ "annonce": "Lab v5 : entree en tendance M2 1 h (Smart Peanut), 13 actifs de Moonshot, filtre 2 M$. Parametres de M2 inchanges.",
+ "prereg_sha256": "73ce036a26f08e14032464a5a984b0845b26ae5ff4cef10d29c99995efe4c439",
+ "candidats": ["M2T_1h_tendance", "M2_1h_croisement"],
+ "decisif": "M2T_1h_tendance",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "paliers_publies": [0.02, 0.05, 0.10],
+ "volume_min_usd": 2000000,
+ "voie_rapide": {"trades_min": 40, "esperance_min_R": 0.10},
+ "bootstrap": {"tirages": 2000, "graine": 20261122, "bloc": "jour UTC du signal"}
+}

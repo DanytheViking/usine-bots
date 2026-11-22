@@ -1,0 +1,1 @@
+{"id": "lab5-verdicts-2026-11-22", "type": "usine", "module": "usine.verif_m2_tendance", "args": ["--spec", "specs/USINE-SPEC-LAB5.json", "--data", "/d/m2t", "--out", "/out", "--attendre", "14400"], "reseau": false}
