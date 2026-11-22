@@ -43,6 +43,10 @@ def on_close(s, c, b):
     J.record("cloture", c["issue"], f"{c['coin']} {c['side']} : {c['issue']}, P&L {c['pnl']:+.4f} USDC ({c.get('R')} R)", **c)
     N.send(f"{'✅' if c['pnl'] > 0 else '❌'} {c['coin']} {c['side']} ferme : {c['issue']}\nP&L {c['pnl']:+.2f} USDC ({c.get('R')} R)")
 
+def place_libre(s):
+    """Plafond de positions ouvertes (deux au Lab), verifie avant toute entree, croisement ou tendance."""
+    return len(s["positions"]) < C.MAX_POSITIONS
+
 def _ev_trace(ev):
     return {k: ev.get(k) for k in ("ema_rapide", "ema_lente", "atr", "ref", "cross", "trend")}
 
@@ -121,7 +125,7 @@ def on_bar(m, s, b, now_ms, equity, reason, fable_post=None):
         s["last_bar"][coin] = ev["bar_ts"]
         if not ev["cross"]:
             tentee = s.setdefault("tendance_tentee", {})
-            if C.ENTREE_TENDANCE and coin not in s["positions"] and not reason and tentee.get(coin) != ev["trend"]:
+            if C.ENTREE_TENDANCE and coin not in s["positions"] and not reason and tentee.get(coin) != ev["trend"] and place_libre(s):
                 tentee[coin] = ev["trend"]                                        # une tentative par tendance, renouvelee apres une sortie
                 J.record("signal", f"tendance {ev['trend']}", f"{coin} : entree dans la tendance {ev['trend']} a la cloture {utc(ev['bar_ts'] + C.TF_MS)}",
                          coin=coin, **{k: v for k, v in ev.items() if k != 'raison'})
@@ -142,6 +146,9 @@ def on_bar(m, s, b, now_ms, equity, reason, fable_post=None):
         if reason:
             J.record("signal", "bloque", f"{coin} {ev['cross']} : {reason}"); N.send(f"⏸ Signal {coin} {ev['cross']} non joue : {reason}")
             J.trace("BLOCKED", coin, ev["bar_ts"], raison=reason, vol_usd=vol, **_ev_trace(ev)); continue
+        if not place_libre(s):
+            J.record("signal", "plafond", f"{coin} {ev['cross']} : {len(s['positions'])} positions ouvertes, plafond {C.MAX_POSITIONS}")
+            J.trace("POSITION_LIMIT", coin, ev["bar_ts"], positions=len(s["positions"]), plafond=C.MAX_POSITIONS, vol_usd=vol, **_ev_trace(ev)); continue
         enter(m, s, b, coin, ev["cross"], ev, df, b.equity() or equity, day, fable_post)
     return pending
 

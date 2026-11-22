@@ -25,7 +25,7 @@ def record(stage: str, decision: str, reason: str, **data) -> dict:
 
 PARCOURS = os.path.join(C.DATA_DIR, "parcours.jsonl")
 CODES = ("NO_SIGNAL", "STALE_DATA", "VOLUME_FILTER", "META_ABSENT", "SHORT_HISTORY", "STALE_SIGNAL", "IN_POSITION", "EXIT", "BLOCKED",
-         "AI_VETO", "MIN_ORDER", "RISK_LIMIT", "LIQ_GUARD", "MARGIN", "INVALID", "ORDER_REJECTED", "NOT_FILLED", "EXECUTED")
+         "AI_VETO", "MIN_ORDER", "RISK_LIMIT", "LIQ_GUARD", "MARGIN", "INVALID", "ORDER_REJECTED", "NOT_FILLED", "EXECUTED", "POSITION_LIMIT")
 
 def trace(code: str, coin: str, bar_ts, **data) -> dict:
     """Parcours des signaux : une ligne par actif suivi et par cloture, avec un code stable et les valeurs utilisees

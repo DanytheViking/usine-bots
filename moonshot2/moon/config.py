@@ -23,6 +23,8 @@ EMA_FAST, EMA_SLOW, ATR_N, STOP_ATR = 50, 200, 14, 3.0
 TF = "1h" if NAME == "smartpeanut2" else "4h"                 # Lab : M2 en 1 h (USINE-SPEC-M2H1, exception ecrite de Richard) ; Moonshot reste en 4 h
 TF_MS = (1 if TF == "1h" else 4) * 3_600_000
 ENTREE_TENDANCE = NAME == "smartpeanut2"                     # Lab v5 (choix ecrit de Richard du 22/11) : sans position, entree dans la tendance EMA 50 / 200 en cours
+MAX_POSITIONS = 2 if NAME == "smartpeanut2" else len(COINS)   # Lab : deux positions au plus (cadre montre a Richard le 22/11) ; priorite :
+                                                             # a chaque cloture, actifs lus dans l'ordre de COINS, la premiere entree prend la place
 BARS_JOUR = 86_400_000 // TF_MS
 BARS = min(max(_i("BARS", "1000"), 600), 1000)                                                    # historique lu a chaque cloture (EMA 200 stable : poids initial < 0,01 %)
 SIGNAL_DELAY_S = max(_i("SIGNAL_DELAY_S", "20"), 20)                                            # attente apres la cloture avant de lire la bougie

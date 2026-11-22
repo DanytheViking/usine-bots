@@ -400,6 +400,40 @@ def test_tendance_un_seul_avis_de_thales_par_tendance():
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 
+def plafond_lab(m, s, b, info, coins):
+    C.ENTREE_TENDANCE = True; C.MAX_POSITIONS = 2; C.COINS = coins
+    for c in coins: info.closes[c] = np.linspace(200, 100, 1000)                # toutes en tendance short, aucun croisement
+
+def test_plafond_deux_positions_puis_place_liberee():
+    m, s, b, info, ex, now = setup("reel"); coins = tuple(C.COINS_DEFAUT)
+    info.coins = coins; plafond_lab(m, s, b, info, coins)
+    BOT.step(m, s, b, now)
+    assert len(ex.sent) == 2 and list(s["positions"]) == list(coins[:2])                 # priorite : ordre de COINS
+    assert all(c not in s["tendance_tentee"] for c in coins[2:])                         # refus du plafond : tendance non marquee
+    info.end_ms = NOW0 + TF; BOT.step(m, s, b, now + dt.timedelta(hours=4))
+    assert len(ex.sent) == 2
+    c0 = coins[0]; info.pos.pop(c0); info.orders_.pop(c0, None)
+    info.fills.append({"coin": c0, "time": 10**15 + 5, "px": "110", "closedPnl": "-1", "fee": "0.01", "dir": "Close Short"})
+    BOT.step(m, s, b, now + dt.timedelta(hours=4, minutes=1))
+    info.end_ms = NOW0 + 2 * TF; BOT.step(m, s, b, now + dt.timedelta(hours=8))
+    assert len(ex.sent) == 3 and len(s["positions"]) == 2 and c0 in s["positions"]       # une place liberee : une seule nouvelle entree
+
+def test_plafond_aussi_sur_les_croisements():
+    m, s, b, info, ex, now = setup("reel"); C.MAX_POSITIONS = 0
+    BOT.step(m, s, b, now)
+    assert s["positions"] == {} and not ex.sent
+    assert {r["coin"]: r["code"] for r in parcours()}["ETH"] == "POSITION_LIMIT"
+
+def test_moonshot_sans_plafond_de_deux():
+    fresh("observation"); assert C.NAME == "moonshot2" and C.MAX_POSITIONS == len(C.COINS)
+    old = os.environ.get("BOT_NAME")
+    try:
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.MAX_POSITIONS == 2
+    finally:
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C)
+
 def test_tendance_bloquee_par_le_gardien():
     m, s, b, info, ex, now = setup("observation"); tendance(m, s, b, info)
     open(C.KILL_SWITCH, "w").write("test"); BOT.step(m, s, b, now)
