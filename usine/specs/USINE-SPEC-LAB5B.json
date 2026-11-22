@@ -1,0 +1,30 @@
+{
+ "id": "USINE-SPEC-LAB5B",
+ "gel_utc": "2026-11-22T21:35Z",
+ "annonce": "Lab v5, addendum : meme test avec au plus deux positions ouvertes (cadre montre a Richard le 22/11).",
+ "prereg_sha256": "5f66b605f5aa41d12d93d923977f6daaec70329fa7dd58f3ce535b17517328f5",
+ "candidats": [
+  "M2T_1h_tendance",
+  "M2_1h_croisement"
+ ],
+ "decisif": "M2T_1h_tendance",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "paliers_publies": [
+  0.02,
+  0.05,
+  0.1
+ ],
+ "volume_min_usd": 2000000,
+ "voie_rapide": {
+  "trades_min": 40,
+  "esperance_min_R": 0.1
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261122,
+  "bloc": "jour UTC du signal"
+ },
+ "max_positions": 2
+}

@@ -65,6 +65,9 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   PF 1,68 ; reserves : entrainement -0,19 R, IC [-0,15 ; +1,09], +0,02 R sans les 3 meilleurs trades, pire serie 23 pertes, baisse max 42 R
   (environ -57 % a 2 %), croissance composee negative a 10 %. Smart Peanut 2.7.0 (entree en tendance, 2 %) poussee, attend Aristote.
   Abandon fixe a l'avance : -6 R cumules ou esperance negative apres 30 trades reels.
+  22/11 : 564f0a3 refuse par Aristote (204c513) : plafond de deux positions annonce a Richard mais absent du code et du test. Correction :
+  MAX_POSITIONS = 2 pour smartpeanut2 (croisement et tendance, ordre de COINS), addendum PREREG-lab5b-plafond, spec USINE-SPEC-LAB5B,
+  travail lab5b-verdicts-2026-11-22 sur le meme jeu m2t ; le verdict avec plafond decide de la mise en reel.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 

@@ -66,9 +66,25 @@ def test_spec_figee():
     assert s["prereg_sha256"] == hashlib.sha256(open(os.path.join(ROOT, "docs", "PREREG-lab5-tendance.md"), "rb").read()).hexdigest()
     assert s["palier"] == 0.02 and s["voie_rapide"] == {"trades_min": 40, "esperance_min_R": 0.10} and s["volume_min_usd"] == 2000000
 
+SPEC_B = os.path.join(ROOT, "specs", "USINE-SPEC-LAB5B.json")
+
+def test_addendum_plafond_deux_positions():
+    s = json.load(open(SPEC_B))
+    assert s["prereg_sha256"] == hashlib.sha256(open(os.path.join(ROOT, "docs", "PREREG-lab5b-plafond.md"), "rb").read()).hexdigest()
+    assert s["max_positions"] == 2 and {k: v for k, v in s.items() if k not in ("id", "gel_utc", "prereg_sha256", "max_positions", "annonce")} == \
+        {k: v for k, v in json.load(open(SPEC)).items() if k not in ("id", "gel_utc", "prereg_sha256", "annonce")}
+    d = tempfile.mkdtemp(); collect(d); out = tempfile.mkdtemp()
+    with contextlib.redirect_stdout(io.StringIO()): rep = VT.run(SPEC_B, d, out)
+    with contextlib.redirect_stdout(io.StringIO()): libre = VT.run(SPEC, d, tempfile.mkdtemp())
+    for n in VT.CANDIDATS:
+        assert rep["candidats"][n]["evaluation_frais_doubles"]["trades"] <= libre["candidats"][n]["evaluation_frais_doubles"]["trades"]
+    bad = dict(s, max_positions=3); p = os.path.join(tempfile.mkdtemp(), "s.json"); json.dump(bad, open(p, "w"))
+    try: VT.load_spec(p); assert False
+    except Exception as e: assert "deux positions" in str(e)
+
 def test_source_propre():
     src = open(os.path.join(ROOT, "usine", "verif_m2_tendance.py"), encoding="utf-8").read()
-    assert "\u2014" not in src and "import requests" not in src
+    assert "\u2014" not in src and "\u2013" not in src and "import requests" not in src
 
 if __name__ == "__main__":
     only = sys.argv[1:]; tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and (not only or n in only)]

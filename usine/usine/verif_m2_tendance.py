@@ -25,6 +25,7 @@ def load_spec(path):
     if int(vr.get("trades_min", 0)) < 40 or float(vr.get("esperance_min_R", 0)) < 0.10: raise V.SpecError("voie rapide du Lab : 40 trades et +0,10 R")
     if float(spec["palier"]) > 0.20: raise V.SpecError("borne du Lab : 20 % par trade")
     if float(spec["volume_min_usd"]) != VOLUME_MIN: raise V.SpecError("filtre de volume du bot reel : 2 M$")
+    if "max_positions" in spec and not 1 <= int(spec["max_positions"]) <= 2: raise V.SpecError("plafond du Lab : deux positions au plus")
     return spec, RP.sha_file(path)
 
 def _m2(coin, df, fund, strat, tendance):
@@ -48,7 +49,7 @@ def m2_tendance(coin, df, fund): return _m2(coin, df, fund, "M2T_1h_tendance", T
 def m2_croisement(coin, df, fund): return _m2(coin, df, fund, "M2_1h_croisement", False)
 
 def evaluate(name, trades, t0, t1, spec):
-    row = VL.evaluate(name, trades, t0, t1, {**spec, "max_positions": 10 ** 6})
+    row = VL.evaluate(name, trades, t0, t1, {**spec, "max_positions": int(spec.get("max_positions", 10 ** 6))})
     vr = spec["voie_rapide"]; e = row["evaluation_frais_doubles"]; g = row["croissance_palier"]
     manque = []
     if e["trades"] < int(vr["trades_min"]): manque.append(f"moins de {vr['trades_min']} trades ({e['trades']})")
@@ -74,7 +75,7 @@ def markdown(rep):
         e, t, s3, ic, g = r["evaluation_frais_doubles"], r["entrainement_frais_doubles"], r["evaluation_frais_stress"], r["ic_evaluation_frais_doubles"] or {}, r["croissance_ln"]
         out.append(f"| {n} | {e['trades']} | {r['trades_par_jour']} | {RP.fmt(e['esperance_R'])} | {RP.fmt(e['profit_factor'])} | "
                    f"[{RP.fmt(ic.get('p05'))} ; {RP.fmt(ic.get('p95'))}] | {RP.fmt(t['esperance_R'])} | {RP.fmt(r['esperance_sans_3_meilleurs_R'])} | "
-                   f"{RP.fmt(s3['esperance_R'])} | {e.get('pire_serie_pertes', '–')} | {RP.fmt(e.get('drawdown_max_R'))} | {RP.fmt(g.get('2 %'))} | {RP.fmt(g.get('10 %'))} | {r['verdict']} |")
+                   f"{RP.fmt(s3['esperance_R'])} | {e.get('pire_serie_pertes', 'n/d')} | {RP.fmt(e.get('drawdown_max_R'))} | {RP.fmt(g.get('2 %'))} | {RP.fmt(g.get('10 %'))} | {r['verdict']} |")
     out += ["", f"Actifs du jeu : {', '.join(rep['notes']['coins'])}", ""]
     return "\n".join(out)
 
