@@ -61,6 +61,10 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   « Entree en tendance, 2 % », reel si le test n'est pas negatif, 74,41 USDC, arret a -80 %, apres audit) : constat, 2.6.0 sans trade depuis le 18/11
   (13 actifs en tendance baissiere, aucun croisement). Pre-enregistrement usine/docs/PREREG-lab5-tendance.md, spec USINE-SPEC-LAB5, jeu neuf m2t
   (travaux lab5-collecte-2026-11-22 et lab5-verdicts-2026-11-22).
+  22/11 21 h 10 UTC, verdict (manifeste cf9a346e509a) : PASSE LA VOIE RAPIDE. Evaluation, frais doubles : 283 trades, 2,7 par jour, +0,42 R,
+  PF 1,68 ; reserves : entrainement -0,19 R, IC [-0,15 ; +1,09], +0,02 R sans les 3 meilleurs trades, pire serie 23 pertes, baisse max 42 R
+  (environ -57 % a 2 %), croissance composee negative a 10 %. Smart Peanut 2.7.0 (entree en tendance, 2 %) poussee, attend Aristote.
+  Abandon fixe a l'avance : -6 R cumules ou esperance negative apres 30 trades reels.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
