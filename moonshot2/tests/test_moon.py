@@ -355,6 +355,56 @@ def test_stop_ligne_pose_le_kill():
     BOT.step(m, s, b, now)
     assert os.path.exists(C.KILL_SWITCH) and s["dead"] and s["positions"] == {}
 
+# ================================================================ Lab v5 : entree en tendance (choix ecrit de Richard du 22/11/2026)
+def tendance(m, s, b, info):
+    C.ENTREE_TENDANCE = True; C.COINS = ("ETH", "BTC")
+    info.closes["BTC"] = np.linspace(200, 100, 1000)                         # baisse continue : tendance short, aucun croisement
+
+def test_tendance_reservee_au_lab():
+    fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
+    old = os.environ.get("BOT_NAME")
+    try:
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.0"
+    finally:
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C)
+
+def test_tendance_entre_sans_croisement_puis_reentre_apres_stop():
+    m, s, b, info, ex, now = setup("reel"); tendance(m, s, b, info)
+    BOT.step(m, s, b, now)
+    assert s["positions"]["BTC"]["side"] == "short" and s["positions"]["ETH"]["side"] == "long" and len(ex.sent) == 2
+    assert s["positions"]["BTC"]["stop"] > s["positions"]["BTC"]["entry"]                   # stop au-dessus pour un short
+    rows = [json.loads(l) for l in open(J.PATH)]
+    assert any(r["stage"] == "signal" and r["decision"] == "tendance short" for r in rows)
+    info.end_ms = NOW0 + TF; BOT.step(m, s, b, now + dt.timedelta(hours=4))
+    assert len(ex.sent) == 2                                                                 # deja en position : rien de plus
+    info.pos.pop("BTC"); info.orders_.pop("BTC", None)
+    info.fills.append({"coin": "BTC", "time": 10**15 + 5, "px": "110", "closedPnl": "-1", "fee": "0.01", "dir": "Close Short"})
+    BOT.step(m, s, b, now + dt.timedelta(hours=4, minutes=1))
+    assert "BTC" not in s["positions"] and "BTC" not in s["tendance_tentee"]
+    info.end_ms = NOW0 + 2 * TF; BOT.step(m, s, b, now + dt.timedelta(hours=8))
+    assert s["positions"]["BTC"]["side"] == "short" and len(ex.sent) == 3                    # tendance rejointe a la cloture suivante
+
+def test_tendance_un_seul_avis_de_thales_par_tendance():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    try:
+        m, s, b, info, ex, now = setup("reel"); tendance(m, s, b, info); appels = []
+        def post(url, **k):
+            appels.append(k["json"]["messages"][0]["content"]); return Resp(200, '{"avis": "eviter", "confiance": 70, "raison": "rebond"}')
+        BOT.step(m, s, b, now, fable_post=post)
+        assert "BTC" not in s["positions"] and sum("BTC" in a for a in appels) == 1
+        assert any("sans croisement" in a for a in appels if "BTC" in a)
+        info.end_ms = NOW0 + TF; BOT.step(m, s, b, now + dt.timedelta(hours=4), fable_post=post)
+        assert sum("BTC" in a for a in appels) == 1 and not ex.sent                           # meme tendance : pas de nouvel appel
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
+
+def test_tendance_bloquee_par_le_gardien():
+    m, s, b, info, ex, now = setup("observation"); tendance(m, s, b, info)
+    open(C.KILL_SWITCH, "w").write("test"); BOT.step(m, s, b, now)
+    assert s["positions"] == {} and not s.get("tendance_tentee")
+
 # ================================================================ Fable
 def test_fable_sans_cle_et_sans_influence():
     m, s, b, info, ex, now = setup("reel")

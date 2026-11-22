@@ -38,7 +38,7 @@ def build(info=None, exchange=None):
     return m, s, LiveBroker(m, s, exchange)
 
 def on_close(s, c, b):
-    c["ts"] = utc(); s["closed"].append(c)
+    c["ts"] = utc(); s["closed"].append(c); s.setdefault("tendance_tentee", {}).pop(c.get("coin"), None)   # apres une sortie, la tendance peut etre rejointe
     if b.mode == "reel" and c.get("R") is not None: s["r_ledger"].append(c["R"])
     J.record("cloture", c["issue"], f"{c['coin']} {c['side']} : {c['issue']}, P&L {c['pnl']:+.4f} USDC ({c.get('R')} R)", **c)
     N.send(f"{'✅' if c['pnl'] > 0 else '❌'} {c['coin']} {c['side']} ferme : {c['issue']}\nP&L {c['pnl']:+.2f} USDC ({c.get('R')} R)")
@@ -120,6 +120,12 @@ def on_bar(m, s, b, now_ms, equity, reason, fable_post=None):
         if s["last_bar"].get(coin) == ev["bar_ts"]: continue
         s["last_bar"][coin] = ev["bar_ts"]
         if not ev["cross"]:
+            tentee = s.setdefault("tendance_tentee", {})
+            if C.ENTREE_TENDANCE and coin not in s["positions"] and not reason and tentee.get(coin) != ev["trend"]:
+                tentee[coin] = ev["trend"]                                        # une tentative par tendance, renouvelee apres une sortie
+                J.record("signal", f"tendance {ev['trend']}", f"{coin} : entree dans la tendance {ev['trend']} a la cloture {utc(ev['bar_ts'] + C.TF_MS)}",
+                         coin=coin, **{k: v for k, v in ev.items() if k != 'raison'})
+                enter(m, s, b, coin, ev["trend"], {**ev, "nature": "tendance"}, df, b.equity() or equity, day, fable_post); continue
             J.trace("NO_SIGNAL", coin, ev["bar_ts"], vol_usd=vol, en_position=coin in s["positions"], **_ev_trace(ev)); continue
         if now_ms - (ev["bar_ts"] + C.TF_MS) > C.MAX_SIGNAL_AGE_S * 1000:
             J.record("signal", "trop ancien", f"{coin} : croisement {ev['cross']} de la cloture {utc(ev['bar_ts'] + C.TF_MS)}, non joue (redemarrage)")

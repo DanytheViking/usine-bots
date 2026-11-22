@@ -12,8 +12,9 @@ SYSTEM = ("Tu es l'analyste d'anticipation d'une equipe de trading crypto. On te
 
 def context_text(coin, side, ev, ctx, df):
     c = df.close.values
+    nature = "entree dans la tendance EMA 50/200 en cours, sans croisement" if ev.get("nature") == "tendance" else "croisement EMA 50/200"
     ret = lambda n: f"{(c[-1] / c[-1 - n] - 1) * 100:+.1f} %" if len(c) > n else "n/d"
-    return (f"Actif : {coin}. Signal : {side} (croisement EMA 50/200 en {C.TF}, bougie cloturee).\n"
+    return (f"Actif : {coin}. Signal : {side} ({nature} en {C.TF}, bougie cloturee).\n"
             f"Prix : {ev['ref']:.6g}. EMA 50 : {ev['ema_rapide']:.6g}. EMA 200 : {ev['ema_lente']:.6g}. ATR {C.TF} : {ev['atr']:.6g} "
             f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(C.BARS_JOUR)}, 7 jours {ret(7 * C.BARS_JOUR)}, 30 jours {ret(30 * C.BARS_JOUR)}.\n"
             f"Funding horaire : {ctx.get('funding_h', 0) * 100:.4f} %.")
