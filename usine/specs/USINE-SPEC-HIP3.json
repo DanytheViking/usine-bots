@@ -1,0 +1,14 @@
+{
+ "id": "USINE-SPEC-HIP3",
+ "gel_utc": "2026-11-22T21:00Z",
+ "annonce": "M2 sur les marches macro HIP-3 de Hyperliquid (8 plus liquides, hors crypto). Parametres de M2 inchanges ; frais de base HIP-3 = 2 x bareme validateur.",
+ "prereg_sha256": "0fb9ce7eb79fda38d92470c8d676180ff2ad5adfbc83dce53f0ddfaf2635c707",
+ "candidats": ["M2_1h_hip3", "M2_4h_reconstruit"],
+ "decisif": "M2_1h_hip3",
+ "facteur_frais_hip3": 2,
+ "fraction_evaluation": 0.5,
+ "scenarios_frais": [1, 2],
+ "stress_frais": 3,
+ "criteres": {"trades_min": 30, "pf_min": 1.35, "jours_min_ic": 7},
+ "bootstrap": {"tirages": 2000, "graine": 20261122, "bloc": "jour UTC du signal"}
+}

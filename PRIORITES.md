@@ -68,6 +68,10 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   22/11 : 564f0a3 refuse par Aristote (204c513) : plafond de deux positions annonce a Richard mais absent du code et du test. Correction :
   MAX_POSITIONS = 2 pour smartpeanut2 (croisement et tendance, ordre de COINS), addendum PREREG-lab5b-plafond, spec USINE-SPEC-LAB5B,
   travail lab5b-verdicts-2026-11-22 sur le meme jeu m2t ; le verdict avec plafond decide de la mise en reel.
+- Nouvelle verticale HIP-3 (demande ecrite de Richard du 22/11/2026, 20 h 17 et 20 h 19 UTC : « Il y a t'il pas d'autre vertical a exploiter »,
+  « trouve moi la meilleure solution ») : M2 inchange sur les 8 marches macro HIP-3 les plus liquides (or, indices, actions, hors crypto),
+  frais de base HIP-3 = 2 x bareme validateur. Pre-enregistrement usine/docs/PREREG-hip3-m2.md, spec USINE-SPEC-HIP3, jeu neuf hip3
+  (travaux hip3-collecte-2026-11-22 et hip3-verdicts-2026-11-22). Recherche seulement : rien en reel sans accord ecrit de Richard sur le capital et les limites.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 

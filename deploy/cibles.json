@@ -174,7 +174,8 @@
    "tests/test_controle.py",
    "tests/test_lab4.py",
    "tests/test_m2h1.py",
-   "tests/test_lab5.py"
+   "tests/test_lab5.py",
+   "tests/test_hip3.py"
   ],
   "test_volumes": [
    "{stage}:/app:ro",
