@@ -1,4 +1,4 @@
-"""Thales, le decideur : un avis sur chaque signal M2, donne par le modele Fable (secours si Fable ne repond pas). Avec FABLE_DECIDE (par defaut, decision de Richard du 12/11/2026),
+"""Thales, le decideur : un avis sur chaque signal M2, donne par le modele principal (Opus 5.5 ; secours Sonnet 5.5 si le principal ne repond pas). Avec FABLE_DECIDE (par defaut, decision de Richard du 12/11/2026),
 un avis « eviter » annule l'entree ; les signaux ecartes sont journalises pour mesurer l'apport de Thales.
 Sans cle API, ou en cas d'erreur, le bot applique la regle M2 : l'avis est simplement absent."""
 import json, re
@@ -19,7 +19,7 @@ def context_text(coin, side, ev, ctx, df):
             f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(C.BARS_JOUR)}, 7 jours {ret(7 * C.BARS_JOUR)}, 30 jours {ret(30 * C.BARS_JOUR)}.\n"
             f"Funding horaire : {ctx.get('funding_h', 0) * 100:.4f} %.")
 
-# Fable 5.2 reflechit toujours avant de repondre : 1000 jetons pouvaient partir dans la reflexion et laisser une reponse vide
+# Les modeles actuels reflechissent toujours avant de repondre : 1000 jetons pouvaient partir dans la reflexion et laisser une reponse vide
 # (ETH short du 22/11, 23 h 02, « reponse illisible », apercu vide). La reponse attendue reste une ligne de JSON.
 MAX_TOKENS = 8000
 
@@ -54,9 +54,9 @@ def opinion(prompt: str, state: dict, day: str, post=None):
     if post is None:
         import requests
         post = requests.post
-    modeles = [C.FABLE_MODEL] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.FABLE_MODEL else [])
+    modeles = [C.THALES_MODELE] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.THALES_MODELE else [])
     echecs, illisible = [], None
-    for modele in modeles:                       # Fable d'abord ; le secours si Fable ne repond pas ou repond sans avis lisible
+    for modele in modeles:                       # le principal d'abord ; le secours s'il ne repond pas ou repond sans avis lisible
         try:
             r = post(URL, timeout=90, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
                      json={"model": modele, "max_tokens": MAX_TOKENS, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})

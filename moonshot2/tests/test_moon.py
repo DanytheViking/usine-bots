@@ -364,7 +364,7 @@ def test_tendance_reservee_au_lab():
     fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
     old = os.environ.get("BOT_NAME")
     try:
-        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.1"
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.2"
     finally:
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
@@ -459,7 +459,7 @@ def test_fable_avis_enregistre_meme_si_eviter():
         def post(url, **k): calls.append(k); return Resp(200, 'Voici : {"avis": "eviter", "confiance": 80, "raison": "faux depart probable"}')
         BOT.step(m, s, b, now, fable_post=post)
         assert "ETH" in s["positions"]                               # l'avis « eviter » ne bloque pas l'ordre
-        assert calls[0]["json"]["model"] == C.FABLE_MODEL and calls[0]["headers"]["x-api-key"] == "sk-test-cle"
+        assert calls[0]["json"]["model"] == C.THALES_MODELE and calls[0]["headers"]["x-api-key"] == "sk-test-cle"
         rows = [json.loads(l) for l in open(os.path.join(C.DATA_DIR, "journal.jsonl"))]
         assert any(r["stage"] == "fable" and r["decision"] == "eviter" for r in rows)
         assert not any("sk-test-cle" in json.dumps(r) for r in rows)
@@ -467,26 +467,27 @@ def test_fable_avis_enregistre_meme_si_eviter():
         os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
 
 def test_thales_fable_d_abord_puis_secours():
-    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; importlib.reload(C)
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; os.environ["FABLE_MODEL"] = "claude-fable-5-2"; importlib.reload(C)
     try:
+        assert C.THALES_MODELE == "claude-opus-5-5" and C.THALES_SECOURS == "claude-sonnet-5-5"   # l'ancienne variable du .env n'est plus lue
         vus = []
         def ok(url, **k): vus.append(k["json"]["model"]); return Resp(200, '{"avis": "prendre", "confiance": 70, "raison": "tendance"}')
         op = F.opinion("p", {"fable_calls": {}}, "d", post=ok)
-        assert vus == [C.FABLE_MODEL] and op["modele"] == C.FABLE_MODEL and op["avis"] == "prendre"   # Fable de preference
+        assert vus == [C.THALES_MODELE] and op["modele"] == C.THALES_MODELE and op["avis"] == "prendre"   # le principal de preference
         vus.clear()
         def surcharge(url, **k):
             vus.append(k["json"]["model"])
-            return Resp(529, "") if k["json"]["model"] == C.FABLE_MODEL else Resp(200, '{"avis": "eviter", "confiance": 60, "raison": "x"}')
+            return Resp(529, "") if k["json"]["model"] == C.THALES_MODELE else Resp(200, '{"avis": "eviter", "confiance": 60, "raison": "x"}')
         s = {"fable_calls": {}}
         op = F.opinion("p", s, "d", post=surcharge)
-        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and op["modele"] == C.THALES_SECOURS and op["avis"] == "eviter"
+        assert vus == [C.THALES_MODELE, C.THALES_SECOURS] and op["modele"] == C.THALES_SECOURS and op["avis"] == "eviter"
         assert s["fable_calls"]["d"] == 1                                   # un seul appel compte par signal
         def panne(url, **k): return Resp(503, "")
         assert F.opinion("p", {"fable_calls": {}}, "d", post=panne)["absent"] == "API 503 puis API 503"
         os.environ["THALES_SECOURS"] = ""; importlib.reload(C); vus.clear()
-        assert "absent" in F.opinion("p", {"fable_calls": {}}, "d", post=surcharge) and vus == [C.FABLE_MODEL]   # sans secours
+        assert "absent" in F.opinion("p", {"fable_calls": {}}, "d", post=surcharge) and vus == [C.THALES_MODELE]   # sans secours
     finally:
-        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("THALES_SECOURS", None); importlib.reload(C)
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("THALES_SECOURS", None); os.environ.pop("FABLE_MODEL", None); importlib.reload(C)
 
 def test_fable_reponses_tolerees():
     from moon import fable as F
@@ -499,10 +500,10 @@ def test_fable_reponses_tolerees():
     old_sec = F.C.THALES_SECOURS; F.C.THALES_SECOURS = ""
     try: r = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: Resp(200, "pas de json ici"))
     finally: F.C.ANTHROPIC_API_KEY = old; F.C.THALES_SECOURS = old_sec
-    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.FABLE_MODEL, "fin": ""} and len(F.apercu("x " * 500)) == 160
+    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.THALES_MODELE, "fin": ""} and len(F.apercu("x " * 500)) == 160
 
 class RespVide:
-    """Reponse 200 de Fable 5.2 sans texte : la reflexion a pris tous les jetons."""
+    """Reponse 200 sans texte : la reflexion a pris tous les jetons."""
     status_code = 200
     def json(self): return {"content": [{"type": "thinking", "thinking": ""}], "stop_reason": "max_tokens"}
 
@@ -513,17 +514,17 @@ def test_thales_reponse_vide_passe_au_secours():
         def vide_puis_ok(url, **k):
             vus.append(k["json"]["model"])
             assert k["json"]["max_tokens"] >= 4000                       # assez de place pour la reflexion et la reponse
-            return RespVide() if k["json"]["model"] == C.FABLE_MODEL else Resp(200, '{"avis": "eviter", "confiance": 55, "raison": "x"}')
+            return RespVide() if k["json"]["model"] == C.THALES_MODELE else Resp(200, '{"avis": "eviter", "confiance": 55, "raison": "x"}')
         s = {"fable_calls": {}}
         op = F.opinion("p", s, "d", post=vide_puis_ok)
-        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and op == {"avis": "eviter", "confiance": 55, "raison": "x", "modele": C.THALES_SECOURS}
+        assert vus == [C.THALES_MODELE, C.THALES_SECOURS] and op == {"avis": "eviter", "confiance": 55, "raison": "x", "modele": C.THALES_SECOURS}
         assert s["fable_calls"]["d"] == 1
         op = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: RespVide())   # les deux vides : avis absent, cause lisible
         assert op["absent"] == "reponse illisible" and op["fin"] == "max_tokens" and op["modele"] == C.THALES_SECOURS
         assert op["detail"] == "illisible (max_tokens) puis illisible (max_tokens)"
-        def illisible_puis_panne(url, **k): return RespVide() if k["json"]["model"] == C.FABLE_MODEL else Resp(503, "")
+        def illisible_puis_panne(url, **k): return RespVide() if k["json"]["model"] == C.THALES_MODELE else Resp(503, "")
         op = F.opinion("p", {"fable_calls": {}}, "d", post=illisible_puis_panne)
-        assert op["absent"] == "reponse illisible" and op["modele"] == C.FABLE_MODEL and op["detail"] == "illisible (max_tokens) puis API 503"
+        assert op["absent"] == "reponse illisible" and op["modele"] == C.THALES_MODELE and op["detail"] == "illisible (max_tokens) puis API 503"
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 

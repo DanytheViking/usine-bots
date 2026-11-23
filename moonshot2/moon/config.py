@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.7.1"
+VERSION = "2.7.2"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -49,10 +49,12 @@ FLOOR_USDC = max(_f("FLOOR_USDC", "10"), 5)
 
 FEE_TAKER = 0.00045
 
-# ---- Thales, le decideur : il utilise le modele Fable de preference, le modele de secours seulement si Fable ne repond pas
+# ---- Thales (et Democrite) : un modele principal, le secours seulement si le principal ne repond pas ou repond sans avis lisible.
+# Depuis le 23/11/2026, Opus 5.5 en principal et Sonnet 5.5 en secours (Richard, 22/11 : « remettre sur Opus, switcher » quand Fable n'est pas
+# disponible ; plus de forfait Fable). L'ancienne variable FABLE_MODEL du .env du VPS (Fable 5.2) n'est plus lue.
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-FABLE_MODEL = os.getenv("FABLE_MODEL", "claude-fable-5-1")
-THALES_SECOURS = os.getenv("THALES_SECOURS", "claude-opus-5-5")   # vide : pas de secours
+THALES_MODELE = os.getenv("THALES_MODELE", "claude-opus-5-5")
+THALES_SECOURS = os.getenv("THALES_SECOURS", "claude-sonnet-5-5")   # vide : pas de secours
 FABLE_MAX_CALLS_DAY = min(_i("FABLE_MAX_CALLS_DAY", "40"), 100)
 # Thales decide (decision de Richard du 12/11/2026) : parmi les signaux M2, un avis « eviter » annule l'entree.
 # Avis absent (pas de cle, erreur, plafond) : la regle M2 s'applique. Les sorties restent mecaniques. FABLE_DECIDE=0 le desactive.

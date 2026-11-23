@@ -1,7 +1,7 @@
 """Democrite, le Chercheur : bilan hebdomadaire automatique (dimanche 17:00 UTC). Conteneur separe, sans cle de trading.
   1. Lit le journal et l'etat du bot (lecture seule) : trades de la semaine, R, avis de Thales et resultat des trades.
   2. Mesure l'apport de Thales : resultat moyen des trades qu'il voulait « prendre » contre ceux qu'il voulait « eviter ».
-  3. Demande au modele Fable une lecture du marche et 1 a 3 propositions de strategies, decrites en regles testables.
+  3. Demande au modele principal une lecture du marche et 1 a 3 propositions de strategies, decrites en regles testables.
   4. Ecrit le rapport dans data/chercheur/ et l'envoie sur Telegram.
 Les propositions ne sont JAMAIS appliquees automatiquement : elles passent par un pre-enregistrement et le Testeur.
     python3 -m moon.chercheur            boucle hebdomadaire
@@ -53,12 +53,12 @@ SYSTEM = ("Tu es Democrite, le chercheur d'une petite usine de trading automatiq
 MAX_TOKENS = 8000                                          # le bilan du 15/11 (1500 jetons) s'est arrete au milieu de la troisieme proposition
 
 def ask_fable(stats, post=None):
-    """Bilan demande au modele Fable de preference ; le modele de secours seulement si Fable ne repond pas."""
-    if not C.ANTHROPIC_API_KEY: return "(Fable absent : pas de cle API)"
+    """Bilan demande au modele principal ; le modele de secours seulement si le principal ne repond pas."""
+    if not C.ANTHROPIC_API_KEY: return "(modele absent : pas de cle API)"
     if post is None:
         import requests
         post = requests.post
-    modeles = [C.FABLE_MODEL] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.FABLE_MODEL else [])
+    modeles = [C.THALES_MODELE] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.THALES_MODELE else [])
     echecs = []
     for modele in modeles:
         try:
@@ -73,8 +73,8 @@ def ask_fable(stats, post=None):
         text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
         if not text:                                       # reponse vide (reflexion qui epuise les jetons) : modele suivant
             echecs.append("reponse vide"); continue
-        return text if modele == C.FABLE_MODEL else f"(modele de secours {modele}, Fable indisponible)\n{text}"
-    return f"(Fable indisponible : {' puis '.join(echecs)})"
+        return text if modele == C.THALES_MODELE else f"(modele de secours {modele}, principal indisponible)\n{text}"
+    return f"(modeles indisponibles : {' puis '.join(echecs)})"
 
 def report(now=None, post=None, send=N.send):
     now = now or dt.datetime.now(dt.timezone.utc)

@@ -90,7 +90,7 @@ def test_bilan_ecrit_envoye_et_non_repete():
         calls = []
         path, _ = CH.report(now, post=lambda url, **k: (calls.append(k), Resp())[1], send=sent.append)
         assert os.path.exists(path) and "Proposition 1" in open(path).read() and sent and "a pre-enregistrer" in sent[0]
-        assert calls[0]["json"]["model"] == C.FABLE_MODEL
+        assert calls[0]["json"]["model"] == C.THALES_MODELE
         assert calls[0]["json"]["max_tokens"] >= 2500 and "Thales" in calls[0]["json"]["system"] and "Lab Smart Peanut" in calls[0]["json"]["system"]
         assert not CH.due(now + dt.timedelta(hours=1))                                 # redemarrage : pas de second envoi
     finally:
@@ -105,22 +105,22 @@ def test_bilan_fable_d_abord_puis_secours():
         vus = []
         def post(url, **k):
             vus.append(k["json"]["model"])
-            return R(529, "") if k["json"]["model"] == C.FABLE_MODEL else R(200, "lecture du marche")
+            return R(529, "") if k["json"]["model"] == C.THALES_MODELE else R(200, "lecture du marche")
         txt = CH.ask_fable({}, post)
-        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and "secours" in txt and "lecture du marche" in txt
+        assert vus == [C.THALES_MODELE, C.THALES_SECOURS] and "secours" in txt and "lecture du marche" in txt
         vus.clear()
-        assert CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "ok"))[1]) == "ok" and vus == [C.FABLE_MODEL]
-        vus.clear()                                                  # reponse vide de Fable : le secours ecrit le bilan
-        txt = CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "" if k["json"]["model"] == C.FABLE_MODEL else "bilan"))[1])
-        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and "secours" in txt and "bilan" in txt
-        assert CH.ask_fable({}, lambda url, **k: R(200, "")) == "(Fable indisponible : reponse vide puis reponse vide)"
+        assert CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "ok"))[1]) == "ok" and vus == [C.THALES_MODELE]
+        vus.clear()                                                  # reponse vide du principal : le secours ecrit le bilan
+        txt = CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "" if k["json"]["model"] == C.THALES_MODELE else "bilan"))[1])
+        assert vus == [C.THALES_MODELE, C.THALES_SECOURS] and "secours" in txt and "bilan" in txt
+        assert CH.ask_fable({}, lambda url, **k: R(200, "")) == "(modeles indisponibles : reponse vide puis reponse vide)"
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 
 def test_bilan_sans_cle():
     seed([], []); sent = []
     path, _ = CH.report(dt.datetime(2026, 11, 22, 17, 5, tzinfo=dt.timezone.utc), send=sent.append)
-    assert "Fable absent" in open(path).read()
+    assert "modele absent" in open(path).read()
 
 def test_sources_propres():
     for f in ("garde.py", "chercheur.py"):
