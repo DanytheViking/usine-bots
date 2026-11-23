@@ -35,4 +35,5 @@ liquidations des grandes plateformes, indices, calendrier macro, memecoins des D
 
 ## Modeles (demande de Richard du 15/11/2026)
 Pour les decisions et la strategie, le meilleur modele pour le raisonnement : Fable, toujours de preference ; Opus seulement si Fable n'est pas disponible.
-Thales et Democrite le font seuls dans le code (secours automatique) ; Socrate et Aristote tournent sur Fable.
+Thales et Democrite le font seuls dans le code (secours automatique, aussi quand Fable repond sans texte depuis la 2.7.1).
+Depuis le 22/11/2026 (Richard n'a plus de forfait Fable), Socrate et Aristote tournent sur Opus 5.5.

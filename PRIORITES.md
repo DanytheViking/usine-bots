@@ -68,11 +68,16 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   22/11 : 564f0a3 refuse par Aristote (204c513) : plafond de deux positions annonce a Richard mais absent du code et du test. Correction :
   MAX_POSITIONS = 2 pour smartpeanut2 (croisement et tendance, ordre de COINS), addendum PREREG-lab5b-plafond, spec USINE-SPEC-LAB5B,
   travail lab5b-verdicts-2026-11-22 sur le meme jeu m2t ; le verdict avec plafond decide de la mise en reel.
+  22/11 22 h 20 UTC, verdict avec plafond (USINE-SPEC-LAB5B) : PASSE LA VOIE RAPIDE, 50 trades, 0,48 par jour, +0,20 R, PF 1,34 ;
+  reserves : sans les 3 meilleurs -0,53 R (publie), entrainement -0,07 R, IC [-0,48 ; +1,05]. 00f4f4c approuve par Aristote, 2.7.0 deployee le 22/11 a 22 h 26 UTC.
+  Premiers trades reels le 22/11 a 23 h 01 UTC : BTC short (stop 62712) et ETH short (stop 1761), 1,48 USDC de risque chacun. Abandon : -6 R ou esperance < 0 apres 30 trades.
 - Nouvelle verticale HIP-3 (demande ecrite de Richard du 22/11/2026, 20 h 17 et 20 h 19 UTC : « Il y a t'il pas d'autre vertical a exploiter »,
   « trouve moi la meilleure solution ») : M2 inchange sur les 8 marches macro HIP-3 les plus liquides (or, indices, actions, hors crypto),
   frais de base HIP-3 = 2 x bareme validateur. Pre-enregistrement usine/docs/PREREG-hip3-m2.md, spec USINE-SPEC-HIP3, jeu neuf hip3
   (travaux hip3-collecte-2026-11-22 et hip3-verdicts-2026-11-22, relances en hip3b-collecte-2026-11-23 et hip3b-verdicts-2026-11-23 :
   la premiere copie de l'usine avait ete refusee pour une ligne de fin de test mal formee, les travaux avaient tourne sur l'ancien code). Recherche seulement : rien en reel sans accord ecrit de Richard sur le capital et les limites.
+  23/11, verdict (hip3b-verdicts-2026-11-23) : ESPERANCE NEGATIVE. M2 1 h sur 8 marches HIP-3 : 95 trades, -0,32 R, PF 0,68 en frais doubles ;
+  M2 4 h reconstruit : 19 trades, non concluant. M2 sur HIP-3 abandonne, sans nouveau reglage.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
@@ -127,9 +132,13 @@ Manque : les signaux ecartes ne sont pas suivis (Democrite n'apparie que les tra
 Remarques d'Aristote (audit 9253975) a traiter : Democrite mesure separement les avis de Fable et ceux du secours (champ modele) ;
 un signal peut couter deux appels payants alors que le plafond journalier n'en compte qu'un (compter les deux).
 
+23/11 : Thales sans avis sur ETH short (22/11, 23 h 02) : reponse 200 de Fable 5.2 sans texte, la reflexion avait pris les 1000 jetons, et le secours
+n'etait pas essaye. 2.7.1 (9b08cdc, attend Aristote) : 8000 jetons, une reponse sans avis lisible passe au secours, cause journalisee (champ fin) ; meme chose pour Democrite.
+
 ## 3. T6 Recolteur
 Phase papier a partir du 19/11 : suivre l'univers fige, les premiers trades papier et le verdict automatique apres 60 trades.
 16/11 : phase mesure, 5 cascades vues (toutes refusees « phase mesure »), 23 actifs prets, 0 trade papier.
+23/11 : phase papier, 23 trades, PF net 0,69, PF stress 0,44, equite papier 99,48. Verdict automatique a 60 trades (abandon si PF frais x3 < 1,2) : la tendance est a l'abandon.
 
 ## Incidents traites
 - 16/11 : controle du lundi de Diogene (controle-2026-s47) en echec : l'image Docker usine-py:1 manquait sur le VPS (jamais construite par le
