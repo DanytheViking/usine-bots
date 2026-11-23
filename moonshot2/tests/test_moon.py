@@ -364,7 +364,7 @@ def test_tendance_reservee_au_lab():
     fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
     old = os.environ.get("BOT_NAME")
     try:
-        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.0"
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.1"
     finally:
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
@@ -496,9 +496,36 @@ def test_fable_reponses_tolerees():
     assert F.parse('{"note": 1} puis {"avis": "eviter"}')["avis"] == "eviter"
     assert F.parse("rien de lisible") is None and F.parse('{"avis": "peut-etre"}') is None
     old = F.C.ANTHROPIC_API_KEY; F.C.ANTHROPIC_API_KEY = "sk-test"
+    old_sec = F.C.THALES_SECOURS; F.C.THALES_SECOURS = ""
     try: r = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: Resp(200, "pas de json ici"))
-    finally: F.C.ANTHROPIC_API_KEY = old
-    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.FABLE_MODEL} and len(F.apercu("x " * 500)) == 160
+    finally: F.C.ANTHROPIC_API_KEY = old; F.C.THALES_SECOURS = old_sec
+    assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.FABLE_MODEL, "fin": ""} and len(F.apercu("x " * 500)) == 160
+
+class RespVide:
+    """Reponse 200 de Fable 5.2 sans texte : la reflexion a pris tous les jetons."""
+    status_code = 200
+    def json(self): return {"content": [{"type": "thinking", "thinking": ""}], "stop_reason": "max_tokens"}
+
+def test_thales_reponse_vide_passe_au_secours():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; importlib.reload(C)
+    try:
+        vus = []
+        def vide_puis_ok(url, **k):
+            vus.append(k["json"]["model"])
+            assert k["json"]["max_tokens"] >= 4000                       # assez de place pour la reflexion et la reponse
+            return RespVide() if k["json"]["model"] == C.FABLE_MODEL else Resp(200, '{"avis": "eviter", "confiance": 55, "raison": "x"}')
+        s = {"fable_calls": {}}
+        op = F.opinion("p", s, "d", post=vide_puis_ok)
+        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and op == {"avis": "eviter", "confiance": 55, "raison": "x", "modele": C.THALES_SECOURS}
+        assert s["fable_calls"]["d"] == 1
+        op = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: RespVide())   # les deux vides : avis absent, cause lisible
+        assert op["absent"] == "reponse illisible" and op["fin"] == "max_tokens" and op["modele"] == C.THALES_SECOURS
+        assert op["detail"] == "illisible (max_tokens) puis illisible (max_tokens)"
+        def illisible_puis_panne(url, **k): return RespVide() if k["json"]["model"] == C.FABLE_MODEL else Resp(503, "")
+        op = F.opinion("p", {"fable_calls": {}}, "d", post=illisible_puis_panne)
+        assert op["absent"] == "reponse illisible" and op["modele"] == C.FABLE_MODEL and op["detail"] == "illisible (max_tokens) puis API 503"
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 
 def test_fable_decide():
     os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"

@@ -110,6 +110,10 @@ def test_bilan_fable_d_abord_puis_secours():
         assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and "secours" in txt and "lecture du marche" in txt
         vus.clear()
         assert CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "ok"))[1]) == "ok" and vus == [C.FABLE_MODEL]
+        vus.clear()                                                  # reponse vide de Fable : le secours ecrit le bilan
+        txt = CH.ask_fable({}, lambda url, **k: (vus.append(k["json"]["model"]), R(200, "" if k["json"]["model"] == C.FABLE_MODEL else "bilan"))[1])
+        assert vus == [C.FABLE_MODEL, C.THALES_SECOURS] and "secours" in txt and "bilan" in txt
+        assert CH.ask_fable({}, lambda url, **k: R(200, "")) == "(Fable indisponible : reponse vide puis reponse vide)"
     finally:
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 

@@ -1,6 +1,6 @@
 # Smart Peanut v2 (memecoins, strategie M2) : projet Docker separe (nom peanut2, dossier /opt/peanut2, donnees a part).
 x-commun: &commun
-  image: peanut2:2.7.0
+  image: peanut2:2.7.1
   restart: unless-stopped
   read_only: true
   tmpfs: [/tmp]

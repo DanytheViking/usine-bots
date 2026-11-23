@@ -19,6 +19,10 @@ def context_text(coin, side, ev, ctx, df):
             f"({ev['atr'] / ev['ref'] * 100:.2f} % du prix).\nVariation : 24 h {ret(C.BARS_JOUR)}, 7 jours {ret(7 * C.BARS_JOUR)}, 30 jours {ret(30 * C.BARS_JOUR)}.\n"
             f"Funding horaire : {ctx.get('funding_h', 0) * 100:.4f} %.")
 
+# Fable 5.2 reflechit toujours avant de repondre : 1000 jetons pouvaient partir dans la reflexion et laisser une reponse vide
+# (ETH short du 22/11, 23 h 02, « reponse illisible », apercu vide). La reponse attendue reste une ligne de JSON.
+MAX_TOKENS = 8000
+
 AVIS = {"prendre": "prendre", "pris": "prendre", "take": "prendre", "eviter": "eviter", "ecarter": "eviter", "avoid": "eviter", "skip": "eviter"}
 
 def sans_accents(s):
@@ -51,17 +55,20 @@ def opinion(prompt: str, state: dict, day: str, post=None):
         import requests
         post = requests.post
     modeles = [C.FABLE_MODEL] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.FABLE_MODEL else [])
-    echecs = []
-    for modele in modeles:                       # Fable d'abord ; le secours seulement si Fable ne repond pas
+    echecs, illisible = [], None
+    for modele in modeles:                       # Fable d'abord ; le secours si Fable ne repond pas ou repond sans avis lisible
         try:
-            r = post(URL, timeout=60, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                     json={"model": modele, "max_tokens": 1000, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
+            r = post(URL, timeout=90, headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                     json={"model": modele, "max_tokens": MAX_TOKENS, "system": SYSTEM, "messages": [{"role": "user", "content": prompt}]})
         except Exception as ex:
             echecs.append(f"erreur {type(ex).__name__}"); continue
         if getattr(r, "status_code", 0) != 200:
             echecs.append(f"API {getattr(r, 'status_code', '?')}"); continue
-        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text")
+        rep = r.json()
+        text = "".join(b.get("text", "") for b in rep.get("content", []) if b.get("type") == "text")
         op = parse(text)
         if op: return {**op, "modele": modele}
-        return {"absent": "reponse illisible", "apercu": apercu(text), "modele": modele}
-    return {"absent": " puis ".join(echecs)}
+        illisible = {"absent": "reponse illisible", "apercu": apercu(text), "modele": modele, "fin": str(rep.get("stop_reason", ""))}
+        echecs.append(f"illisible ({illisible['fin'] or 'n/d'})")
+    if illisible is None: return {"absent": " puis ".join(echecs)}
+    return illisible if len(echecs) == 1 else {**illisible, "detail": " puis ".join(echecs)}

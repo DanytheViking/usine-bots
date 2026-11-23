@@ -50,7 +50,7 @@ SYSTEM = ("Tu es Democrite, le chercheur d'une petite usine de trading automatiq
           "cassure apres compression, plage de la seance asiatique et cassure a l'ouverture americaine, funding extreme, cascades de liquidations), "
           "chacune avec sa logique economique et ses regles completes et testables (actifs, unite de temps, entree, stop, sortie, parametres fixes) ; "
           "4) signaler les risques. Pas de promesse de gain. Reponds en francais, en texte simple, 600 mots au plus, et termine chaque proposition.")
-MAX_TOKENS = 2500                                          # le bilan du 15/11 (1500 jetons) s'est arrete au milieu de la troisieme proposition
+MAX_TOKENS = 8000                                          # le bilan du 15/11 (1500 jetons) s'est arrete au milieu de la troisieme proposition
 
 def ask_fable(stats, post=None):
     """Bilan demande au modele Fable de preference ; le modele de secours seulement si Fable ne repond pas."""
@@ -62,7 +62,7 @@ def ask_fable(stats, post=None):
     echecs = []
     for modele in modeles:
         try:
-            r = post("https://api.anthropic.com/v1/messages", timeout=120,
+            r = post("https://api.anthropic.com/v1/messages", timeout=300,
                      headers={"x-api-key": C.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
                      json={"model": modele, "max_tokens": MAX_TOKENS, "system": SYSTEM,
                            "messages": [{"role": "user", "content": "Bilan de la semaine (JSON) :\n" + json.dumps(stats, ensure_ascii=False)}]})
@@ -70,7 +70,9 @@ def ask_fable(stats, post=None):
             echecs.append(type(ex).__name__); continue
         if getattr(r, "status_code", 0) != 200:
             echecs.append(f"API {getattr(r, 'status_code', '?')}"); continue
-        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip() or "(reponse vide)"
+        text = "".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+        if not text:                                       # reponse vide (reflexion qui epuise les jetons) : modele suivant
+            echecs.append("reponse vide"); continue
         return text if modele == C.FABLE_MODEL else f"(modele de secours {modele}, Fable indisponible)\n{text}"
     return f"(Fable indisponible : {' puis '.join(echecs)})"
 
