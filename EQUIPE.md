@@ -9,8 +9,8 @@ les bots plus precis. Chaque role a une source et une trace ecrite ; chacun nour
 |---|---|---|---|
 | Socrate, l'architecte | agent quotidien (10 h 23, Europe/Madrid), rapporte a Richard | strategie, architecture, corrections, ameliorations, nouvelles versions, travaux, messages | commits sur `main` |
 | Aristote, l'Auditeur | agent independant (11 h 47 et 19 h 47) | approbation ou refus de chaque commit qui touche l'argent reel ou le Deployeur | `audits/<sha>.json` |
-| Thales, le decideur | modele Fable de preference (secours si Fable ne repond pas), sur chaque signal M2 | decision prendre ou ecarter, avec la raison ; signaux ecartes journalises | `journal-*.jsonl`, etapes `fable` et `signal` |
-| Democrite, le Chercheur | bilan du dimanche 18 h (modele Fable) | bilan hebdomadaire : decisions de Thales comparees aux resultats | `rapports` : `chercheur/` |
+| Thales, le decideur | Opus 5.5 (secours Sonnet 5.5) depuis le 23/11/2026, sur chaque signal M2 | decision prendre ou ecarter, avec la raison ; signaux ecartes journalises | `journal-*.jsonl`, etapes `fable` et `signal` |
+| Democrite, le Chercheur | bilan du dimanche 18 h (Opus 5.5, secours Sonnet 5.5) | bilan hebdomadaire : decisions de Thales comparees aux resultats | `rapports` : `chercheur/` |
 | Pyrrhon, le Testeur | usine de recherche | verdicts pre-enregistres, Testeur durci | `rapports` : `verdicts/`, `jobs/` |
 | Diogene, le Controleur | VPS, chaque lundi (et travail `controle`) | reel contre simule : ecart d'entree, frais, funding | tableau de bord, `/opt/usine-public/controle.json` |
 | Heraclite, la Sentinelle | VPS, toutes les 15 min | alertes plateforme : delisting, levier, funding extreme, stop absent, cle d'agent, API | Telegram, tableau de bord |
@@ -35,5 +35,6 @@ liquidations des grandes plateformes, indices, calendrier macro, memecoins des D
 
 ## Modeles (demande de Richard du 15/11/2026)
 Pour les decisions et la strategie, le meilleur modele pour le raisonnement : Fable, toujours de preference ; Opus seulement si Fable n'est pas disponible.
-Thales et Democrite le font seuls dans le code (secours automatique, aussi quand Fable repond sans texte depuis la 2.7.1).
+Thales et Democrite le font seuls dans le code (secours automatique, aussi sur reponse vide depuis la 2.7.1).
+Depuis la 2.7.2 (23/11/2026), leur modele principal est Opus 5.5 et le secours Sonnet 5.5 : quand un modele atteint sa limite, on passe au modele en dessous.
 Depuis le 22/11/2026 (Richard n'a plus de forfait Fable), Socrate et Aristote tournent sur Opus 5.5.
