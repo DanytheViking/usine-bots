@@ -3,6 +3,9 @@ Pour chaque entree ouverte par le bot (journal « execution / ouvert ») :
   - ecart d'entree : prix moyen rempli contre l'ouverture de la bougie 4 h suivant le signal (hypothese du Testeur) ;
   - frais reels contre le modele (0,045 % taker) ;
   - funding reel sur les positions (API publique userFunding).
+Signaux ecartes par Thales (journal « signal / ecarte par Thales ») : suivi papier, pour mesurer son veto a nombre egal.
+  Regle fixe : entree au prix de reference de la cloture, stop 3 ATR, sortie au stop (touche par le haut ou le bas d'une bougie)
+  ou a la cloture de la 48e bougie (1 h pour Smart Peanut, 4 h pour Moonshot), frais taker aller-retour deduits. Un veto utile a un R moyen negatif.
 Les remplissages qui ne correspondent a aucune entree du bot (essai d'execution, autre) sont ignores.
     python3 -m usine.controle --out /out --bot moonshot2:0x...:/b/moonshot2/journal.jsonl [--bot ...]"""
 import os, sys, json, time, argparse, datetime as dt
@@ -55,6 +58,45 @@ def analyser(nom, adresse, journal_path, depuis_ms, maintenant_ms, poster=None):
     return {"bot": nom, "entrees": len(trades), "ecart_entree_moyen": moy("ecart_entree"), "taux_frais_moyen": moy("taux_frais"),
             "funding_usdc": round(funding, 6), "trades": trades}
 
+HORIZON = 48                        # bougies du suivi papier d'un signal ecarte
+STOP_ATR = 3.0
+
+def ecartes(journal_path):
+    out = []
+    if not os.path.exists(journal_path): return out
+    for l in open(journal_path, encoding="utf-8"):
+        try: r = json.loads(l)
+        except ValueError: continue
+        d = r.get("data") or {}
+        if r.get("stage") == "signal" and r.get("decision") == "ecarte par Thales" and all(d.get(k) for k in ("coin", "side", "bar_ts", "ref", "atr")):
+            out.append({"coin": d["coin"], "side": d["side"], "bar_ts": int(d["bar_ts"]), "ref": float(d["ref"]), "atr": float(d["atr"])})
+    return out
+
+def suivre(e, tf_ms, maintenant_ms, poster=None):
+    """Resultat papier d'un signal ecarte, en R, selon la regle fixe ci-dessus ; « en cours » si l'horizon n'est pas atteint."""
+    debut = e["bar_ts"] + tf_ms                                            # premiere bougie apres la cloture du signal
+    c = post({"type": "candleSnapshot", "req": {"coin": e["coin"], "interval": "1h" if tf_ms == 3_600_000 else "4h",
+                                                 "startTime": debut, "endTime": debut + HORIZON * tf_ms}}, poster) or []
+    c = sorted((x for x in c if int(x.get("t", 0)) >= debut), key=lambda x: int(x["t"]))[:HORIZON]
+    sgn = 1 if e["side"] == "long" else -1; risque = STOP_ATR * e["atr"]; stop = e["ref"] - sgn * risque
+    frais_r = 2 * FEE_MODELE * e["ref"] / risque
+    base = {"coin": e["coin"], "side": e["side"], "bar_ts": e["bar_ts"], "ref": e["ref"], "stop": stop, "bougies": len(c)}
+    for x in c:
+        if (sgn > 0 and float(x["l"]) <= stop) or (sgn < 0 and float(x["h"]) >= stop):
+            return {**base, "issue": "stop", "R": round(-1 - frais_r, 4)}
+    if not c: return {**base, "issue": "en cours", "R": None}
+    r = round(sgn * (float(c[-1]["c"]) - e["ref"]) / risque - frais_r, 4)
+    if len(c) < HORIZON and debut + HORIZON * tf_ms > maintenant_ms: return {**base, "issue": "en cours", "R": None, "R_provisoire": r}
+    return {**base, "issue": "horizon", "R": r}
+
+def mesure_veto(nom, journal_path, depuis_ms, maintenant_ms, poster=None):
+    tf = 3_600_000 if nom == "peanut2" else H4
+    sig = [e for e in ecartes(journal_path) if e["bar_ts"] >= depuis_ms - HORIZON * tf]
+    res = [suivre(e, tf, maintenant_ms, poster) for e in sig]
+    finis = [x["R"] for x in res if x["R"] is not None]
+    return {"signaux": len(res), "termines": len(finis), "R_moyen": round(sum(finis) / len(finis), 4) if finis else None,
+            "R_total": round(sum(finis), 4), "detail": res}
+
 def verdict(bots):
     alertes = []
     for b in bots:
@@ -72,6 +114,10 @@ def verdict(bots):
 def run(bots_spec, out, poster=None, maintenant_ms=None, jours=7):
     now = maintenant_ms or int(time.time() * 1000); depuis = now - jours * 86_400_000
     bots = [analyser(*spec.split(":", 2), depuis, now, poster) for spec in bots_spec]
+    for b, spec in zip(bots, bots_spec):                                       # mesure du veto de Thales, hors verdict
+        nom, _, chemin = spec.split(":", 2)
+        try: b["veto_thales"] = mesure_veto(nom, chemin, depuis, now, poster)
+        except Exception as ex: b["veto_thales"] = {"erreur": type(ex).__name__}
     v, resume, alertes = verdict(bots)
     rep = {"ts": dt.datetime.fromtimestamp(now / 1000, dt.timezone.utc).isoformat()[:19] + "Z", "periode_jours": jours, "verdict": v,
            "resume": resume, "alertes": alertes, "seuils": {"ecart_entree": SEUIL_ECART, "taux_frais": SEUIL_FRAIS}, "bots": bots}
@@ -79,8 +125,15 @@ def run(bots_spec, out, poster=None, maintenant_ms=None, jours=7):
     json.dump(rep, open(os.path.join(out, "controle.json"), "w"), indent=1)
     L = [f"# Controle reel contre simule ({rep['ts']}, {jours} jours)", "", f"**{v}** : {resume}", "",
          "| bot | entrees | ecart d'entree moyen | frais moyens | funding (USDC) |", "|---|---|---|---|---|"]
-    f = lambda x, k=100, d=3: "–" if x is None else f"{x * k:+.{d}f} %"
+    f = lambda x, k=100, d=3: "n/d" if x is None else f"{x * k:+.{d}f} %"
     for b in bots: L.append(f"| {b['bot']} | {b['entrees']} | {f(b['ecart_entree_moyen'])} | {f(b['taux_frais_moyen'])} | {b['funding_usdc']:+.4f} |")
+    L += ["", "Signaux ecartes par Thales, suivi papier (stop 3 ATR ou 48 bougies, frais deduits ; un veto utile a un R moyen negatif) :", "",
+          "| bot | signaux ecartes | termines | R moyen | R total |", "|---|---|---|---|---|"]
+    for b in bots:
+        vt = b.get("veto_thales") or {}
+        if "erreur" in vt: L.append(f"| {b['bot']} | non mesure ({vt['erreur']}) | | | |"); continue
+        moy = "n/d" if vt.get("R_moyen") is None else f"{vt['R_moyen']:+.3f}"
+        L.append(f"| {b['bot']} | {vt.get('signaux', 0)} | {vt.get('termines', 0)} | {moy} | {vt.get('R_total', 0):+.3f} |")
     open(os.path.join(out, "controle.md"), "w").write("\n".join(L) + "\n")
     print(f"{v} : {resume}")
     return rep

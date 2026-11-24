@@ -57,6 +57,50 @@ def test_verdicts_et_rapport():
     post, _ = fake([{"coin": "ETH", "dir": "Open Long", "time": t, "px": "3003", "sz": "0.1", "fee": "0.135"}], {"ETH": 3000.0})
     assert K.run([f"m:0x{'a' * 40}:{j}"], tempfile.mkdtemp(), poster=post, maintenant_ms=T0 + 86_400_000)["verdict"] == "CONFORME"
 
+H1 = 3_600_000
+
+def journal_ecartes(sigs):
+    p = os.path.join(tempfile.mkdtemp(), "journal.jsonl")
+    with open(p, "w") as f:
+        for coin, side, bar, ref, atr in sigs:
+            f.write(json.dumps({"ts": iso(bar + 120_000), "stage": "signal", "decision": "ecarte par Thales", "reason": f"{coin} {side}",
+                                "data": {"coin": coin, "side": side, "bar_ts": bar, "ref": ref, "atr": atr}}) + "\n")
+        f.write(json.dumps({"ts": iso(T0), "stage": "signal", "decision": "tendance short", "data": {"coin": "X"}}) + "\n")   # pas un veto
+    return p
+
+def bougies(debut, n, h, l, c, tf=H1): return [{"t": debut + i * tf, "o": "0", "h": str(h), "l": str(l), "c": str(c)} for i in range(n)]
+
+def test_veto_de_thales_suivi_papier():
+    # BTC short ecarte a 100, ATR 1 : stop 103 touche (veto utile) ; ETH short a 100 : 48 bougies, cloture 97 (+1 R brut, veto couteux) ;
+    # SOL long trop recent : en cours, non compte
+    j = journal_ecartes([("BTC", "short", T0, 100.0, 1.0), ("ETH", "short", T0, 100.0, 1.0), ("SOL", "long", T0 + 40 * H1, 100.0, 1.0)])
+    seen = []
+    def post(body):
+        r = body["req"]; seen.append((r["coin"], r["interval"]))
+        if r["coin"] == "BTC": return bougies(r["startTime"], 3, 101, 99, 100) + bougies(r["startTime"] + 3 * H1, 1, 103.5, 100, 102)
+        if r["coin"] == "ETH": return bougies(r["startTime"], 48, 101, 96, 97)
+        return bougies(r["startTime"], 5, 101, 99, 101)
+    now = T0 + 50 * H1
+    v = K.mesure_veto("peanut2", j, T0 - 86_400_000, now, post)
+    frais = 2 * K.FEE_MODELE * 100 / 3
+    d = {x["coin"]: x for x in v["detail"]}
+    assert v["signaux"] == 3 and v["termines"] == 2 and all(i == "1h" for _, i in seen)
+    assert d["BTC"]["issue"] == "stop" and abs(d["BTC"]["R"] - (-1 - frais)) < 1e-4
+    assert d["ETH"]["issue"] == "horizon" and abs(d["ETH"]["R"] - (1 - frais)) < 1e-4
+    assert d["SOL"]["issue"] == "en cours" and d["SOL"]["R"] is None and d["SOL"]["R_provisoire"] > 0
+    assert abs(v["R_moyen"] + frais) < 1e-4
+    seen.clear(); K.mesure_veto("moonshot2", j, T0 - 86_400_000, now, post); assert all(i == "4h" for _, i in seen)
+
+def test_rapport_avec_veto():
+    out = tempfile.mkdtemp(); j = journal_ecartes([("BTC", "short", T0, 100.0, 1.0)])
+    def post(body):
+        if body["type"] == "candleSnapshot": return bougies(body["req"]["startTime"], 48, 104, 99, 100)
+        return []
+    rep = K.run([f"peanut2:0x{'c' * 40}:{j}"], out, poster=post, maintenant_ms=T0 + 60 * H1)
+    assert rep["verdict"] == "AUCUN TRADE" and rep["bots"][0]["veto_thales"]["termines"] == 1
+    md = open(os.path.join(out, "controle.md")).read()
+    assert "| peanut2 | 1 | 1 | -1." in md and "\u2013" not in md
+
 def test_source_propre():
     src = open(os.path.join(ROOT, "usine", "controle.py"), encoding="utf-8").read()
     assert "\u2014" not in src and "exchange" not in src.lower().replace("hyperliquid", "")
