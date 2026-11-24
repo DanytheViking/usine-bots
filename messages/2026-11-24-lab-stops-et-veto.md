@@ -1,0 +1,3 @@
+Lab Smart Peanut : les deux premiers shorts (BTC et ETH) ont touche leur stop ensemble hier vers 15 h, sur un rebond de 5 a 6 %. Perte 2,90 USDC, soit -2 R ; le compte Labo est a 71,46 USDC. L'abandon automatique est a -6 R.
+Juste apres, Thales a ecarte les 13 reentrees (prix trop loin au-dessus des moyennes apres le rebond). Je mesure maintenant chaque veto en papier : on saura s'il nous fait gagner ou perdre. Premier resultat dans le controle de Diogene, lance aujourd'hui.
+Furie Momentum ne passe pas le test (+0,10 R, juste au seuil, et negatif sans ses 3 meilleurs trades) : rien en reel, l'entree en tendance reste en place.

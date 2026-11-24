@@ -85,6 +85,11 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   (travaux lab6-collecte-2026-11-24 et lab6-verdicts-2026-11-24). Temoin M2T rejoue sur le meme jeu ; Furie ne remplace M2T que si elle fait
   au moins aussi bien. Niveau « furie » (5 %) seulement si entrainement, sans 3 meilleurs et ln a 5 % sont positifs, et apres confirmation
   ecrite du palier par Richard ; sinon 2 %. Abandon : -6 R ou esperance negative apres 30 trades reels, retour a M2T.
+  24/11 06 h 10 UTC, verdict (lab6-verdicts-2026-11-24) : NE PASSE PAS LA VOIE RAPIDE. Furie 136 trades, +0,100 R (seuil +0,10 non franchi
+  strictement), PF 1,22, sans 3 meilleurs -0,22 R ; pyramide +0,098 R. Rien en reel, M2T reste en reel.
+- Suivi du Lab en reel (M2T, 2.7.3) : 23/11 13 h 57 UTC, BTC short et ETH short stoppes ensemble sur un rebond de 5 a 6 % (-1,42 et -1,48 USDC,
+  -1,96 R cumules sur la strategie, abandon a -6 R). Compte Labo 71,46 USDC. A 14 h, Thales a ecarte les 13 reentrees en tendance (prix 3 a 5 ATR
+  au-dessus de l'EMA 50 apres le rebond).
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
@@ -134,7 +139,9 @@ passent le filtre de volume de 2 M$, et kPEPE est ecarte par l'ordre minimum. Ce
 ## 2. Thales (le decideur)
 Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifier que la lecture de la reponse de Thales fonctionne en reel (aucun « reponse illisible »).
 16/11 : lecture verifiee en reel (kPEPE short du 15/11 12 h, Fable, « eviter » a 62 et 63 %, les deux bots ; aucun « illisible » depuis la 2.4.0).
-Manque : les signaux ecartes ne sont pas suivis (Democrite n'apparie que les trades fermes). A ecrire : suivi papier des signaux ecartes
+Manque : les signaux ecartes ne sont pas suivis (Democrite n'apparie que les trades fermes).
+24/11 : FAIT, dans le Controleur (usine/controle.py) : chaque signal ecarte est suivi en papier (entree a la reference, stop 3 ATR, sortie au stop ou a la
+48e bougie, frais deduits) ; R moyen et R total publies dans le controle du lundi (premier passage manuel : travail controle-2026-11-24). A ecrire : suivi papier des signaux ecartes
 (entree au prix de reference, stop 3 ATR, sortie au croisement inverse ou au stop, sur les bougies) pour comparer pris et ecartes a nombre egal.
 Remarques d'Aristote (audit 9253975) a traiter : Democrite mesure separement les avis de Fable et ceux du secours (champ modele) ;
 un signal peut couter deux appels payants alors que le plafond journalier n'en compte qu'un (compter les deux).
