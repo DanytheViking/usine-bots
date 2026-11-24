@@ -1,0 +1,1 @@
+{"id": "lab6-verdicts-2026-11-24", "type": "usine", "module": "usine.verif_furie", "args": ["--spec", "specs/USINE-SPEC-LAB6.json", "--data", "/d/fm", "--out", "/out", "--attendre", "14400"], "reseau": false}

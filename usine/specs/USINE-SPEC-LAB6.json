@@ -1,0 +1,33 @@
+{
+ "id": "USINE-SPEC-LAB6",
+ "gel_utc": "2026-11-24T03:45Z",
+ "annonce": "Lab v6 Furie Momentum : cassure 24 h dans la tendance EMA 50 / 200 1 h, sortie a l'EMA 50, deux positions au plus.",
+ "prereg_sha256": "546c83239f601796fdca935e5d12dd499b8b77bcc62a08d649cc82d138ec1d4b",
+ "candidats": [
+  "FM_1h_furie",
+  "FM_1h_pyramide",
+  "M2T_1h_tendance"
+ ],
+ "decisif": "FM_1h_furie",
+ "temoin": "M2T_1h_tendance",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "palier_furie": 0.05,
+ "paliers_publies": [
+  0.02,
+  0.05,
+  0.1
+ ],
+ "volume_min_usd": 2000000,
+ "max_positions": 2,
+ "voie_rapide": {
+  "trades_min": 40,
+  "esperance_min_R": 0.1
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261124,
+  "bloc": "jour UTC du signal"
+ }
+}

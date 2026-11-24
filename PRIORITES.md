@@ -78,6 +78,13 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   la premiere copie de l'usine avait ete refusee pour une ligne de fin de test mal formee, les travaux avaient tourne sur l'ancien code). Recherche seulement : rien en reel sans accord ecrit de Richard sur le capital et les limites.
   23/11, verdict (hip3b-verdicts-2026-11-23) : ESPERANCE NEGATIVE. M2 1 h sur 8 marches HIP-3 : 95 trades, -0,32 R, PF 0,68 en frais doubles ;
   M2 4 h reconstruit : 19 trades, non concluant. M2 sur HIP-3 abandonne, sans nouveau reglage.
+- Lab v6 « Furie Momentum » (demandes ecrites de Richard du 24/11/2026, 03 h 30 a 03 h 33 UTC : « fais moi une strategie furi Motion »,
+  « tu envoies la strategie Furi Motion », « si il est perdu il est perdu mais on va faire en sorte qu'il grossisse ») : cassure du plus haut
+  ou plus bas de 24 h dans le sens de la tendance EMA 50 / 200 1 h, stop 3 ATR, sortie a la cloture de l'autre cote de l'EMA 50, deux positions
+  au plus, 13 actifs, filtre 2 M$. Pre-enregistrement usine/docs/PREREG-lab6-furie-momentum.md, spec USINE-SPEC-LAB6, jeu neuf fm
+  (travaux lab6-collecte-2026-11-24 et lab6-verdicts-2026-11-24). Temoin M2T rejoue sur le meme jeu ; Furie ne remplace M2T que si elle fait
+  au moins aussi bien. Niveau « furie » (5 %) seulement si entrainement, sans 3 meilleurs et ln a 5 % sont positifs, et apres confirmation
+  ecrite du palier par Richard ; sinon 2 %. Abandon : -6 R ou esperance negative apres 30 trades reels, retour a M2T.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
