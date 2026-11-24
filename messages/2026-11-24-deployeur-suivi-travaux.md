@@ -1,0 +1,1 @@
+Deployeur : petite mise a jour, en attente d'Aristote. Les travaux de recherche n'affichaient jamais leur fin. Maintenant, tu recois un message quand un travail se termine ou echoue, et une alerte s'il tourne encore apres 6 h. Rien ne change pour les bots ni pour les bornes.
