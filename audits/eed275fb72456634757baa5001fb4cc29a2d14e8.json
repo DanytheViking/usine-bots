@@ -1,0 +1,7 @@
+{
+ "commit": "eed275fb72456634757baa5001fb4cc29a2d14e8",
+ "verdict": "approuve",
+ "auditeur": "Aristote",
+ "date": "2026-11-24T04:55:37Z",
+ "raison": "Diff 4bd6da2 (derniere version approuvee de deployeur/)..eed275f relu en entier : deployeur.py (suivi_jobs, appele en tete de rapport) et test_deployeur.py. Changement : pour chaque travail marque « lance », lecture de l'etat de son conteneur par docker inspect (liste d'arguments, sans shell, nom job-<id> tire de l'etat interne) ; conteneur arrete : etat « fini » ou « echec (code N) » et un message Telegram si le travail a moins de 24 h ; conteneur encore en marche apres 6 h : une seule alerte. Lecture seule de Docker, aucun conteneur lance, arrete ni supprime ; les relances de controle (ligne 305) ne regardent que les etats « echec » des controles, qui ne passent pas par ce chemin, et un travail marque fini n'est pas relance. Constitution (bornes.py) inchangee, logique d'audit et de deploiement inchangee, aucune cle lue, aucun mouvement de fonds. Tests : test_deployeur 27/27 (DEPOT_SRC=..) ; bornes.verifier : aucune violation. Le nouveau test couvre fini, echec avec code, travail en cours, un seul message par fin, alerte longue une seule fois, travail ancien mis a jour sans message, et etat deja final non touche. Identite DanytheViking, sans co-auteur, aucun tiret long. Remarque non bloquante : un conteneur de travail supprime (docker inspect en echec) reste « lance » indefiniment ; le signaler apres 6 h comme un travail trop long."
+}
