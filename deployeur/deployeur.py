@@ -327,7 +327,24 @@ def messages(ctx, s, stage):
         ctx.send(open(os.path.join(d, f), encoding="utf-8").read()[:3500]); s["messages"].append(f)
 
 # ================================================================ rapport
+JOB_LONG = 6 * 3600                                                         # un travail qui tourne encore apres 6 h est signale une fois
+
+def suivi_jobs(ctx, s):
+    """Etat final des travaux lances : fini ou en echec quand le conteneur s'arrete (message une fois), alerte s'il tourne trop longtemps."""
+    for jid, j in (s.get("jobs") or {}).items():
+        if j.get("etat") != "lance": continue
+        rc, st = ctx.run(["docker", "inspect", "-f", "{{.State.Status}} {{.State.ExitCode}}", f"job-{jid}"])
+        statut, _, code = st.strip().partition(" ")
+        if rc == 0 and statut in ("exited", "dead"):
+            j["etat"] = "fini" if code == "0" else f"echec (code {code or '?'})"; j["fin"] = int(ctx.now())
+            log(f"job {jid} : {j['etat']}")
+            if ctx.now() - j.get("debut", 0) < 86400: ctx.send(f"Travail {jid} : {j['etat']}")   # les anciens travaux sont mis a jour sans message
+        elif rc == 0 and statut == "running" and ctx.now() - j.get("debut", ctx.now()) > JOB_LONG and not j.get("alerte_longue"):
+            j["alerte_longue"] = True; h = int((ctx.now() - j["debut"]) // 3600)
+            log(f"job {jid} : en cours depuis {h} h"); ctx.send(f"Travail {jid} : toujours en cours apres {h} h, a verifier")
+
 def rapport(ctx, s):
+    suivi_jobs(ctx, s)
     d = os.path.join(BASE, "rapport"); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
     rc, ps = ctx.run(["docker", "ps", "-a", "--format", "{{.Names}} | {{.Status}} | {{.Image}}"])
     etat = {"ts": dt.datetime.now(dt.timezone.utc).isoformat()[:19] + "Z", "deploye": s.get("deploye"), "refuse": s.get("refuse"),

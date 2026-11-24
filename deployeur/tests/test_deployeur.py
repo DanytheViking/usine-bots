@@ -352,6 +352,28 @@ def test_audit_couvre_les_variables_du_bot():
     sha = w.commit("deploy/env/peanut2.json", json.dumps({"MODE": "reel"}))
     s = D.cycle(w.ctx); assert s["par_cible"]["peanut2"] != sha and s["par_cible"]["recolteur"] == sha
 
+def test_suivi_des_travaux():
+    w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
+    etats = {"job-a": "exited 0", "job-b": "exited 1", "job-c": "running 0"}
+    orig = w.ctx.run
+    def run(cmd, timeout=1800, cwd=None, env=None):
+        if cmd[:2] == ["docker", "inspect"] and cmd[-1] in etats: return 0, etats[cmd[-1]] + "\n"
+        return orig(cmd, timeout, cwd, env)
+    w.ctx.run = run
+    t0 = w.ctx.t
+    s = {"jobs": {"a": {"etat": "lance", "debut": t0}, "b": {"etat": "lance", "debut": t0}, "c": {"etat": "lance", "debut": t0},
+                  "d": {"etat": "fait : CONFORME", "debut": t0}}}
+    w.ctx.sent.clear(); w.ctx.t = t0 + 3600; D.suivi_jobs(w.ctx, s)
+    assert s["jobs"]["a"]["etat"] == "fini" and s["jobs"]["b"]["etat"] == "echec (code 1)" and s["jobs"]["c"]["etat"] == "lance"
+    assert s["jobs"]["d"]["etat"] == "fait : CONFORME" and len(w.ctx.sent) == 2
+    w.ctx.sent.clear(); D.suivi_jobs(w.ctx, s); assert w.ctx.sent == []                       # un seul message par fin
+    w.ctx.t = t0 + 7 * 3600; D.suivi_jobs(w.ctx, s)
+    assert s["jobs"]["c"]["alerte_longue"] and len(w.ctx.sent) == 1 and "7 h" in w.ctx.sent[0]
+    D.suivi_jobs(w.ctx, s); assert len(w.ctx.sent) == 1                                      # alerte une seule fois
+    etats["job-c"] = "exited 0"; D.suivi_jobs(w.ctx, s); assert s["jobs"]["c"]["etat"] == "fini"
+    s["jobs"]["e"] = {"etat": "lance", "debut": t0 - 3 * 86400}; etats["job-e"] = "exited 0"; w.ctx.sent.clear()
+    D.suivi_jobs(w.ctx, s); assert s["jobs"]["e"]["etat"] == "fini" and w.ctx.sent == []      # ancien travail : sans message
+
 def test_controle_hebdomadaire():
     w = World(); D = w.D; D.cycle(w.ctx, adopter=True)
     open(D.R("/opt/tableau/.env"), "w").write("MOON_ACCOUNT=0x" + "a" * 40 + "\nLABO_ACCOUNT=0x" + "c" * 40 + "\nTELEGRAM_BOT_TOKEN=x\n")
