@@ -220,7 +220,7 @@ def preflight(m, s, b):
         sz, lev, notional, risk, why = G.size(ev["trend"], ev["ref"], ev["atr"], eq or OBS_START, ctx[coin], {})
         print(f"{coin:6s} tendance {ev['trend']:5s} stop {C.STOP_ATR * ev['atr'] / ev['ref']:.1%} -> " +
               (why if why else f"taille {sz:g} ({notional:.2f} $), levier {lev}x, risque {risk:.2f} USDC"))
-    print(f"Thales : {'cle presente, modele ' + C.THALES_MODELE + ', secours ' + (C.THALES_SECOURS or 'aucun') if C.ANTHROPIC_API_KEY else 'pas de cle (avis absents)'}")
+    print(f"Thales : {'cle presente, modele ' + C.THALES_MODELE + ', secours ' + (', '.join(C.THALES_CHAINE[1:]) or 'aucun') if C.ANTHROPIC_API_KEY else 'pas de cle (avis absents)'}")
     print("PREVOL OK" if ok else "PREVOL EN ECHEC"); return ok
 
 def main(argv=None):

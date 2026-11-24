@@ -54,7 +54,7 @@ def opinion(prompt: str, state: dict, day: str, post=None):
     if post is None:
         import requests
         post = requests.post
-    modeles = [C.THALES_MODELE] + ([C.THALES_SECOURS] if C.THALES_SECOURS and C.THALES_SECOURS != C.THALES_MODELE else [])
+    modeles = C.THALES_CHAINE
     echecs, illisible = [], None
     for modele in modeles:                       # le principal d'abord ; le secours s'il ne repond pas ou repond sans avis lisible
         try:

@@ -364,7 +364,7 @@ def test_tendance_reservee_au_lab():
     fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
     old = os.environ.get("BOT_NAME")
     try:
-        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.2"
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.3"
     finally:
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
@@ -497,10 +497,30 @@ def test_fable_reponses_tolerees():
     assert F.parse('{"note": 1} puis {"avis": "eviter"}')["avis"] == "eviter"
     assert F.parse("rien de lisible") is None and F.parse('{"avis": "peut-etre"}') is None
     old = F.C.ANTHROPIC_API_KEY; F.C.ANTHROPIC_API_KEY = "sk-test"
-    old_sec = F.C.THALES_SECOURS; F.C.THALES_SECOURS = ""
+    old_ch = F.C.THALES_CHAINE; F.C.THALES_CHAINE = [F.C.THALES_MODELE]
     try: r = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: Resp(200, "pas de json ici"))
-    finally: F.C.ANTHROPIC_API_KEY = old; F.C.THALES_SECOURS = old_sec
+    finally: F.C.ANTHROPIC_API_KEY = old; F.C.THALES_CHAINE = old_ch
     assert r == {"absent": "reponse illisible", "apercu": "pas de json ici", "modele": C.THALES_MODELE, "fin": ""} and len(F.apercu("x " * 500)) == 160
+
+def test_thales_smart_peanut_sur_fable_puis_opus_puis_sonnet():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C)
+    try:
+        assert C.THALES_CHAINE == ["claude-fable-5-2", "claude-opus-5-5", "claude-sonnet-5-5"]
+        vus = []
+        def fable_epuise_opus_vide(url, **k):
+            m = k["json"]["model"]; vus.append(m)
+            if m == "claude-fable-5-2": return Resp(429, "")
+            if m == "claude-opus-5-5": return RespVide()
+            return Resp(200, '{"avis": "prendre", "confiance": 60, "raison": "x"}')
+        s = {"fable_calls": {}}
+        op = F.opinion("p", s, "d", post=fable_epuise_opus_vide)
+        assert vus == C.THALES_CHAINE and op["modele"] == "claude-sonnet-5-5" and op["avis"] == "prendre" and s["fable_calls"]["d"] == 1
+        vus.clear()
+        op = F.opinion("p", {"fable_calls": {}}, "d", post=lambda url, **k: (vus.append(k["json"]["model"]), Resp(200, '{"avis": "eviter"}'))[1])
+        assert vus == ["claude-fable-5-2"] and op["modele"] == "claude-fable-5-2"      # Fable repond : aucun secours appele
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("BOT_NAME"); importlib.reload(C)
+    assert C.THALES_CHAINE == ["claude-opus-5-5", "claude-sonnet-5-5"]                 # Moonshot inchange
 
 class RespVide:
     """Reponse 200 sans texte : la reflexion a pris tous les jetons."""
