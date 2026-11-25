@@ -141,7 +141,9 @@ Mesurer chaque signal pris contre chaque signal ecarte des qu'il y en a ; verifi
 16/11 : lecture verifiee en reel (kPEPE short du 15/11 12 h, Fable, « eviter » a 62 et 63 %, les deux bots ; aucun « illisible » depuis la 2.4.0).
 Manque : les signaux ecartes ne sont pas suivis (Democrite n'apparie que les trades fermes).
 24/11 : FAIT, dans le Controleur (usine/controle.py) : chaque signal ecarte est suivi en papier (entree a la reference, stop 3 ATR, sortie au stop ou a la
-48e bougie, frais deduits) ; R moyen et R total publies dans le controle du lundi (premier passage manuel : travail controle-2026-11-24). A ecrire : suivi papier des signaux ecartes
+48e bougie, frais deduits) ; R moyen et R total publies dans le controle du lundi (premier passage manuel : travail controle-2026-11-24).
+24/11, premier resultat (controle-2026-11-24) : Smart Peanut 13 signaux ecartes, 4 termines, tous au stop (-4,09 R evites) ; Moonshot 1 ecarte, +1,01 R manque.
+Trop peu pour conclure : bilan apres 30 signaux ecartes termines (P1b). A ecrire : suivi papier des signaux ecartes
 (entree au prix de reference, stop 3 ATR, sortie au croisement inverse ou au stop, sur les bougies) pour comparer pris et ecartes a nombre egal.
 Remarques d'Aristote (audit 9253975) a traiter : Democrite mesure separement les avis de Fable et ceux du secours (champ modele) ;
 un signal peut couter deux appels payants alors que le plafond journalier n'en compte qu'un (compter les deux).
