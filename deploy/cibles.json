@@ -177,7 +177,8 @@
    "tests/test_lab5.py",
    "tests/test_hip3.py",
    "tests/test_lab6.py",
-   "tests/test_lab7.py"
+   "tests/test_lab7.py",
+   "tests/test_lab8.py"
   ],
   "test_volumes": [
    "{stage}:/app:ro",

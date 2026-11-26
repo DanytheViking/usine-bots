@@ -1,0 +1,32 @@
+{
+ "id": "USINE-SPEC-LAB8",
+ "gel_utc": "2026-11-26T21:00Z",
+ "annonce": "Lab v8 Tendance 4 h confirmee : entree dans la tendance EMA 50 / 200 en 4 h quand la cloture est du bon cote de l'EMA 50, deux positions au plus.",
+ "prereg_sha256": "5fa4733596bd08c3aa63f489d686fcc75117357b54b7fcef7c6e3b8dd08a13b1",
+ "candidats": [
+  "T4H_confirmee",
+  "T4H_tendance",
+  "M2_4h_croisement"
+ ],
+ "decisif": "T4H_confirmee",
+ "temoin": "M2_4h_croisement",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "paliers_publies": [
+  0.02,
+  0.05,
+  0.1
+ ],
+ "volume_min_usd": 2000000,
+ "max_positions": 2,
+ "voie_rapide": {
+  "trades_min": 40,
+  "esperance_min_R": 0.1
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261127,
+  "bloc": "jour UTC du signal"
+ }
+}

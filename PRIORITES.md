@@ -97,6 +97,13 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   spec USINE-SPEC-LAB7, jeu neuf portage (travaux lab7-collecte-2026-11-26 et lab7-verdicts-2026-11-26). Recherche seulement.
   Niveau reel (voie rapide, entrainement et sans 3 meilleurs positifs) : propose a Richard a 2 % ; niveau papier : deux semaines d'observation ;
   esperance negative : abandon et regle d'arret de l'addendum v3 (M2 seul).
+  26/11 09 h 10 UTC, verdict (lab7-verdicts-2026-11-26) : NON CONCLUANT. Portage 33 trades, -0,002 R, entrainement -0,45 R ; sans EMA +0,18 R
+  sur 40 trades mais entrainement -0,25 R (non decisif, non retenu). Rien en reel, pas de nouvelle variante.
+- Lab v8 « Tendance 4 h confirmee » (demande ecrite de Richard du 26/11/2026, 20 h 30 UTC : « sur Smart Peanut trouve une nouvelle strategy
+  optimal ») : tendance EMA 50 / 200 en 4 h rejointe sans attendre un croisement, seulement quand la cloture est du bon cote de l'EMA 50
+  (la raison des 13 veto de Thales du 23/11 ecrite en regle fixe), stop 3 ATR, sortie au croisement inverse, deux positions au plus,
+  13 actifs, filtre 2 M$. Pre-enregistrement usine/docs/PREREG-lab8-tendance-4h.md, spec USINE-SPEC-LAB8, jeu neuf t4h (travaux
+  lab8-collecte-2026-11-26 et lab8-verdicts-2026-11-26). Recherche seulement. Niveau reel : propose a Richard pour remplacer M2T 1 h a 2 %.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
