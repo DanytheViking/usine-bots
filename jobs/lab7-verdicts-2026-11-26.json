@@ -1,0 +1,1 @@
+{"id": "lab7-verdicts-2026-11-26", "type": "usine", "module": "usine.verif_portage", "args": ["--spec", "specs/USINE-SPEC-LAB7.json", "--data", "/d/portage", "--out", "/out", "--attendre", "14400"], "reseau": false}

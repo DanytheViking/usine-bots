@@ -90,6 +90,13 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
 - Suivi du Lab en reel (M2T, 2.7.3) : 23/11 13 h 57 UTC, BTC short et ETH short stoppes ensemble sur un rebond de 5 a 6 % (-1,42 et -1,48 USDC,
   -1,96 R cumules sur la strategie, abandon a -6 R). Compte Labo 71,46 USDC. A 14 h, Thales a ecarte les 13 reentrees en tendance (prix 3 a 5 ATR
   au-dessus de l'EMA 50 apres le rebond).
+- Lab v7 « Portage » (demande ecrite de Richard du 25/11/2026, 23 h 59 UTC : « pour smart peanut trouve moi la vertical [...] a explorer ») :
+  le funding comme signal de positionnement, jamais teste ici. Funding moyen de 24 h au-dela de 0,005 % par heure et prix repasse de l'autre
+  cote de l'EMA 50 1 h : position contre le cote entasse, stop 3 ATR, sortie au retour du funding a son taux de base ou apres 5 jours,
+  deux positions au plus, 30 memecoins et 13 actifs de Moonshot, filtre 2 M$. Pre-enregistrement usine/docs/PREREG-lab7-portage.md,
+  spec USINE-SPEC-LAB7, jeu neuf portage (travaux lab7-collecte-2026-11-26 et lab7-verdicts-2026-11-26). Recherche seulement.
+  Niveau reel (voie rapide, entrainement et sans 3 meilleurs positifs) : propose a Richard a 2 % ; niveau papier : deux semaines d'observation ;
+  esperance negative : abandon et regle d'arret de l'addendum v3 (M2 seul).
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 

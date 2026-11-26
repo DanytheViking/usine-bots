@@ -1,0 +1,1 @@
+{"id": "lab7-collecte-2026-11-26", "type": "usine", "module": "usine.collecte_portage", "args": ["--out", "/d/portage"], "reseau": true}

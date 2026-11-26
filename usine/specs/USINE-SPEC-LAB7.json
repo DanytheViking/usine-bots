@@ -1,0 +1,30 @@
+{
+ "id": "USINE-SPEC-LAB7",
+ "gel_utc": "2026-11-26T01:30Z",
+ "annonce": "Lab v7 Portage : funding moyen 24 h extreme et prix repasse de l'autre cote de l'EMA 50 1 h, contre le cote entasse, deux positions au plus.",
+ "prereg_sha256": "1ca3c27106613db0149419d429ce40c60ee44b702cd4b7302a479a9a5f2849a1",
+ "candidats": [
+  "PORTAGE_1h",
+  "PORTAGE_1h_sans_ema"
+ ],
+ "decisif": "PORTAGE_1h",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "paliers_publies": [
+  0.02,
+  0.05,
+  0.1
+ ],
+ "volume_min_usd": 2000000,
+ "max_positions": 2,
+ "voie_rapide": {
+  "trades_min": 40,
+  "esperance_min_R": 0.1
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261126,
+  "bloc": "jour UTC du signal"
+ }
+}
