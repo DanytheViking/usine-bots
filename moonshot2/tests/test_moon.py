@@ -239,10 +239,11 @@ def test_reel_garde_fou_ramene_l_ordre_a_1_pourcent():
     finally:
         os.environ.pop("RISK_PER_TRADE", None); fresh("observation")
 
-def test_env_moonshot2_5_pourcent():
+def test_env_moonshot2_2_pourcent():
+    """Richard, 26/11/2026 : Moonshot revient de 5 % a 2 % par trade."""
     racine = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     p = os.path.join(racine, "deploy", "env", "moonshot2.json")
-    if os.path.exists(p): assert json.load(open(p)) == {"RISK_PER_TRADE": "0.05"}
+    if os.path.exists(p): assert json.load(open(p)) == {"RISK_PER_TRADE": "0.02"}
 
 def test_env_peanut2_m2_1h_2_pourcent():
     """Choix de Richard du 18/11/2026 : M2 en 1 h a 2 % sur les 13 actifs de Moonshot, filtre de volume a 2 M$."""
@@ -406,7 +407,7 @@ def test_tendance_reservee_au_lab():
     fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
     old = os.environ.get("BOT_NAME")
     try:
-        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.4"
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.5"
     finally:
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
@@ -429,7 +430,7 @@ def test_tendance_entre_sans_croisement_puis_reentre_apres_stop():
     assert s["positions"]["BTC"]["side"] == "short" and len(ex.sent) == 3                    # tendance rejointe a la cloture suivante
 
 def test_tendance_un_seul_avis_de_thales_par_tendance():
-    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; os.environ["FABLE_DECIDE"] = "1"                 # veto actif, comme au Lab
     try:
         m, s, b, info, ex, now = setup("reel"); tendance(m, s, b, info); appels = []
         def post(url, **k):
@@ -440,7 +441,7 @@ def test_tendance_un_seul_avis_de_thales_par_tendance():
         info.end_ms = NOW0 + TF; BOT.step(m, s, b, now + dt.timedelta(hours=4), fable_post=post)
         assert sum("BTC" in a for a in appels) == 1 and not ex.sent                           # meme tendance : pas de nouvel appel
     finally:
-        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
 
 def plafond_lab(m, s, b, info, coins):
     C.ENTREE_TENDANCE = True; C.MAX_POSITIONS = 2; C.COINS = coins
@@ -591,7 +592,7 @@ def test_thales_reponse_vide_passe_au_secours():
         os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
 
 def test_fable_decide():
-    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"; os.environ["FABLE_DECIDE"] = "1"                 # veto actif, comme au Lab
     try:
         m, s, b, info, ex, now = setup("reel")
         assert C.FABLE_DECIDE
@@ -607,7 +608,25 @@ def test_fable_decide():
         BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(500, "erreur"))
         assert "ETH" in s["positions"]                                             # avis absent : la regle M2 s'applique
     finally:
-        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
+        os.environ.pop("ANTHROPIC_API_KEY"); os.environ.pop("FABLE_DECIDE"); importlib.reload(C)
+
+def test_veto_de_thales_au_lab_seulement():
+    """Richard, 26/11/2026 : sur Moonshot l'avis de Thales est note sans veto ; le veto reste actif au Lab."""
+    old = os.environ.get("BOT_NAME"); os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    try:
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.FABLE_DECIDE
+        os.environ["BOT_NAME"] = "moonshot2"; importlib.reload(C); assert not C.FABLE_DECIDE
+        os.environ.pop("BOT_NAME")
+        m, s, b, info, ex, now = setup("reel")
+        BOT.step(m, s, b, now, fable_post=lambda url, **k: Resp(200, '{"avis": "eviter", "confiance": 70, "raison": "essoufflement"}'))
+        assert "ETH" in s["positions"] and ex.sent                                 # Moonshot : la regle M2 s'applique, l'avis est journalise
+        rows = [json.loads(l) for l in open(os.path.join(C.DATA_DIR, "journal.jsonl"))]
+        assert any(r["stage"] == "fable" and r["decision"] == "eviter" for r in rows)
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY")
+        if old is None: os.environ.pop("BOT_NAME", None)
+        else: os.environ["BOT_NAME"] = old
+        importlib.reload(C)
 
 def test_fable_plafond_et_erreurs():
     os.environ["ANTHROPIC_API_KEY"] = "k"

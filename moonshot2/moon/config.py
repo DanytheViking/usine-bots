@@ -6,7 +6,7 @@ def _f(k, d): return float(os.getenv(k, d))
 def _i(k, d): return int(os.getenv(k, d))
 
 NAME = os.getenv("BOT_NAME", "moonshot2")
-VERSION = "2.7.4"
+VERSION = "2.7.5"
 DATA_DIR = os.getenv("DATA_DIR", "/app/data")
 MODE = os.getenv("MODE", "observation").strip().lower()       # "observation" (aucun ordre) ou "reel"
 if MODE not in ("observation", "reel"): MODE = "observation"
@@ -61,7 +61,8 @@ THALES_CHAINE = list(dict.fromkeys([THALES_MODELE] + [m.strip() for m in THALES_
 FABLE_MAX_CALLS_DAY = min(_i("FABLE_MAX_CALLS_DAY", "40"), 100)
 # Thales decide (decision de Richard du 12/11/2026) : parmi les signaux M2, un avis « eviter » annule l'entree.
 # Avis absent (pas de cle, erreur, plafond) : la regle M2 s'applique. Les sorties restent mecaniques. FABLE_DECIDE=0 le desactive.
-FABLE_DECIDE = os.getenv("FABLE_DECIDE", "1").strip().lower() in ("1", "oui", "true")
+# Moonshot (Richard, 26/11/2026) : l'avis est note et mesure, sans veto, jusqu'au bilan de 30 signaux ; le veto reste actif au Lab.
+FABLE_DECIDE = os.getenv("FABLE_DECIDE", "1" if NAME == "smartpeanut2" else "0").strip().lower() in ("1", "oui", "true")
 
 KILL_SWITCH = os.path.join(DATA_DIR, "KILL")
 
