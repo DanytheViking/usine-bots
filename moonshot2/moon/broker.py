@@ -13,6 +13,8 @@ def kill(reason: str):
     J.record("risque", "kill", reason)
     N.send(f"🛑 ARRET (KILL)\n{reason}\nPlus aucune nouvelle entree. Les positions gardent leur stop.")
 
+ENTREE_AVANT_MS = 600_000                     # fenetre de recherche du fill d'entree avant opened_ms (delais et horloges)
+
 def is_stop(o) -> bool:
     return bool(o.get("reduceOnly") and ((o.get("isTrigger") and o.get("tpsl") == "sl") or "stop" in str(o.get("orderType", "")).lower()))
 
@@ -103,6 +105,7 @@ class LiveBroker:
         if sz <= 0: raise RuntimeError("taille nulle apres arrondi")
         lim = self.m.round_px(ref * (1 + C.ENTRY_SLIPPAGE if buy else 1 - C.ENTRY_SLIPPAGE), coin)
         sl = self.m.round_px(stop_px, coin)
+        if self.positions().get(coin): raise RuntimeError(f"{coin} : position deja ouverte sur l'exchange, entree refusee")
         if self.orders(coin):                                                        # pas de position ici : tout ordre restant est perime
             self._cancel_all(coin)
             if self.orders(coin): raise RuntimeError(f"{coin} : ordres anciens impossibles a annuler, entree refusee")
@@ -134,7 +137,7 @@ class LiveBroker:
             self.safe_exit(coin, f"position ouverte sans stop confirme ({errs})"); raise RuntimeError(f"stop absent : {errs}")
         fill = (st[0] or {}).get("filled", {}) if st and isinstance(st[0], dict) else {}
         e = float(fill.get("avgPx") or ref)
-        return {"entry": e, "sz": reel, "stop": sl, "fee_in": 0.0}
+        return {"entry": e, "sz": reel, "stop": sl, "fee_in": 0.0, "oid": fill.get("oid")}
 
     def stop_seul(self, coin, buy, sz, sl, errs=None):
         """P0b : stop du lot absent (remplissage partiel, stop rejete) -> stop reduce-only seul a la taille REELLE, au meme prix,
@@ -180,8 +183,11 @@ class LiveBroker:
         return False
 
     def _settle(self, coin, issue, since_ms):
-        p = self.s["positions"].pop(coin)
-        fills = [f for f in self.info.user_fills_by_time(C.HL_ACCOUNT, since_ms) if f.get("coin") == coin]
+        p = self.s["positions"].pop(coin); oid = p.get("oid_in")
+        # Le fill d'entree precede opened_ms (note apres le retour de l'ordre) : il est retrouve par son oid, sinon ses frais manquaient au resultat.
+        debut = since_ms - ENTREE_AVANT_MS if oid is not None else since_ms
+        fills = [f for f in self.info.user_fills_by_time(C.HL_ACCOUNT, debut) if f.get("coin") == coin
+                 and (int(f.get("time", 0)) >= since_ms or f.get("oid") == oid)]
         pnl = sum(float(f.get("closedPnl", 0)) - float(f.get("fee", 0)) for f in fills)
         ex_px = next((float(f["px"]) for f in reversed(fills) if str(f.get("dir", "")).startswith("Close")), None)
         return {"coin": coin, "side": p["side"], "issue": issue, "entry": p["entry"], "exit": ex_px, "pnl": round(pnl, 6), "R": _settle_r(p, pnl), "bar_ts": p.get("bar_ts")}

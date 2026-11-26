@@ -55,13 +55,6 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     if not ctx:
         J.record("signal", "saute", f"{coin} : contexte Hyperliquid absent"); J.trace("META_ABSENT", coin, ev["bar_ts"], **base); return
     base["vol_usd"] = ctx.get("vol_usd")
-    op = F.opinion(F.context_text(coin, side, ev, ctx, df), s, day, post=fable_post)
-    J.record("fable", op.get("avis", "absent"), f"{coin} {side} : {op}", coin=coin, side=side, bar_ts=ev["bar_ts"], **op)
-    if C.FABLE_DECIDE and op.get("avis") == "eviter":
-        J.record("signal", "ecarte par Thales", f"{coin} {side} : Thales decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
-                 coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
-        N.send(f"🔮 Thales ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
-        J.trace("AI_VETO", coin, ev["bar_ts"], confiance=op.get("confiance"), modele=op.get("modele"), **base); return
     deja = s.get("garde_risque"); risque = G.risque_par_trade(s)
     if s.get("garde_risque") and not deja:
         J.record("garde", "risque", f"baisse de {G.drawdown_r(s['r_ledger']):.1f} R depuis le sommet : risque ramene a {risque:.0%}", risque=risque)
@@ -75,6 +68,13 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
     if t["why"]:
         J.record("signal", "saute", f"{coin} {side} : {t['why']}", code=t["code"], **mesure); N.send(f"⏭ Signal {coin} {side} saute : {t['why']}")
         J.trace(t["code"], coin, ev["bar_ts"], **base, **mesure); return
+    op = F.opinion(F.context_text(coin, side, ev, ctx, df), s, day, post=fable_post)   # apres la taille : pas d'appel paye pour un trade que le Gardien refuse
+    J.record("fable", op.get("avis", "absent"), f"{coin} {side} : {op}", coin=coin, side=side, bar_ts=ev["bar_ts"], **op)
+    if C.FABLE_DECIDE and op.get("avis") == "eviter":
+        J.record("signal", "ecarte par Thales", f"{coin} {side} : Thales decide d'eviter ({op.get('confiance')} %) : {op.get('raison')}",
+                 coin=coin, side=side, bar_ts=ev["bar_ts"], ref=ev["ref"], atr=ev["atr"])
+        N.send(f"🔮 Thales ecarte le signal M2 {coin} {side.upper()} ({op.get('confiance')} %)\n{op.get('raison')}")
+        J.trace("AI_VETO", coin, ev["bar_ts"], confiance=op.get("confiance"), modele=op.get("modele"), **base); return
     sz, lev, risk = t["sz"], t["lev"], t["risk"]
     J.record("risque", t["code"] or "taille", f"{coin} {side} : risque vise {t['risk_target']:.2f}, reel {risk:.2f} USDC "
              f"({mesure['risk_frais']:.2f} avec frais), stop {t['dist_stop']:.2%}, liquidation {t['dist_liq']:.2%}, marge {t['marge']:.2f}", **mesure)
@@ -87,7 +87,7 @@ def enter(m, s, b, coin, side, ev, df, equity, day, fable_post=None):
         N.send(f"⏭ {coin} {side} : entree non remplie (prix parti au-dela de 1 %)"); J.trace("NOT_FILLED", coin, ev["bar_ts"], **base, **mesure); return
     if r["sz"] < sz: risk = risk * r["sz"] / sz                                                  # remplissage partiel : risque reel
     s["positions"][coin] = {"side": side, "sz": r["sz"], "entry": r["entry"], "stop": r["stop"], "risk_usd": risk, "lev": lev,
-                            "notional": r["sz"] * r["entry"], "opened_ms": int(time.time() * 1000), "bar_ts": ev["bar_ts"], "fee_in": r.get("fee_in", 0.0)}
+                            "notional": r["sz"] * r["entry"], "opened_ms": int(time.time() * 1000), "bar_ts": ev["bar_ts"], "fee_in": r.get("fee_in", 0.0), "oid_in": r.get("oid")}
     fab = f"\nThales : {op['avis']} ({op['confiance']} %) : {op['raison']}" if "avis" in op else ""
     J.record("execution", "ouvert", f"{coin} {side} {r['sz']} a {r['entry']}, stop {r['stop']}, risque {risk:.2f} USDC, levier {lev}")
     J.trace("EXECUTED", coin, ev["bar_ts"], entry=r["entry"], stop=r["stop"], sz_rempli=r["sz"], **base, **mesure)
