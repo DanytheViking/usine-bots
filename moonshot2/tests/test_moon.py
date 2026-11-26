@@ -252,6 +252,48 @@ def test_env_peanut2_m2_1h_2_pourcent():
         assert json.load(open(p)) == {"RISK_PER_TRADE": "0.02", "LINE_STOP": "0.80", "MAX_RISK_MIN_ORDER": "0.20",
                                       "COINS": ",".join(C.COINS_DEFAUT), "MIN_DAY_VOLUME_USD": "2000000"}
 
+# ================================================================ 2.7.4 : frais d'entree au resultat, Thales apres le Gardien
+def test_reel_frais_d_entree_comptes_au_resultat():
+    m, s, b, info, ex, now = setup("reel")
+    BOT.step(m, s, b, now)
+    p = s["positions"]["ETH"]; t0 = p["opened_ms"]
+    info.fills[0].update(time=t0 - 1500, oid=42)                                              # le fill d'entree precede toujours opened_ms
+    info.fills.append({"coin": "ETH", "time": t0 - 1400, "px": "1", "closedPnl": "-9", "fee": "9", "dir": "Close Short", "oid": 41})   # ancien trade : jamais compte
+    p["oid_in"] = 42
+    c = b.close("ETH", "test")
+    assert abs(c["pnl"] - (1.5 - 0.01 - 0.01)) < 1e-9                                         # frais d'entree et de sortie
+    m, s, b, info, ex, now = setup("reel")
+    BOT.step(m, s, b, now)
+    info.fills[0].update(time=s["positions"]["ETH"]["opened_ms"] - 1500)                      # position ouverte avant la 2.7.4 : pas d'oid, comportement inchange
+    assert s["positions"]["ETH"].get("oid_in") is None and abs(b.close("ETH", "test")["pnl"] - (1.5 - 0.01)) < 1e-9
+
+def test_reel_oid_d_entree_enregistre():
+    m, s, b, info, ex, now = setup("reel")
+    lot = ex.bulk_orders
+    def avec_oid(orders, grouping=None):
+        r = lot(orders, grouping); r["response"]["data"]["statuses"][0]["filled"]["oid"] = 77; return r
+    ex.bulk_orders = avec_oid
+    BOT.step(m, s, b, now)
+    assert s["positions"]["ETH"]["oid_in"] == 77
+
+def test_reel_entree_refusee_si_position_deja_sur_l_exchange():
+    m, s, b, info, ex, now = setup("reel")
+    info.pos["ETH"] = 0.3
+    try: b.open("ETH", "long", 1.0, 2, 100.0, 90.0); assert False
+    except RuntimeError as e: assert "deja ouverte" in str(e)
+    assert not ex.sent
+
+def test_thales_non_appele_si_le_gardien_refuse():
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-cle"
+    try:
+        m, s, b, info, ex, now = setup("reel", equity=12.0)
+        C.MAX_RISK_MIN_ORDER = 0.001                                                          # le minimum Hyperliquid impose trop de risque : trade saute
+        appels = []
+        BOT.step(m, s, b, now, fable_post=lambda url, **k: appels.append(1))
+        assert not s["positions"] and not appels and not s["fable_calls"]
+    finally:
+        os.environ.pop("ANTHROPIC_API_KEY"); importlib.reload(C)
+
 # ================================================================ boucle
 def test_observation_ouvre_sans_ordre_puis_stop():
     m, s, b, info, ex, now = setup("observation")
@@ -364,7 +406,7 @@ def test_tendance_reservee_au_lab():
     fresh("observation"); assert C.NAME == "moonshot2" and not C.ENTREE_TENDANCE
     old = os.environ.get("BOT_NAME")
     try:
-        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.3"
+        os.environ["BOT_NAME"] = "smartpeanut2"; importlib.reload(C); assert C.ENTREE_TENDANCE and C.VERSION == "2.7.4"
     finally:
         if old is None: os.environ.pop("BOT_NAME", None)
         else: os.environ["BOT_NAME"] = old
