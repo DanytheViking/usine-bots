@@ -1,0 +1,31 @@
+{
+ "id": "USINE-SPEC-LAB9",
+ "gel_utc": "2026-11-26T21:15Z",
+ "annonce": "Lab v9 Duel : force relative d'un actif contre BTC en 4 h (croisement EMA 50 / 200 du rapport), deux jambes au meme montant, stop 6 x variation absolue moyenne, deux duels au plus.",
+ "prereg_sha256": "9f73184fbca535956bf50abc570cb7293b464a28e8a9cc9c47c58e720b800eb4",
+ "candidats": [
+  "DUEL_4h",
+  "M2_4h_temoin"
+ ],
+ "decisif": "DUEL_4h",
+ "reference": "BTC",
+ "fraction_evaluation": 0.5,
+ "stress_frais": 3,
+ "palier": 0.02,
+ "paliers_publies": [
+  0.02,
+  0.05,
+  0.1
+ ],
+ "volume_min_usd": 2000000,
+ "max_positions": 2,
+ "voie_rapide": {
+  "trades_min": 40,
+  "esperance_min_R": 0.1
+ },
+ "bootstrap": {
+  "tirages": 2000,
+  "graine": 20261127,
+  "bloc": "jour UTC du signal"
+ }
+}

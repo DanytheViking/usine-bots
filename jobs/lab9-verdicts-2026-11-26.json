@@ -1,0 +1,1 @@
+{"id": "lab9-verdicts-2026-11-26", "type": "usine", "module": "usine.verif_duel", "args": ["--spec", "specs/USINE-SPEC-LAB9.json", "--data", "/d/duel", "--out", "/out", "--attendre", "14400"], "reseau": false}

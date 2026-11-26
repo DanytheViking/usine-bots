@@ -104,6 +104,15 @@ avec l'equipe en mode tete brulee, juste pour Smart Peanut. »
   (la raison des 13 veto de Thales du 23/11 ecrite en regle fixe), stop 3 ATR, sortie au croisement inverse, deux positions au plus,
   13 actifs, filtre 2 M$. Pre-enregistrement usine/docs/PREREG-lab8-tendance-4h.md, spec USINE-SPEC-LAB8, jeu neuf t4h (travaux
   lab8-collecte-2026-11-26 et lab8-verdicts-2026-11-26). Recherche seulement. Niveau reel : propose a Richard pour remplacer M2T 1 h a 2 %.
+- Lab v9 « Duel » (demande ecrite de Richard du 26/11/2026, 20 h 30 UTC : « sur Smart Peanut trouve une nouvelle strategy optimal ») :
+  premiere strategie a deux jambes, neutre au marche. Rapport du prix d'un actif a celui de BTC en 4 h, croisement EMA 50 / 200 du rapport
+  (reglages de M2, repris tels quels) : achat de l'actif et vente de BTC pour le meme montant, ou l'inverse ; stop a 6 fois la variation
+  absolue moyenne du rapport (equivalent de 3 ATR), lu a la cloture ; sortie au croisement inverse ; deux duels au plus ; 30 memecoins et
+  12 actifs de Moonshot contre BTC, filtre 2 M$. Raison : le 23/11 les deux shorts du Lab ont saute ensemble sur un rebond du marche ; le Duel
+  ne depend plus du sens du marche et ne double pas Moonshot. Pre-enregistrement usine/docs/PREREG-lab9-duel.md, spec USINE-SPEC-LAB9,
+  jeu neuf duel en 4 h sur environ 833 jours (travaux lab9-collecte-2026-11-26 et lab9-verdicts-2026-11-26). Recherche seulement.
+  Niveau reel (voie rapide, entrainement et sans 3 meilleurs positifs) : propose a Richard a 2 %, apres le code d'execution a deux jambes,
+  sa confirmation ecrite et l'audit ; niveau papier : deux semaines d'observation ; esperance negative : abandon sans nouveau reglage.
 - Toujours interdit, meme au Lab : martingale, renforcement pour rattraper une perte, risque au-dela de 20 % par trade,
   code qui deplace des fonds.
 
