@@ -1,0 +1,30 @@
+etat conteneur : exited 0
+
+1h BTC
+funding BTC
+1h ETH
+funding ETH
+1h SOL
+funding SOL
+1h ZEC
+funding ZEC
+1h HYPE
+funding HYPE
+1h NEAR
+funding NEAR
+1h kPEPE
+funding kPEPE
+1h XRP
+funding XRP
+1h PUMP
+funding PUMP
+1h XMR
+funding XMR
+1h LIT
+funding LIT
+1h UNI
+funding UNI
+1h AVAX
+funding AVAX
+manifeste : 6e585ba2b2ba76bec2beb04afd03b877d364b94640870fbe32ec1d3a3d070cc5
+COLLECTE M2H1 TERMINEE

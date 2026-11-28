@@ -1,0 +1,213 @@
+{
+ "ts": "2026-11-24T09:31:47Z",
+ "periode_jours": 7,
+ "verdict": "CONFORME",
+ "resume": "reel conforme au simule : peanut2 2 entree(s), ecart -0.69 %",
+ "alertes": [],
+ "seuils": {
+  "ecart_entree": 0.003,
+  "taux_frais": 0.0006
+ },
+ "bots": [
+  {
+   "bot": "moonshot2",
+   "entrees": 0,
+   "ecart_entree_moyen": null,
+   "taux_frais_moyen": null,
+   "funding_usdc": 0,
+   "trades": [],
+   "veto_thales": {
+    "signaux": 1,
+    "termines": 1,
+    "R_moyen": 1.0112,
+    "R_total": 1.0112,
+    "detail": [
+     {
+      "coin": "kPEPE",
+      "side": "short",
+      "bar_ts": 1794729600000,
+      "ref": 0.004002,
+      "stop": 0.0045364285714285715,
+      "bougies": 48,
+      "issue": "horizon",
+      "R": 1.0112
+     }
+    ]
+   }
+  },
+  {
+   "bot": "peanut2",
+   "entrees": 2,
+   "ecart_entree_moyen": -0.006855881728744739,
+   "taux_frais_moyen": 0.00044999789950681587,
+   "funding_usdc": 0.005628,
+   "trades": [
+    {
+     "coin": "BTC",
+     "side": "short",
+     "t": 1795388516388,
+     "prix": 61241.0,
+     "ouverture_4h": 60699.0,
+     "ecart_entree": -0.008929306907856871,
+     "taux_frais": 0.00044999659963491386
+    },
+    {
+     "coin": "ETH",
+     "side": "short",
+     "t": 1795388535063,
+     "prix": 1722.8,
+     "ouverture_4h": 1714.6,
+     "ecart_entree": -0.004782456549632608,
+     "taux_frais": 0.00044999919937871793
+    }
+   ],
+   "veto_thales": {
+    "signaux": 13,
+    "termines": 4,
+    "R_moyen": -1.0215,
+    "R_total": -4.0859,
+    "detail": [
+     {
+      "coin": "BTC",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 63832.0,
+      "stop": 65881.85714285714,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.8336
+     },
+     {
+      "coin": "ETH",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 1810.8,
+      "stop": 1872.3,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.9898
+     },
+     {
+      "coin": "SOL",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 76.552,
+      "stop": 79.41421428571428,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.9339
+     },
+     {
+      "coin": "ZEC",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 846.11,
+      "stop": 894.2514285714285,
+      "bougies": 20,
+      "issue": "stop",
+      "R": -1.0158
+     },
+     {
+      "coin": "HYPE",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 66.87,
+      "stop": 69.56807142857143,
+      "bougies": 20,
+      "issue": "stop",
+      "R": -1.0223
+     },
+     {
+      "coin": "NEAR",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 3.1455,
+      "stop": 3.288064285714286,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.1719
+     },
+     {
+      "coin": "kPEPE",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 0.003618,
+      "stop": 0.003797357142857143,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 0.6565
+     },
+     {
+      "coin": "XRP",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 0.98823,
+      "stop": 1.0218278571428572,
+      "bougies": 20,
+      "issue": "stop",
+      "R": -1.0265
+     },
+     {
+      "coin": "PUMP",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 0.002673,
+      "stop": 0.0028242857142857145,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.3259
+     },
+     {
+      "coin": "XMR",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 518.14,
+      "stop": 533.7528571428571,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.255
+     },
+     {
+      "coin": "LIT",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 2.6098,
+      "stop": 2.780478571428571,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.3654
+     },
+     {
+      "coin": "UNI",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 4.9769,
+      "stop": 5.186749999999999,
+      "bougies": 20,
+      "issue": "stop",
+      "R": -1.0213
+     },
+     {
+      "coin": "AVAX",
+      "side": "short",
+      "bar_ts": 1795438800000,
+      "ref": 7.01,
+      "stop": 7.249721428571429,
+      "bougies": 20,
+      "issue": "en cours",
+      "R": null,
+      "R_provisoire": 1.1617
+     }
+    ]
+   }
+  }
+ ]
+}

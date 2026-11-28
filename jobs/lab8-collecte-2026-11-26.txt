@@ -1,0 +1,30 @@
+etat conteneur : exited 0
+
+4h BTC
+funding BTC
+4h ETH
+funding ETH
+4h SOL
+funding SOL
+4h ZEC
+funding ZEC
+4h HYPE
+funding HYPE
+4h NEAR
+funding NEAR
+4h kPEPE
+funding kPEPE
+4h XRP
+funding XRP
+4h PUMP
+funding PUMP
+4h XMR
+funding XMR
+4h LIT
+funding LIT
+4h UNI
+funding UNI
+4h AVAX
+funding AVAX
+manifeste : 078e5bffb4ed92a27a5421d9b01359a24337057472ad7e021f7691dd2c1ed663
+COLLECTE T4H TERMINEE

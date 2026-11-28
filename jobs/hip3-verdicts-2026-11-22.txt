@@ -1,0 +1,3 @@
+etat conteneur : exited 1
+
+/usr/local/bin/python: No module named usine.verif_m2_hip3

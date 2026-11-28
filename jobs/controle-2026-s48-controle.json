@@ -1,0 +1,48 @@
+{
+ "ts": "2026-11-23T06:00:04Z",
+ "periode_jours": 7,
+ "verdict": "CONFORME",
+ "resume": "reel conforme au simule : peanut2 2 entree(s), ecart -0.69 %",
+ "alertes": [],
+ "seuils": {
+  "ecart_entree": 0.003,
+  "taux_frais": 0.0006
+ },
+ "bots": [
+  {
+   "bot": "moonshot2",
+   "entrees": 0,
+   "ecart_entree_moyen": null,
+   "taux_frais_moyen": null,
+   "funding_usdc": 0,
+   "trades": []
+  },
+  {
+   "bot": "peanut2",
+   "entrees": 2,
+   "ecart_entree_moyen": -0.006855881728744739,
+   "taux_frais_moyen": 0.00044999789950681587,
+   "funding_usdc": 0.003091,
+   "trades": [
+    {
+     "coin": "BTC",
+     "side": "short",
+     "t": 1795388516388,
+     "prix": 61241.0,
+     "ouverture_4h": 60699.0,
+     "ecart_entree": -0.008929306907856871,
+     "taux_frais": 0.00044999659963491386
+    },
+    {
+     "coin": "ETH",
+     "side": "short",
+     "t": 1795388535063,
+     "prix": 1722.8,
+     "ouverture_4h": 1714.6,
+     "ecart_entree": -0.004782456549632608,
+     "taux_frais": 0.00044999919937871793
+    }
+   ]
+  }
+ ]
+}

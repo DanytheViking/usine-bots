@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : 909b1c93cb62d3262f3a6ebb6ed1f5e0adbb3914a2a75b5b424128e7241f135d
+NE PASSE PAS LA VOIE RAPIDE : rien en reel, M2T reste en reel
+rapport : /out/verdicts.md (sha256 4d380fb5ee830e2931b196e66ac1fcdd792c372bba539951df25b4e4df000209)

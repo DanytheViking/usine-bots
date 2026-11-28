@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : d94ace7131634907aa72a006830efceadf8be706c8ceaf1185d3bbff59a9ecec
+NON CONCLUANT : 39 trades en evaluation (40 exiges), aucun seuil retouche
+rapport : /out/verdicts.md (sha256 19b75c98894baed284606521d7c0734fde212e4123fab0b9ebde1c20c4a59f44)

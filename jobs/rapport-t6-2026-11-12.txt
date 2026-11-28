@@ -1,0 +1,30 @@
+etat conteneur : exited 0
+
+journal : intact, 10 evenements (chaine intacte, derniere empreinte af9ff5f376f1be88)
+{
+ "cascades": 5,
+ "cascades_completes": 5,
+ "refus": {
+  "phase mesure": 5
+ },
+ "trades": 0,
+ "remplissages": 0,
+ "issues": {},
+ "frais_x1": {
+  "pf": null,
+  "esperance_R": null,
+  "somme_R": 0
+ },
+ "frais_x2": {
+  "pf": null,
+  "esperance_R": null,
+  "somme_R": 0
+ },
+ "frais_x3": {
+  "pf": null,
+  "esperance_R": null,
+  "somme_R": 0
+ },
+ "verdict": "EN COURS : 0 trades papier sur 60 avant le premier jugement",
+ "univers": null
+}

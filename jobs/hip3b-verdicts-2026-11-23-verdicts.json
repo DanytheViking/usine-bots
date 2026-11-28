@@ -1,0 +1,1483 @@
+{
+ "candidats": {
+  "M2_1h_hip3": {
+   "acheter_et_garder": {
+    "actifs": 8,
+    "rendement_pct": -26.36
+   },
+   "coupe_ms": 1786388400000,
+   "coupe_utc": "2026-08-10T19:00Z",
+   "entrainement_frais_base": {
+    "global": {
+     "drawdown_max_R": 45.5021,
+     "esperance_R": -0.455,
+     "frais_R": 15.1078,
+     "funding_R": 1.4823,
+     "issues": {
+      "STOP": 63,
+      "sortie signal": 37
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 10,
+     "profit_factor": 0.476,
+     "remplis": 100,
+     "signaux": 100,
+     "somme_R": -45.5021,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2,
+     "trades": 100
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 3.1421,
+      "esperance_R": 0.6666,
+      "frais_R": 0.4985,
+      "funding_R": 0.4596,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 3
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 2.025,
+      "remplis": 9,
+      "signaux": 9,
+      "somme_R": 5.9998,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 9
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 15.8212,
+      "esperance_R": -0.9253,
+      "frais_R": 3.7625,
+      "funding_R": 0.4276,
+      "issues": {
+       "STOP": 13,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.208,
+      "remplis": 15,
+      "signaux": 15,
+      "somme_R": -13.8789,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1333,
+      "trades": 15
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 13.9219,
+      "esperance_R": -0.5513,
+      "frais_R": 2.1507,
+      "funding_R": 0.099,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 7
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.363,
+      "remplis": 19,
+      "signaux": 19,
+      "somme_R": -10.4742,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1579,
+      "trades": 19
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 6.0724,
+      "esperance_R": -0.2037,
+      "frais_R": 1.1537,
+      "funding_R": 0.4479,
+      "issues": {
+       "STOP": 7,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 6,
+      "profit_factor": 0.724,
+      "remplis": 13,
+      "signaux": 13,
+      "somme_R": -2.6475,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2308,
+      "trades": 13
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 11.0876,
+      "esperance_R": -0.693,
+      "frais_R": 0.8386,
+      "funding_R": 0.0398,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 4
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.2,
+      "remplis": 16,
+      "signaux": 16,
+      "somme_R": -11.0876,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.125,
+      "trades": 16
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 5.7201,
+      "esperance_R": -0.4399,
+      "frais_R": 3.4579,
+      "funding_R": 0.1129,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 7
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 0.439,
+      "remplis": 12,
+      "signaux": 12,
+      "somme_R": -5.2783,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 12
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 11.4054,
+      "esperance_R": -0.5085,
+      "frais_R": 3.2459,
+      "funding_R": -0.1044,
+      "issues": {
+       "STOP": 8,
+       "sortie signal": 8
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 10,
+      "profit_factor": 0.424,
+      "remplis": 16,
+      "signaux": 16,
+      "somme_R": -8.1353,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1875,
+      "trades": 16
+     }
+    }
+   },
+   "entrainement_frais_doubles": {
+    "global": {
+     "drawdown_max_R": 60.6099,
+     "esperance_R": -0.6061,
+     "frais_R": 30.2156,
+     "funding_R": 1.4823,
+     "issues": {
+      "STOP": 63,
+      "sortie signal": 37
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 10,
+     "profit_factor": 0.39,
+     "remplis": 100,
+     "signaux": 100,
+     "somme_R": -60.6099,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2,
+     "trades": 100
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 3.4225,
+      "esperance_R": 0.6113,
+      "frais_R": 0.9971,
+      "funding_R": 0.4596,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 3
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 1.888,
+      "remplis": 9,
+      "signaux": 9,
+      "somme_R": 5.5013,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 9
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 19.4053,
+      "esperance_R": -1.1761,
+      "frais_R": 7.5249,
+      "funding_R": 0.4276,
+      "issues": {
+       "STOP": 13,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.159,
+      "remplis": 15,
+      "signaux": 15,
+      "somme_R": -17.6414,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1333,
+      "trades": 15
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 15.9692,
+      "esperance_R": -0.6645,
+      "frais_R": 4.3015,
+      "funding_R": 0.099,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 7
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.311,
+      "remplis": 19,
+      "signaux": 19,
+      "somme_R": -12.625,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1579,
+      "trades": 19
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 6.8109,
+      "esperance_R": -0.2924,
+      "frais_R": 2.3073,
+      "funding_R": 0.4479,
+      "issues": {
+       "STOP": 7,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 6,
+      "profit_factor": 0.64,
+      "remplis": 13,
+      "signaux": 13,
+      "somme_R": -3.8012,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2308,
+      "trades": 13
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 11.9262,
+      "esperance_R": -0.7454,
+      "frais_R": 1.6772,
+      "funding_R": 0.0398,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 4
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.185,
+      "remplis": 16,
+      "signaux": 16,
+      "somme_R": -11.9262,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.125,
+      "trades": 16
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 8.7362,
+      "esperance_R": -0.728,
+      "frais_R": 6.9157,
+      "funding_R": 0.1129,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 7
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 0.26,
+      "remplis": 12,
+      "signaux": 12,
+      "somme_R": -8.7362,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 12
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 13.9247,
+      "esperance_R": -0.7113,
+      "frais_R": 6.4919,
+      "funding_R": -0.1044,
+      "issues": {
+       "STOP": 8,
+       "sortie signal": 8
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 10,
+      "profit_factor": 0.327,
+      "remplis": 16,
+      "signaux": 16,
+      "somme_R": -11.3813,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1875,
+      "trades": 16
+     }
+    }
+   },
+   "evaluation_frais_base": {
+    "global": {
+     "drawdown_max_R": 35.8174,
+     "esperance_R": -0.1525,
+     "frais_R": 16.0383,
+     "funding_R": 4.6298,
+     "issues": {
+      "STOP": 59,
+      "ouvert en fin de donn\u00e9es": 5,
+      "sortie signal": 36
+     },
+     "ouverts_fin": 5,
+     "pire_serie_pertes": 20,
+     "profit_factor": 0.822,
+     "remplis": 100,
+     "signaux": 100,
+     "somme_R": -14.4856,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2105,
+     "trades": 95
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 8.3482,
+      "esperance_R": -0.1361,
+      "frais_R": 1.5416,
+      "funding_R": 2.3465,
+      "issues": {
+       "STOP": 8,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.838,
+      "remplis": 14,
+      "signaux": 14,
+      "somme_R": -1.7693,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1538,
+      "trades": 13
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 9.5528,
+      "esperance_R": -0.6573,
+      "frais_R": 3.1183,
+      "funding_R": 0.6686,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 4
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.383,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": -6.5731,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2,
+      "trades": 10
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 5.1141,
+      "esperance_R": -0.2167,
+      "frais_R": 1.0289,
+      "funding_R": 0.2573,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 4,
+      "profit_factor": 0.752,
+      "remplis": 9,
+      "signaux": 9,
+      "somme_R": -1.7335,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.25,
+      "trades": 8
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 4.4042,
+      "esperance_R": 0.745,
+      "frais_R": 1.1394,
+      "funding_R": 0.6915,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 3
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 5,
+      "profit_factor": 1.959,
+      "remplis": 10,
+      "signaux": 10,
+      "somme_R": 6.7046,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2222,
+      "trades": 9
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 11.0981,
+      "esperance_R": 0.1086,
+      "frais_R": 1.2757,
+      "funding_R": 0.4586,
+      "issues": {
+       "STOP": 10,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 6,
+      "profit_factor": 1.136,
+      "remplis": 17,
+      "signaux": 17,
+      "somme_R": 1.7369,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.25,
+      "trades": 16
+     },
+     "xyz:SOXL": {
+      "drawdown_max_R": 2.3491,
+      "esperance_R": 0.1915,
+      "frais_R": 0.4066,
+      "funding_R": -0.0449,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 1.324,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": 2.106,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3636,
+      "trades": 11
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 17.4693,
+      "esperance_R": -1.0276,
+      "frais_R": 4.9653,
+      "funding_R": -0.0421,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 12,
+      "profit_factor": 0.029,
+      "remplis": 17,
+      "signaux": 17,
+      "somme_R": -17.4693,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0588,
+      "trades": 17
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 4.8999,
+      "esperance_R": 0.2284,
+      "frais_R": 2.5624,
+      "funding_R": 0.2944,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 5,
+      "profit_factor": 1.291,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": 2.5122,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2727,
+      "trades": 11
+     }
+    }
+   },
+   "evaluation_frais_doubles": {
+    "global": {
+     "drawdown_max_R": 46.6818,
+     "esperance_R": -0.3213,
+     "frais_R": 32.0766,
+     "funding_R": 4.6298,
+     "issues": {
+      "STOP": 59,
+      "ouvert en fin de donn\u00e9es": 5,
+      "sortie signal": 36
+     },
+     "ouverts_fin": 5,
+     "pire_serie_pertes": 20,
+     "profit_factor": 0.679,
+     "remplis": 100,
+     "signaux": 100,
+     "somme_R": -30.5239,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2105,
+     "trades": 95
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 9.6544,
+      "esperance_R": -0.2547,
+      "frais_R": 3.0832,
+      "funding_R": 2.3465,
+      "issues": {
+       "STOP": 8,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 8,
+      "profit_factor": 0.73,
+      "remplis": 14,
+      "signaux": 14,
+      "somme_R": -3.3109,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.1538,
+      "trades": 13
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 12.2434,
+      "esperance_R": -0.9691,
+      "frais_R": 6.2366,
+      "funding_R": 0.6686,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 4
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.28,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": -9.6914,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2,
+      "trades": 10
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 5.9005,
+      "esperance_R": -0.3453,
+      "frais_R": 2.0579,
+      "funding_R": 0.2573,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 4,
+      "profit_factor": 0.642,
+      "remplis": 9,
+      "signaux": 9,
+      "somme_R": -2.7624,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.25,
+      "trades": 8
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 4.8466,
+      "esperance_R": 0.6184,
+      "frais_R": 2.2788,
+      "funding_R": 0.6915,
+      "issues": {
+       "STOP": 6,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 3
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 5,
+      "profit_factor": 1.706,
+      "remplis": 10,
+      "signaux": 10,
+      "somme_R": 5.5652,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2222,
+      "trades": 9
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 12.1599,
+      "esperance_R": 0.0288,
+      "frais_R": 2.5515,
+      "funding_R": 0.4586,
+      "issues": {
+       "STOP": 10,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 6,
+      "profit_factor": 1.033,
+      "remplis": 17,
+      "signaux": 17,
+      "somme_R": 0.4611,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.25,
+      "trades": 16
+     },
+     "xyz:SOXL": {
+      "drawdown_max_R": 2.491,
+      "esperance_R": 0.1545,
+      "frais_R": 0.8132,
+      "funding_R": -0.0449,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 6
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 1.251,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": 1.6994,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3636,
+      "trades": 11
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 22.4346,
+      "esperance_R": -1.3197,
+      "frais_R": 9.9306,
+      "funding_R": -0.0421,
+      "issues": {
+       "STOP": 12,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 12,
+      "profit_factor": 0.009,
+      "remplis": 17,
+      "signaux": 17,
+      "somme_R": -22.4346,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0588,
+      "trades": 17
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 6.2484,
+      "esperance_R": -0.0046,
+      "frais_R": 5.1248,
+      "funding_R": 0.2944,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 5,
+      "profit_factor": 0.995,
+      "remplis": 11,
+      "signaux": 11,
+      "somme_R": -0.0502,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.2727,
+      "trades": 11
+     }
+    }
+   },
+   "evaluation_frais_stress": {
+    "global": {
+     "drawdown_max_R": 59.0211,
+     "esperance_R": -0.4901,
+     "frais_R": 48.1149,
+     "funding_R": 4.6298,
+     "issues": {
+      "STOP": 59,
+      "ouvert en fin de donn\u00e9es": 5,
+      "sortie signal": 36
+     },
+     "ouverts_fin": 5,
+     "pire_serie_pertes": 20,
+     "profit_factor": 0.573,
+     "remplis": 100,
+     "signaux": 100,
+     "somme_R": -46.5622,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2,
+     "trades": 95
+    }
+   },
+   "fenetre_utc": [
+    "2026-04-28",
+    "2026-11-22"
+   ],
+   "ic_evaluation_frais_doubles": {
+    "jours": 50,
+    "p05": -0.7265,
+    "p50": -0.3453,
+    "p95": 0.1414,
+    "tirages": 2000
+   },
+   "strategie_1pc_pct": -30.52,
+   "trades_a_cheval_exclus": 6,
+   "trades_par_mois": 27.4,
+   "verdict": "PAS D'AVANTAGE : PF \u00e9valuation \u2265 1.35 ; esp\u00e9rance \u00e9valuation > 0 en frais doubl\u00e9s ; IC 5 % de l'esp\u00e9rance (frais doubl\u00e9s) > 0 ; esp\u00e9rance entra\u00eenement > 0 (coh\u00e9rence)"
+  },
+  "M2_4h_reconstruit": {
+   "acheter_et_garder": {
+    "actifs": 8,
+    "rendement_pct": -26.15
+   },
+   "coupe_ms": 1786388400000,
+   "coupe_utc": "2026-08-10T19:00Z",
+   "entrainement_frais_base": {
+    "global": {
+     "drawdown_max_R": 18.195,
+     "esperance_R": -1.0108,
+     "frais_R": 1.4993,
+     "funding_R": 0.1696,
+     "issues": {
+      "STOP": 15,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 18,
+     "profit_factor": 0.0,
+     "remplis": 18,
+     "signaux": 18,
+     "somme_R": -18.195,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 18
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 2.1076,
+      "esperance_R": -1.0538,
+      "frais_R": 0.0671,
+      "funding_R": -0.0219,
+      "issues": {
+       "STOP": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -2.1076,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 3.6852,
+      "esperance_R": -0.9213,
+      "frais_R": 0.209,
+      "funding_R": 0.2152,
+      "issues": {
+       "STOP": 3,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 4,
+      "profit_factor": 0.0,
+      "remplis": 4,
+      "signaux": 4,
+      "somme_R": -3.6852,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 4
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 5.7156,
+      "esperance_R": -1.1431,
+      "frais_R": 0.584,
+      "funding_R": 0.0309,
+      "issues": {
+       "STOP": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 5,
+      "profit_factor": 0.0,
+      "remplis": 5,
+      "signaux": 5,
+      "somme_R": -5.7156,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 5
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 6.6867,
+      "esperance_R": -0.9552,
+      "frais_R": 0.6393,
+      "funding_R": -0.0546,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.0,
+      "remplis": 7,
+      "signaux": 7,
+      "somme_R": -6.6867,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 7
+     }
+    }
+   },
+   "entrainement_frais_doubles": {
+    "global": {
+     "drawdown_max_R": 19.6943,
+     "esperance_R": -1.0941,
+     "frais_R": 2.9986,
+     "funding_R": 0.1696,
+     "issues": {
+      "STOP": 15,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 18,
+     "profit_factor": 0.0,
+     "remplis": 18,
+     "signaux": 18,
+     "somme_R": -19.6943,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 18
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 2.1746,
+      "esperance_R": -1.0873,
+      "frais_R": 0.1341,
+      "funding_R": -0.0219,
+      "issues": {
+       "STOP": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -2.1746,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 3.8941,
+      "esperance_R": -0.9735,
+      "frais_R": 0.4179,
+      "funding_R": 0.2152,
+      "issues": {
+       "STOP": 3,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 4,
+      "profit_factor": 0.0,
+      "remplis": 4,
+      "signaux": 4,
+      "somme_R": -3.8941,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 4
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 6.2996,
+      "esperance_R": -1.2599,
+      "frais_R": 1.168,
+      "funding_R": 0.0309,
+      "issues": {
+       "STOP": 5
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 5,
+      "profit_factor": 0.0,
+      "remplis": 5,
+      "signaux": 5,
+      "somme_R": -6.2996,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 5
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 7.326,
+      "esperance_R": -1.0466,
+      "frais_R": 1.2786,
+      "funding_R": -0.0546,
+      "issues": {
+       "STOP": 5,
+       "sortie signal": 2
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.0,
+      "remplis": 7,
+      "signaux": 7,
+      "somme_R": -7.326,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 7
+     }
+    }
+   },
+   "evaluation_frais_base": {
+    "global": {
+     "drawdown_max_R": 18.0447,
+     "esperance_R": -0.9497,
+     "frais_R": 2.1924,
+     "funding_R": 0.0068,
+     "issues": {
+      "STOP": 17,
+      "ouvert en fin de donn\u00e9es": 6,
+      "sortie signal": 2
+     },
+     "ouverts_fin": 6,
+     "pire_serie_pertes": 12,
+     "profit_factor": 0.157,
+     "remplis": 25,
+     "signaux": 25,
+     "somme_R": -18.0447,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0526,
+     "trades": 19
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 2.4316,
+      "esperance_R": 0.3078,
+      "frais_R": 0.1501,
+      "funding_R": 0.7086,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 1.38,
+      "remplis": 4,
+      "signaux": 4,
+      "somme_R": 0.9235,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 3
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 0.0,
+      "esperance_R": null,
+      "frais_R": 0,
+      "funding_R": 0,
+      "issues": {
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 0,
+      "profit_factor": null,
+      "remplis": 1,
+      "signaux": 1,
+      "somme_R": 0.0,
+      "taux_remplissage": 1.0,
+      "taux_reussite": null,
+      "trades": 0
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 2.7309,
+      "esperance_R": -1.3654,
+      "frais_R": 0.2658,
+      "funding_R": -0.3912,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -2.7309,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 2.1589,
+      "esperance_R": -1.0794,
+      "frais_R": 0.1551,
+      "funding_R": 0.0393,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -2.1589,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 1.0188,
+      "esperance_R": -1.0188,
+      "frais_R": 0.0202,
+      "funding_R": 0.0068,
+      "issues": {
+       "STOP": 1,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 1,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -1.0188,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 1
+     },
+     "xyz:SOXL": {
+      "drawdown_max_R": 1.0421,
+      "esperance_R": -1.0421,
+      "frais_R": 0.0266,
+      "funding_R": -0.0084,
+      "issues": {
+       "STOP": 1,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 1,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -1.0421,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 1
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 3.8525,
+      "esperance_R": -1.2842,
+      "frais_R": 0.6803,
+      "funding_R": 0.0169,
+      "issues": {
+       "STOP": 3
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -3.8525,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 3
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 8.165,
+      "esperance_R": -1.1664,
+      "frais_R": 0.8942,
+      "funding_R": -0.3652,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.0,
+      "remplis": 7,
+      "signaux": 7,
+      "somme_R": -8.165,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 7
+     }
+    }
+   },
+   "evaluation_frais_doubles": {
+    "global": {
+     "drawdown_max_R": 20.2371,
+     "esperance_R": -1.0651,
+     "frais_R": 4.3848,
+     "funding_R": 0.0068,
+     "issues": {
+      "STOP": 17,
+      "ouvert en fin de donn\u00e9es": 6,
+      "sortie signal": 2
+     },
+     "ouverts_fin": 6,
+     "pire_serie_pertes": 12,
+     "profit_factor": 0.141,
+     "remplis": 25,
+     "signaux": 25,
+     "somme_R": -20.2371,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0526,
+     "trades": 19
+    },
+    "par_actif": {
+     "xyz:CL": {
+      "drawdown_max_R": 2.5416,
+      "esperance_R": 0.2578,
+      "frais_R": 0.3002,
+      "funding_R": 0.7086,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 1.304,
+      "remplis": 4,
+      "signaux": 4,
+      "somme_R": 0.7734,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.3333,
+      "trades": 3
+     },
+     "xyz:GOLD": {
+      "drawdown_max_R": 0.0,
+      "esperance_R": null,
+      "frais_R": 0,
+      "funding_R": 0,
+      "issues": {
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 0,
+      "profit_factor": null,
+      "remplis": 1,
+      "signaux": 1,
+      "somme_R": 0.0,
+      "taux_remplissage": 1.0,
+      "taux_reussite": null,
+      "trades": 0
+     },
+     "xyz:NVDA": {
+      "drawdown_max_R": 2.9967,
+      "esperance_R": -1.4984,
+      "frais_R": 0.5317,
+      "funding_R": -0.3912,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -2.9967,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:SILVER": {
+      "drawdown_max_R": 2.314,
+      "esperance_R": -1.157,
+      "frais_R": 0.3102,
+      "funding_R": 0.0393,
+      "issues": {
+       "STOP": 2,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 2,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -2.314,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 2
+     },
+     "xyz:SKHX": {
+      "drawdown_max_R": 1.039,
+      "esperance_R": -1.039,
+      "frais_R": 0.0404,
+      "funding_R": 0.0068,
+      "issues": {
+       "STOP": 1,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 1,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -1.039,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 1
+     },
+     "xyz:SOXL": {
+      "drawdown_max_R": 1.0687,
+      "esperance_R": -1.0687,
+      "frais_R": 0.0532,
+      "funding_R": -0.0084,
+      "issues": {
+       "STOP": 1,
+       "ouvert en fin de donn\u00e9es": 1
+      },
+      "ouverts_fin": 1,
+      "pire_serie_pertes": 1,
+      "profit_factor": 0.0,
+      "remplis": 2,
+      "signaux": 2,
+      "somme_R": -1.0687,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 1
+     },
+     "xyz:SP500": {
+      "drawdown_max_R": 4.5328,
+      "esperance_R": -1.5109,
+      "frais_R": 1.3605,
+      "funding_R": 0.0169,
+      "issues": {
+       "STOP": 3
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 3,
+      "profit_factor": 0.0,
+      "remplis": 3,
+      "signaux": 3,
+      "somme_R": -4.5328,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 3
+     },
+     "xyz:XYZ100": {
+      "drawdown_max_R": 9.0593,
+      "esperance_R": -1.2942,
+      "frais_R": 1.7885,
+      "funding_R": -0.3652,
+      "issues": {
+       "STOP": 6,
+       "sortie signal": 1
+      },
+      "ouverts_fin": 0,
+      "pire_serie_pertes": 7,
+      "profit_factor": 0.0,
+      "remplis": 7,
+      "signaux": 7,
+      "somme_R": -9.0593,
+      "taux_remplissage": 1.0,
+      "taux_reussite": 0.0,
+      "trades": 7
+     }
+    }
+   },
+   "evaluation_frais_stress": {
+    "global": {
+     "drawdown_max_R": 22.4295,
+     "esperance_R": -1.1805,
+     "frais_R": 6.5771,
+     "funding_R": 0.0068,
+     "issues": {
+      "STOP": 17,
+      "ouvert en fin de donn\u00e9es": 6,
+      "sortie signal": 2
+     },
+     "ouverts_fin": 6,
+     "pire_serie_pertes": 12,
+     "profit_factor": 0.127,
+     "remplis": 25,
+     "signaux": 25,
+     "somme_R": -22.4295,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0526,
+     "trades": 19
+    }
+   },
+   "fenetre_utc": [
+    "2026-04-28",
+    "2026-11-22"
+   ],
+   "ic_evaluation_frais_doubles": {
+    "jours": 17,
+    "p05": -1.362,
+    "p50": -1.077,
+    "p95": -0.5977,
+    "tirages": 2000
+   },
+   "strategie_1pc_pct": -20.24,
+   "trades_a_cheval_exclus": 6,
+   "trades_par_mois": 5.5,
+   "verdict": "NON CONCLUANT (moins de 30 trades en \u00e9valuation)"
+  }
+ },
+ "decision": "ESPERANCE NEGATIVE : M2 sur HIP-3 abandonne, sans nouveau reglage",
+ "empreintes": {
+  "collecte_hip3.py": "d614f60bbc779dfc32b321f5f24a05906b50108eefe0676e39a2550a7fd43191",
+  "manifeste": "446ec3c22949b9749256e3ba8db5d8493fe1a085d6a49c04c71c8e1c2baf9500",
+  "sim.py": "a61ee96493d2605c1e675caa90f34cf13643901500cde1f8544bc9999d6f58b9",
+  "specification": "062d9a4c6cccfc0ae52c52ba5487d4ef5d63e39a34c3f512baedbb068ec185f8",
+  "strategies.py": "bd859fa8f58985b348e0dd6e7296e12291b56191bb876ad212554b86c5b811df",
+  "verdicts.py": "76db738821471fabf99cae5c30ed99d8d0d0f8b38002d294ef024749f0eba811",
+  "verdicts_v3.py": "bc2f1222a3319a08dec5b849219a3d3f8276fcc09864e4684637572fe888eb1f",
+  "verif_m2_1h.py": "3867d6f1fdfca52e237c2d4183762f64dbf6bf5228a11b654e02479057bdad98",
+  "verif_m2_hip3.py": "6763410eff420b7f2fc85d822b7f38dd04eff7d8ddfbe80f3e1a96dccfac246c"
+ },
+ "notes": {
+  "classement": [
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:XYZ100",
+    "volume_24h": 267130692.32099998
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:SP500",
+    "volume_24h": 141567422.04179972
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:NVDA",
+    "volume_24h": 123579735.87826991
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:SKHX",
+    "volume_24h": 72007187.90679005
+   },
+   {
+    "bougies_1h": 2599,
+    "marche": "xyz:SOXL",
+    "volume_24h": 63333784.70515996
+   },
+   {
+    "bougies_1h": 658,
+    "marche": "xyz:ANT",
+    "volume_24h": 41438774.23240003
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:SILVER",
+    "volume_24h": 40975746.708780006
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:CL",
+    "volume_24h": 34736382.967401
+   },
+   {
+    "bougies_1h": 5000,
+    "marche": "xyz:GOLD",
+    "volume_24h": 30089533.067890014
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:MU",
+    "volume_24h": 26104275.743259966
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:GOOGL",
+    "volume_24h": 22010205.89269
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:BRENTOIL",
+    "volume_24h": 20317328.675819993
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:EWY",
+    "volume_24h": 17315803.61811001
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:DRAM",
+    "volume_24h": 16715521.848499995
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:AAPL",
+    "volume_24h": 16379027.133040024
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:SNDK",
+    "volume_24h": 13906491.347874008
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:MSFT",
+    "volume_24h": 13141873.883020002
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:SKHY",
+    "volume_24h": 13084005.60220001
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:TSLA",
+    "volume_24h": 12100706.979820011
+   },
+   {
+    "bougies_1h": null,
+    "marche": "xyz:SMSN",
+    "volume_24h": 10697436.93862
+   }
+  ],
+  "coins": [
+   "xyz:XYZ100",
+   "xyz:SP500",
+   "xyz:NVDA",
+   "xyz:SKHX",
+   "xyz:SOXL",
+   "xyz:SILVER",
+   "xyz:CL",
+   "xyz:GOLD"
+  ],
+  "correlation_journaliere_avec_m2_btc": -0.174,
+  "facteur_frais_hip3": 2.0,
+  "frais_publies": [
+   {
+    "feeRecipient": "0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a",
+    "name": "xyz"
+   },
+   {
+    "feeRecipient": "0xe2872b5ae7dcbba40cc4510d08c8bbea95b42d43",
+    "name": "flx"
+   },
+   {
+    "feeRecipient": "0x5afe865300895b96d20132a8d9fa8e7829334b52",
+    "name": "vntl"
+   },
+   {
+    "feeRecipient": null,
+    "name": "hyna"
+   },
+   {
+    "feeRecipient": "0xbcd4071d023bf2aae484d724c130b5af6f0ca0d2",
+    "name": "km"
+   },
+   {
+    "feeRecipient": null,
+    "name": "abcd"
+   },
+   {
+    "feeRecipient": "0xaa7f0d3da989dae8fd166345a3ce21509f8c8bb4",
+    "name": "cash"
+   },
+   {
+    "feeRecipient": "0x1770f43c71b8b2977771b73ca4c4cbe0c20412ed",
+    "name": "para"
+   },
+   {
+    "feeRecipient": "0xbcd4071d023bf2aae484d724c130b5af6f0ca0d2",
+    "name": "mkts"
+   },
+   {
+    "feeRecipient": null,
+    "name": "io"
+   }
+  ]
+ },
+ "specification": "USINE-SPEC-HIP3"
+}

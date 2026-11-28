@@ -1,0 +1,344 @@
+{
+ "ts": "2026-11-28T19:10:03Z",
+ "deploye": "3784a5b6a178302f46cef3f6c14eac115ce8c03f",
+ "refuse": null,
+ "par_cible": {
+  "moonshot2": "3784a5b6a178302f46cef3f6c14eac115ce8c03f",
+  "peanut2": "3784a5b6a178302f46cef3f6c14eac115ce8c03f",
+  "recolteur": "0bfab4ed5056a9173fd71f19c6001de4b9f3d04e",
+  "tableau": "0bfab4ed5056a9173fd71f19c6001de4b9f3d04e",
+  "usine": "0bfab4ed5056a9173fd71f19c6001de4b9f3d04e",
+  "sentinelle": "0bfab4ed5056a9173fd71f19c6001de4b9f3d04e"
+ },
+ "echecs": {
+  "moonshot2": "2777c5e28a61f3d0c184814a1be76792e060715b",
+  "peanut2": "2777c5e28a61f3d0c184814a1be76792e060715b",
+  "usine": "f4277eb86de898dfa3334d2855b7e68ec1cb1c92"
+ },
+ "jobs": {
+  "rapport-t6-2026-11-12": {
+   "etat": "fini",
+   "debut": 1794514204,
+   "type": "recolteur_rapport",
+   "fin": 1795500603
+  },
+  "controle-2026-s47": {
+   "etat": "fait : CONFORME",
+   "debut": 1794827453,
+   "type": "controle",
+   "essais": 1
+  },
+  "lab4-collecte-2026-11-16": {
+   "etat": "fini",
+   "debut": 1794849048,
+   "type": "usine",
+   "fin": 1795500603
+  },
+  "lab4-verdicts-2026-11-16": {
+   "etat": "fini",
+   "debut": 1794849058,
+   "type": "usine",
+   "fin": 1795500603
+  },
+  "m2h1-collecte-2026-11-16": {
+   "etat": "fini",
+   "debut": 1794849650,
+   "type": "usine",
+   "fin": 1795500603
+  },
+  "m2h1-verdicts-2026-11-16": {
+   "etat": "fini",
+   "debut": 1794849654,
+   "type": "usine",
+   "fin": 1795500603
+  },
+  "lab5-collecte-2026-11-22": {
+   "etat": "fini",
+   "debut": 1795378848,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "lab5-verdicts-2026-11-22": {
+   "etat": "fini",
+   "debut": 1795378851,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "lab5b-verdicts-2026-11-22": {
+   "etat": "fini",
+   "debut": 1795382447,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "hip3-collecte-2026-11-22": {
+   "etat": "echec (code 1)",
+   "debut": 1795383054,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "hip3-verdicts-2026-11-22": {
+   "etat": "echec (code 1)",
+   "debut": 1795383065,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "hip3b-collecte-2026-11-23": {
+   "etat": "fini",
+   "debut": 1795390253,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "hip3b-verdicts-2026-11-23": {
+   "etat": "fini",
+   "debut": 1795390263,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "controle-2026-s48": {
+   "etat": "fait : CONFORME",
+   "debut": 1795413619,
+   "type": "controle",
+   "essais": 1
+  },
+  "lab6-collecte-2026-11-24": {
+   "etat": "fini",
+   "debut": 1795496809,
+   "type": "usine",
+   "fin": 1795500604
+  },
+  "lab6-verdicts-2026-11-24": {
+   "etat": "fini",
+   "debut": 1795496809,
+   "type": "usine",
+   "fin": 1795500614
+  },
+  "controle-2026-11-24": {
+   "etat": "fait : CONFORME",
+   "debut": 1795512726,
+   "type": "controle"
+  },
+  "lab7-collecte-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795678272,
+   "type": "usine",
+   "fin": 1795684203
+  },
+  "lab7-verdicts-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795678283,
+   "type": "usine",
+   "fin": 1795684213
+  },
+  "lab8-collecte-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795725666,
+   "type": "usine",
+   "fin": 1795727403
+  },
+  "lab8-verdicts-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795725670,
+   "type": "usine",
+   "fin": 1795727403
+  },
+  "lab9-collecte-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795725680,
+   "type": "usine",
+   "fin": 1795731003
+  },
+  "lab9-verdicts-2026-11-26": {
+   "etat": "fini",
+   "debut": 1795725682,
+   "type": "usine",
+   "fin": 1795731013
+  }
+ },
+ "conteneurs": [
+  "robit-api | Up 35 hours (healthy) | app-api",
+  "job-lab9-verdicts-2026-11-26 | Exited (0) 45 hours ago | usine-py:1",
+  "job-lab9-collecte-2026-11-26 | Exited (0) 46 hours ago | usine-py:1",
+  "job-lab8-verdicts-2026-11-26 | Exited (0) 46 hours ago | usine-py:1",
+  "job-lab8-collecte-2026-11-26 | Exited (0) 46 hours ago | usine-py:1",
+  "peanut2-garde | Up 2 days | peanut2:2.7.4",
+  "peanut2 | Up 2 days | peanut2:2.7.4",
+  "moonshot2-chercheur | Up 2 days | moonshot2:2.7.4",
+  "moonshot2-garde | Up 2 days | moonshot2:2.7.4",
+  "moonshot2 | Up 2 days | moonshot2:2.7.4",
+  "job-lab7-verdicts-2026-11-26 | Exited (0) 2 days ago | c0c4c599b30f",
+  "job-lab7-collecte-2026-11-26 | Exited (0) 2 days ago | c0c4c599b30f",
+  "job-lab6-verdicts-2026-11-24 | Exited (0) 4 days ago | f9a7cf578795",
+  "job-lab6-collecte-2026-11-24 | Exited (0) 4 days ago | f9a7cf578795",
+  "job-hip3b-verdicts-2026-11-23 | Exited (0) 5 days ago | cdc7cc336e71",
+  "job-hip3b-collecte-2026-11-23 | Exited (0) 5 days ago | cdc7cc336e71",
+  "job-hip3-verdicts-2026-11-22 | Exited (1) 5 days ago | 57d0e7cf9e99",
+  "job-hip3-collecte-2026-11-22 | Exited (1) 5 days ago | 57d0e7cf9e99",
+  "job-lab5b-verdicts-2026-11-22 | Exited (0) 5 days ago | 57d0e7cf9e99",
+  "job-lab5-verdicts-2026-11-22 | Exited (0) 5 days ago | d7b7aba1f389",
+  "job-lab5-collecte-2026-11-22 | Exited (0) 5 days ago | d7b7aba1f389",
+  "job-m2h1-verdicts-2026-11-16 | Exited (0) 12 days ago | 6e1d454ebdb0",
+  "job-m2h1-collecte-2026-11-16 | Exited (0) 12 days ago | 6e1d454ebdb0",
+  "job-lab4-verdicts-2026-11-16 | Exited (0) 12 days ago | 59124dfbfcbf",
+  "job-lab4-collecte-2026-11-16 | Exited (0) 12 days ago | 59124dfbfcbf",
+  "usine-telecommande | Up 13 days | usine-tableau:1.4.0",
+  "usine-tableau | Up 13 days | usine-tableau:1.4.0",
+  "usine-sentinelle | Up 2 weeks | sentinelle:1.0.0",
+  "job-rapport-t6-2026-11-12 | Exited (0) 2 weeks ago | recolteur:1.0.1",
+  "recolteur | Up 2 weeks | recolteur:1.0.1",
+  "ibizahora-jordi-n8n-1 | Up 2 weeks | n8nio/n8n:2.44.4"
+ ],
+ "deployeur": "deployeur.py c4fe67bc6a75, bornes.py 0be0eab168fa",
+ "moonshot2": {
+  "ts": "2026-11-28T19:09:14Z",
+  "bot": "moonshot2",
+  "version": "2.7.4",
+  "mode": "reel",
+  "equity_usdc": 213.435271,
+  "positions": {
+   "XMR": {
+    "side": "short",
+    "sz": 0.05,
+    "entry": 546.6,
+    "stop": 588.66,
+    "risk_usd": 2.059821428571432,
+    "lev": 3,
+    "notional": 27.330000000000002,
+    "opened_ms": 1794528078709,
+    "bar_ts": 1794513600000,
+    "fee_in": 0.0
+   }
+  },
+  "start_equity": 207.635921,
+  "r_cumule": 0,
+  "baisse_R": 0.0,
+  "pertes_affilee": 0,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": []
+ },
+ "peanut2": {
+  "ts": "2026-11-28T19:09:09Z",
+  "bot": "smartpeanut2",
+  "version": "2.7.4",
+  "mode": "reel",
+  "equity_usdc": 71.451294,
+  "positions": {
+   "NEAR": {
+    "side": "short",
+    "sz": 15.5,
+    "entry": 2.9997,
+    "stop": 3.0946,
+    "risk_usd": 1.4109428571428595,
+    "lev": 5,
+    "notional": 46.495349999999995,
+    "opened_ms": 1795860168957,
+    "bar_ts": 1795856400000,
+    "fee_in": 0.0,
+    "oid_in": 618700333013
+   },
+   "HYPE": {
+    "side": "short",
+    "sz": 0.61,
+    "entry": 62.488,
+    "stop": 64.647,
+    "risk_usd": 1.4023028571428555,
+    "lev": 5,
+    "notional": 38.11768,
+    "opened_ms": 1795874548464,
+    "bar_ts": 1795870800000,
+    "fee_in": 0.0,
+    "oid_in": 618787891201
+   }
+  },
+  "start_equity": 74.407649,
+  "r_cumule": -2.67,
+  "baisse_R": 2.67,
+  "pertes_affilee": 3,
+  "note": "entrees permises",
+  "kill": false,
+  "derniers_trades": [
+   {
+    "coin": "ETH",
+    "side": "short",
+    "issue": "STOP (ou fermeture exchange)",
+    "entry": 1722.8,
+    "exit": 1764.6,
+    "pnl": -1.482273,
+    "R": -0.9984,
+    "bar_ts": 1795384800000,
+    "ts": "2026-11-23T13:57:14Z"
+   },
+   {
+    "coin": "BTC",
+    "side": "short",
+    "issue": "STOP (ou fermeture exchange)",
+    "entry": 61241.0,
+    "exit": 62776.0,
+    "pnl": -1.422556,
+    "R": -0.9623,
+    "bar_ts": 1795384800000,
+    "ts": "2026-11-23T13:58:21Z"
+   },
+   {
+    "coin": "HYPE",
+    "side": "long",
+    "issue": "sortie signal (croisement inverse)",
+    "entry": 64.617,
+    "exit": 62.475,
+    "pnl": -1.011627,
+    "R": -0.7088,
+    "bar_ts": 1795827600000,
+    "ts": "2026-11-28T14:02:19Z"
+   }
+  ]
+ },
+ "recolteur": {
+  "bot": "recolteur",
+  "version": "1.0.1",
+  "mode": "papier",
+  "t_hl": 1795892967152,
+  "ts": 1795892967,
+  "phase": "papier",
+  "univers": [
+   "DOGE",
+   "kPEPE",
+   "PUMP",
+   "TRUMP",
+   "PENGU",
+   "FARTCOIN",
+   "kSHIB",
+   "kBONK"
+  ],
+  "lignes": {},
+  "trades": 54,
+  "remplissages": 60,
+  "equite": 98.7044,
+  "pf_net": 0.5174035090513041,
+  "pf_stress": 0.34441333011192726,
+  "pause_jusqu": 0,
+  "mode_reduit": true,
+  "prets": [
+   "BOME",
+   "BRETT",
+   "DOGE",
+   "FARTCOIN",
+   "GOAT",
+   "GRIFFAIN",
+   "MELANIA",
+   "MOODENG",
+   "PENGU",
+   "PNUT",
+   "POPCAT",
+   "PUMP",
+   "SPX",
+   "TRUMP",
+   "USELESS",
+   "WIF",
+   "kBONK",
+   "kFLOKI",
+   "kNEIRO",
+   "kPEPE",
+   "kSHIB"
+  ]
+ }
+}

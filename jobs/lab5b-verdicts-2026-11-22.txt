@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : f2f3d793194eb5f2374b7d329be67d0a8ba2e46f187e79995b11a43439e5a974
+PASSE : proposee a Richard pour le reel au Lab a 2 %, apres sa confirmation ecrite, les tests et l'audit d'Aristote
+rapport : /out/verdicts.md (sha256 b0a04badfe419bc0410cd7cb8688120a48eba1418e068e56097e73274db32b31)

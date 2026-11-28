@@ -1,0 +1,21 @@
+etat conteneur : exited 0
+
+1h xyz:XYZ100
+1h xyz:SP500
+1h xyz:NVDA
+1h xyz:SKHX
+1h xyz:SOXL
+1h xyz:ANT
+1h xyz:SILVER
+1h xyz:CL
+1h xyz:GOLD
+funding xyz:XYZ100
+funding xyz:SP500
+funding xyz:NVDA
+funding xyz:SKHX
+funding xyz:SOXL
+funding xyz:SILVER
+funding xyz:CL
+funding xyz:GOLD
+manifeste : 446ec3c22949b9749256e3ba8db5d8493fe1a085d6a49c04c71c8e1c2baf9500
+COLLECTE HIP3 TERMINEE

@@ -1,0 +1,944 @@
+{
+ "candidats": {
+  "M2_4h_croisement": {
+   "coupe_utc": "2025-10-06T04:00Z",
+   "croissance_ln": {
+    "10 %": -0.013660358732261476,
+    "2 %": 0.0005642289500258833,
+    "5 %": -0.0020869906442791313
+   },
+   "croissance_palier": 0.0005642289500258833,
+   "entrainement_frais_doubles": {
+    "drawdown_max_R": 9.9042,
+    "esperance_R": 0.1074,
+    "frais_R": 0.7288,
+    "funding_R": -2.1844,
+    "issues": {
+     "STOP": 13,
+     "sortie signal": 13
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 12,
+    "profit_factor": 1.176,
+    "remplis": 26,
+    "signaux": 26,
+    "somme_R": 2.7911,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2692,
+    "trades": 26
+   },
+   "esperance_sans_3_meilleurs_R": -0.5139,
+   "evaluation_frais_base": {
+    "drawdown_max_R": 14.9198,
+    "esperance_R": 0.0991,
+    "frais_R": 0.5385,
+    "funding_R": -0.7343,
+    "issues": {
+     "STOP": 24,
+     "sortie signal": 11
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 11,
+    "profit_factor": 1.131,
+    "remplis": 35,
+    "signaux": 35,
+    "somme_R": 3.468,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2,
+    "trades": 35
+   },
+   "evaluation_frais_doubles": {
+    "drawdown_max_R": 15.1888,
+    "esperance_R": 0.0837,
+    "frais_R": 1.0771,
+    "funding_R": -0.7343,
+    "issues": {
+     "STOP": 24,
+     "sortie signal": 11
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 11,
+    "profit_factor": 1.109,
+    "remplis": 35,
+    "signaux": 35,
+    "somme_R": 2.9294,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2,
+    "trades": 35
+   },
+   "evaluation_frais_stress": {
+    "drawdown_max_R": 15.4577,
+    "esperance_R": 0.0683,
+    "frais_R": 1.6156,
+    "funding_R": -0.7343,
+    "issues": {
+     "STOP": 24,
+     "sortie signal": 11
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 11,
+    "profit_factor": 1.088,
+    "remplis": 35,
+    "signaux": 35,
+    "somme_R": 2.3909,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2,
+    "trades": 35
+   },
+   "evaluation_sans_plafond_frais_doubles": {
+    "drawdown_max_R": 26.3642,
+    "esperance_R": 0.4013,
+    "frais_R": 3.8425,
+    "funding_R": -9.3023,
+    "issues": {
+     "STOP": 75,
+     "sortie signal": 60
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 12,
+    "profit_factor": 1.602,
+    "remplis": 135,
+    "signaux": 135,
+    "somme_R": 54.1721,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.3037,
+    "trades": 135
+   },
+   "ic_evaluation_frais_doubles": {
+    "jours": 35,
+    "p05": -0.5533,
+    "p50": 0.0567,
+    "p95": 0.809,
+    "tirages": 2000
+   },
+   "jours_evaluation": 416.7,
+   "par_actif": {
+    "AVAX": {
+     "drawdown_max_R": 2.1163,
+     "esperance_R": 0.545,
+     "frais_R": 0.0984,
+     "funding_R": -0.0033,
+     "issues": {
+      "STOP": 2,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 1.773,
+     "remplis": 3,
+     "signaux": 3,
+     "somme_R": 1.635,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.3333,
+     "trades": 3
+    },
+    "BTC": {
+     "drawdown_max_R": 2.1714,
+     "esperance_R": 0.1293,
+     "frais_R": 0.2435,
+     "funding_R": -0.4623,
+     "issues": {
+      "STOP": 3,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 1.161,
+     "remplis": 4,
+     "signaux": 4,
+     "somme_R": 0.5173,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.25,
+     "trades": 4
+    },
+    "ETH": {
+     "drawdown_max_R": 1.5494,
+     "esperance_R": 3.3722,
+     "frais_R": 0.1663,
+     "funding_R": -0.6536,
+     "issues": {
+      "STOP": 1,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 9.706,
+     "remplis": 4,
+     "signaux": 4,
+     "somme_R": 13.489,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.5,
+     "trades": 4
+    },
+    "HYPE": {
+     "drawdown_max_R": 1.0389,
+     "esperance_R": -1.0389,
+     "frais_R": 0.0131,
+     "funding_R": -0.0225,
+     "issues": {
+      "STOP": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -1.0389,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "LIT": {
+     "drawdown_max_R": 1.0187,
+     "esperance_R": -1.0187,
+     "frais_R": 0.0191,
+     "funding_R": 0.0059,
+     "issues": {
+      "STOP": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -1.0187,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "NEAR": {
+     "drawdown_max_R": 1.0611,
+     "esperance_R": -1.0611,
+     "frais_R": 0.019,
+     "funding_R": -0.037,
+     "issues": {
+      "STOP": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -1.0611,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "PUMP": {
+     "drawdown_max_R": 3.1172,
+     "esperance_R": -1.0391,
+     "frais_R": 0.0761,
+     "funding_R": -0.0202,
+     "issues": {
+      "STOP": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 3,
+     "profit_factor": 0.0,
+     "remplis": 3,
+     "signaux": 3,
+     "somme_R": -3.1172,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 3
+    },
+    "SOL": {
+     "drawdown_max_R": 3.1383,
+     "esperance_R": -1.0461,
+     "frais_R": 0.1107,
+     "funding_R": 0.0033,
+     "issues": {
+      "STOP": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 3,
+     "profit_factor": 0.0,
+     "remplis": 3,
+     "signaux": 3,
+     "somme_R": -3.1383,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 3
+    },
+    "UNI": {
+     "drawdown_max_R": 4.6797,
+     "esperance_R": -0.2944,
+     "frais_R": 0.1665,
+     "funding_R": -0.0064,
+     "issues": {
+      "STOP": 4,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 6,
+     "profit_factor": 0.56,
+     "remplis": 7,
+     "signaux": 7,
+     "somme_R": -2.0609,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.1429,
+     "trades": 7
+    },
+    "XMR": {
+     "drawdown_max_R": 0.0,
+     "esperance_R": 0.333,
+     "frais_R": 0.0245,
+     "funding_R": 0.2055,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 0,
+     "profit_factor": Infinity,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": 0.333,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 1.0,
+     "trades": 1
+    },
+    "XRP": {
+     "drawdown_max_R": 0.0,
+     "esperance_R": 4.336,
+     "frais_R": 0.0335,
+     "funding_R": 0.239,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 0,
+     "profit_factor": Infinity,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": 4.336,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 1.0,
+     "trades": 1
+    },
+    "ZEC": {
+     "drawdown_max_R": 5.9457,
+     "esperance_R": -0.991,
+     "frais_R": 0.1065,
+     "funding_R": 0.0173,
+     "issues": {
+      "STOP": 5,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 6,
+     "profit_factor": 0.0,
+     "remplis": 6,
+     "signaux": 6,
+     "somme_R": -5.9457,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 6
+    }
+   },
+   "trades_a_cheval_exclus": 2,
+   "trades_par_jour": 0.08,
+   "verdict": "NE PASSE PAS : moins de 40 trades (35) ; esperance < +0.1 R (0.084)"
+  },
+  "T4H_confirmee": {
+   "coupe_utc": "2025-10-06T04:00Z",
+   "croissance_ln": {
+    "10 %": 0.005893479376453872,
+    "2 %": 0.005226491200562392,
+    "5 %": 0.0087596985182283
+   },
+   "croissance_palier": 0.005226491200562392,
+   "entrainement_frais_doubles": {
+    "drawdown_max_R": 7.6391,
+    "esperance_R": 0.1638,
+    "frais_R": 0.9242,
+    "funding_R": -4.236,
+    "issues": {
+     "STOP": 19,
+     "sortie signal": 12
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 1.225,
+    "remplis": 31,
+    "signaux": 31,
+    "somme_R": 5.0782,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2258,
+    "trades": 31
+   },
+   "esperance_sans_3_meilleurs_R": -0.2462,
+   "evaluation_frais_base": {
+    "drawdown_max_R": 8.1206,
+    "esperance_R": 0.3483,
+    "frais_R": 0.7271,
+    "funding_R": -0.6639,
+    "issues": {
+     "STOP": 25,
+     "sortie signal": 14
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 1.468,
+    "remplis": 39,
+    "signaux": 39,
+    "somme_R": 13.5818,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2308,
+    "trades": 39
+   },
+   "evaluation_frais_doubles": {
+    "drawdown_max_R": 8.359,
+    "esperance_R": 0.3296,
+    "frais_R": 1.4543,
+    "funding_R": -0.6639,
+    "issues": {
+     "STOP": 25,
+     "sortie signal": 14
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 1.434,
+    "remplis": 39,
+    "signaux": 39,
+    "somme_R": 12.8547,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2308,
+    "trades": 39
+   },
+   "evaluation_frais_stress": {
+    "drawdown_max_R": 8.5974,
+    "esperance_R": 0.311,
+    "frais_R": 2.1814,
+    "funding_R": -0.6639,
+    "issues": {
+     "STOP": 25,
+     "sortie signal": 14
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 1.402,
+    "remplis": 39,
+    "signaux": 39,
+    "somme_R": 12.1276,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2308,
+    "trades": 39
+   },
+   "evaluation_sans_plafond_frais_doubles": {
+    "drawdown_max_R": 31.6376,
+    "esperance_R": 0.4101,
+    "frais_R": 5.1447,
+    "funding_R": -10.7713,
+    "issues": {
+     "STOP": 98,
+     "sortie signal": 83
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 16,
+    "profit_factor": 1.615,
+    "remplis": 181,
+    "signaux": 181,
+    "somme_R": 74.2274,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2818,
+    "trades": 181
+   },
+   "ic_evaluation_frais_doubles": {
+    "jours": 35,
+    "p05": -0.3138,
+    "p50": 0.2839,
+    "p95": 1.0948,
+    "tirages": 2000
+   },
+   "jours_evaluation": 416.7,
+   "par_actif": {
+    "AVAX": {
+     "drawdown_max_R": 3.0516,
+     "esperance_R": 0.7348,
+     "frais_R": 0.1908,
+     "funding_R": -0.1439,
+     "issues": {
+      "STOP": 3,
+      "sortie signal": 4
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 4,
+     "profit_factor": 2.254,
+     "remplis": 7,
+     "signaux": 7,
+     "somme_R": 5.1435,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2857,
+     "trades": 7
+    },
+    "BTC": {
+     "drawdown_max_R": 4.1183,
+     "esperance_R": 0.0777,
+     "frais_R": 0.6125,
+     "funding_R": -0.1548,
+     "issues": {
+      "STOP": 7,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 4,
+     "profit_factor": 1.093,
+     "remplis": 10,
+     "signaux": 10,
+     "somme_R": 0.777,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.2,
+     "trades": 10
+    },
+    "NEAR": {
+     "drawdown_max_R": 1.0611,
+     "esperance_R": -1.0611,
+     "frais_R": 0.019,
+     "funding_R": -0.037,
+     "issues": {
+      "STOP": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -1.0611,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "PUMP": {
+     "drawdown_max_R": 2.0201,
+     "esperance_R": -1.01,
+     "frais_R": 0.0316,
+     "funding_R": 0.0207,
+     "issues": {
+      "STOP": 2
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 0.0,
+     "remplis": 2,
+     "signaux": 2,
+     "somme_R": -2.0201,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 2
+    },
+    "SOL": {
+     "drawdown_max_R": 5.2711,
+     "esperance_R": 1.0901,
+     "frais_R": 0.3625,
+     "funding_R": -0.79,
+     "issues": {
+      "STOP": 6,
+      "sortie signal": 2
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 5,
+     "profit_factor": 2.381,
+     "remplis": 8,
+     "signaux": 8,
+     "somme_R": 8.7208,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.25,
+     "trades": 8
+    },
+    "UNI": {
+     "drawdown_max_R": 1.0924,
+     "esperance_R": -0.235,
+     "frais_R": 0.0543,
+     "funding_R": 0.0885,
+     "issues": {
+      "STOP": 1,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.57,
+     "remplis": 2,
+     "signaux": 2,
+     "somme_R": -0.4699,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.5,
+     "trades": 2
+    },
+    "XMR": {
+     "drawdown_max_R": 1.0174,
+     "esperance_R": -1.0174,
+     "frais_R": 0.0104,
+     "funding_R": -0.0045,
+     "issues": {
+      "STOP": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -1.0174,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "XRP": {
+     "drawdown_max_R": 0.0,
+     "esperance_R": 4.336,
+     "frais_R": 0.0335,
+     "funding_R": 0.239,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 0,
+     "profit_factor": Infinity,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": 4.336,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 1.0,
+     "trades": 1
+    },
+    "ZEC": {
+     "drawdown_max_R": 5.663,
+     "esperance_R": -0.9438,
+     "frais_R": 0.1123,
+     "funding_R": -0.0396,
+     "issues": {
+      "STOP": 4,
+      "sortie signal": 2
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 6,
+     "profit_factor": 0.0,
+     "remplis": 6,
+     "signaux": 6,
+     "somme_R": -5.663,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 6
+    },
+    "kPEPE": {
+     "drawdown_max_R": 0.0,
+     "esperance_R": 4.1089,
+     "frais_R": 0.0275,
+     "funding_R": 0.1578,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 0,
+     "profit_factor": Infinity,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": 4.1089,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 1.0,
+     "trades": 1
+    }
+   },
+   "trades_a_cheval_exclus": 2,
+   "trades_par_jour": 0.09,
+   "verdict": "NE PASSE PAS : moins de 40 trades (39)"
+  },
+  "T4H_tendance": {
+   "coupe_utc": "2025-10-06T04:00Z",
+   "croissance_ln": {
+    "10 %": 0.019604502113488537,
+    "2 %": 0.010047804851416159,
+    "5 %": 0.01758089431746757
+   },
+   "croissance_palier": 0.010047804851416159,
+   "dependant_de": [],
+   "entrainement_frais_doubles": {
+    "drawdown_max_R": 6.4598,
+    "esperance_R": 0.6172,
+    "frais_R": 1.1858,
+    "funding_R": -4.9943,
+    "issues": {
+     "STOP": 11,
+     "sortie signal": 20
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 6,
+    "profit_factor": 2.17,
+    "remplis": 31,
+    "signaux": 31,
+    "somme_R": 19.1341,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.3548,
+    "trades": 31
+   },
+   "esperance_sans_3_meilleurs_R": -0.2043,
+   "evaluation_frais_base": {
+    "drawdown_max_R": 9.8322,
+    "esperance_R": 0.6861,
+    "frais_R": 0.8082,
+    "funding_R": -0.8702,
+    "issues": {
+     "STOP": 22,
+     "sortie signal": 25
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 2.183,
+    "remplis": 47,
+    "signaux": 47,
+    "somme_R": 32.2464,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.3191,
+    "trades": 47
+   },
+   "evaluation_frais_doubles": {
+    "drawdown_max_R": 10.0736,
+    "esperance_R": 0.6689,
+    "frais_R": 1.6165,
+    "funding_R": -0.8702,
+    "issues": {
+     "STOP": 22,
+     "sortie signal": 25
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 2.129,
+    "remplis": 47,
+    "signaux": 47,
+    "somme_R": 31.4381,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2766,
+    "trades": 47
+   },
+   "evaluation_frais_stress": {
+    "drawdown_max_R": 10.3149,
+    "esperance_R": 0.6517,
+    "frais_R": 2.4247,
+    "funding_R": -0.8702,
+    "issues": {
+     "STOP": 22,
+     "sortie signal": 25
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 8,
+    "profit_factor": 2.076,
+    "remplis": 47,
+    "signaux": 47,
+    "somme_R": 30.6299,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2766,
+    "trades": 47
+   },
+   "evaluation_sans_plafond_frais_doubles": {
+    "drawdown_max_R": 36.21,
+    "esperance_R": 0.3013,
+    "frais_R": 6.5809,
+    "funding_R": -10.5539,
+    "issues": {
+     "STOP": 103,
+     "sortie signal": 134
+    },
+    "ouverts_fin": 0,
+    "pire_serie_pertes": 17,
+    "profit_factor": 1.539,
+    "remplis": 237,
+    "signaux": 237,
+    "somme_R": 71.3994,
+    "taux_remplissage": 1.0,
+    "taux_reussite": 0.2869,
+    "trades": 237
+   },
+   "ic_evaluation_frais_doubles": {
+    "jours": 40,
+    "p05": -0.253,
+    "p50": 0.5933,
+    "p95": 1.9589,
+    "tirages": 2000
+   },
+   "jours_evaluation": 416.7,
+   "par_actif": {
+    "AVAX": {
+     "drawdown_max_R": 5.8481,
+     "esperance_R": 0.7438,
+     "frais_R": 0.4636,
+     "funding_R": -0.2172,
+     "issues": {
+      "STOP": 6,
+      "sortie signal": 9
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 8,
+     "profit_factor": 2.408,
+     "remplis": 15,
+     "signaux": 15,
+     "somme_R": 11.1564,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.3333,
+     "trades": 15
+    },
+    "BTC": {
+     "drawdown_max_R": 6.1492,
+     "esperance_R": -0.2034,
+     "frais_R": 0.5627,
+     "funding_R": 0.2741,
+     "issues": {
+      "STOP": 6,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 7,
+     "profit_factor": 0.747,
+     "remplis": 9,
+     "signaux": 9,
+     "somme_R": -1.8307,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.1111,
+     "trades": 9
+    },
+    "ETH": {
+     "drawdown_max_R": 2.0639,
+     "esperance_R": -0.4173,
+     "frais_R": 0.127,
+     "funding_R": 0.1085,
+     "issues": {
+      "STOP": 3,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 0.473,
+     "remplis": 4,
+     "signaux": 4,
+     "somme_R": -1.6692,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.25,
+     "trades": 4
+    },
+    "HYPE": {
+     "drawdown_max_R": 0.004,
+     "esperance_R": -0.004,
+     "frais_R": 0.0171,
+     "funding_R": -0.0025,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 1,
+     "profit_factor": 0.0,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": -0.004,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 1
+    },
+    "SOL": {
+     "drawdown_max_R": 1.1904,
+     "esperance_R": -0.5952,
+     "frais_R": 0.0514,
+     "funding_R": -0.0028,
+     "issues": {
+      "STOP": 1,
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 0.0,
+     "remplis": 2,
+     "signaux": 2,
+     "somme_R": -1.1904,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.0,
+     "trades": 2
+    },
+    "UNI": {
+     "drawdown_max_R": 2.078,
+     "esperance_R": 0.1082,
+     "frais_R": 0.1233,
+     "funding_R": 0.1053,
+     "issues": {
+      "STOP": 2,
+      "sortie signal": 3
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 2,
+     "profit_factor": 1.2,
+     "remplis": 5,
+     "signaux": 5,
+     "somme_R": 0.5408,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.4,
+     "trades": 5
+    },
+    "ZEC": {
+     "drawdown_max_R": 4.4809,
+     "esperance_R": 2.4337,
+     "frais_R": 0.2581,
+     "funding_R": -1.138,
+     "issues": {
+      "STOP": 4,
+      "sortie signal": 6
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 5,
+     "profit_factor": 5.314,
+     "remplis": 10,
+     "signaux": 10,
+     "somme_R": 24.3367,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 0.3,
+     "trades": 10
+    },
+    "kPEPE": {
+     "drawdown_max_R": 0.0,
+     "esperance_R": 0.0986,
+     "frais_R": 0.0133,
+     "funding_R": 0.0024,
+     "issues": {
+      "sortie signal": 1
+     },
+     "ouverts_fin": 0,
+     "pire_serie_pertes": 0,
+     "profit_factor": Infinity,
+     "remplis": 1,
+     "signaux": 1,
+     "somme_R": 0.0986,
+     "taux_remplissage": 1.0,
+     "taux_reussite": 1.0,
+     "trades": 1
+    }
+   },
+   "trades_a_cheval_exclus": 2,
+   "trades_par_jour": 0.11,
+   "verdict": "PASSE LA VOIE RAPIDE"
+  }
+ },
+ "decision": "NON CONCLUANT : 39 trades en evaluation (40 exiges), aucun seuil retouche",
+ "empreintes": {
+  "manifeste": "078e5bffb4ed92a27a5421d9b01359a24337057472ad7e021f7691dd2c1ed663",
+  "sim.py": "a61ee96493d2605c1e675caa90f34cf13643901500cde1f8544bc9999d6f58b9",
+  "specification": "d94ace7131634907aa72a006830efceadf8be706c8ceaf1185d3bbff59a9ecec",
+  "strategies.py": "bd859fa8f58985b348e0dd6e7296e12291b56191bb876ad212554b86c5b811df",
+  "strategies_lab4.py": "4f5d4062640b6e8c86f8a17e53227d0029f9a7fa8891c5402aaac80f0055addb",
+  "verdicts.py": "76db738821471fabf99cae5c30ed99d8d0d0f8b38002d294ef024749f0eba811",
+  "verdicts_lab4.py": "7aee378ee2eec2996e5f09989ee3ccf44f192e33ca0039672950f80bfe46534c",
+  "verif_tendance_4h.py": "eecc1e6896a232871847cbacc546caa818b8b3adb6c405f858d3f62af11f52b6"
+ },
+ "notes": {
+  "coins": [
+   "AVAX",
+   "BTC",
+   "ETH",
+   "HYPE",
+   "LIT",
+   "NEAR",
+   "PUMP",
+   "SOL",
+   "UNI",
+   "XMR",
+   "XRP",
+   "ZEC",
+   "kPEPE"
+  ]
+ },
+ "specification": "USINE-SPEC-LAB8"
+}

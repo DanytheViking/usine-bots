@@ -1,0 +1,39 @@
+{
+ "ts": "2026-11-16T11:10:38Z",
+ "periode_jours": 7,
+ "verdict": "CONFORME",
+ "resume": "reel conforme au simule : moonshot2 1 entree(s), ecart +0.15 %",
+ "alertes": [],
+ "seuils": {
+  "ecart_entree": 0.003,
+  "taux_frais": 0.0006
+ },
+ "bots": [
+  {
+   "bot": "moonshot2",
+   "entrees": 1,
+   "ecart_entree_moyen": 0.001534414730381517,
+   "taux_frais_moyen": 0.0004499817050859861,
+   "funding_usdc": 0.04333,
+   "trades": [
+    {
+     "coin": "XMR",
+     "side": "short",
+     "t": 1794528077869,
+     "prix": 546.6,
+     "ouverture_4h": 547.44,
+     "ecart_entree": 0.001534414730381517,
+     "taux_frais": 0.0004499817050859861
+    }
+   ]
+  },
+  {
+   "bot": "peanut2",
+   "entrees": 0,
+   "ecart_entree_moyen": null,
+   "taux_frais_moyen": null,
+   "funding_usdc": 0,
+   "trades": []
+  }
+ ]
+}

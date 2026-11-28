@@ -1,0 +1,5 @@
+etat conteneur : exited 0
+
+sha256 specification : 062d9a4c6cccfc0ae52c52ba5487d4ef5d63e39a34c3f512baedbb068ec185f8
+ESPERANCE NEGATIVE : M2 sur HIP-3 abandonne, sans nouveau reglage
+rapport : /out/verdicts.md (sha256 ab6f097dc132ce283ed474b636464dade8d61e9d4c105b61eafdb5cc31df6532)
